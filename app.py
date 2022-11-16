@@ -17,7 +17,7 @@ SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostnam
     username="cnwarwick",
     password="4GmDuEH#8Rsx",
     hostname="cnwarwick.mysql.pythonanywhere-services.com",
-    databasename="cnwarwick$default",
+    databasename="cnwarwick$expense1",
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
@@ -26,11 +26,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-class Comment(db.Model):
+class Record(db.Model):
 
-    __tablename__ = "comments"
+    __tablename__ = "records"
 
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(4096))
     content = db.Column(db.String(4096))
 
 # def abort_if_value_is_not_valid(item_id, value):
@@ -80,14 +81,14 @@ class Comment(db.Model):
 #         #check if valid id
     
 #         #return expenses of valid id from sql database
-#         return db.session.get(Comment, id)
+#         return db.session.get(Record, id)
 
 # #get all valid record IDs, or post a new one
 # class ExpenseRecordList(Resource):
     
 #     def get(self):
         
-#         return Comment.query.all()
+#         return Record.query.all()
 
 #     def post(self):
 #         args = parser.parse_args()
@@ -102,8 +103,8 @@ class Comment(db.Model):
 
 #         #generate long random id
 #         uid = ''.join(secrets.choice(string.ascii_uppercase + string.ascii_lowercase) for i in range(7))
-#         comment = Comment(content=uid)
-#         db.session.add(comment)
+#         record = Record(content=uid)
+#         db.session.add(record)
 #         db.session.commit()
         
 #         #return id of expense record
@@ -112,10 +113,11 @@ class Comment(db.Model):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        return render_template("main_page.html", comments=Comment.query.all())
+        return render_template("main_page.html", records=Record.query.all())
 
-    comment = Comment(content=request.form["contents"])
-    db.session.add(comment)
+    uid = ''.join(secrets.choice(string.ascii_uppercase + string.ascii_lowercase) for i in range(7))
+    record = Record(uid=uid, content=request.form["contents"])
+    db.session.add(record)
     db.session.commit()
     return redirect(url_for('index'))
 
