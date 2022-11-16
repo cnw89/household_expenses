@@ -109,6 +109,10 @@ class Record(db.Model):
         
 #         #return id of expense record
 #         return uid, 201        
+@app.route("/<uid>", methods=["GET"])
+def display_results(uid):
+    record=db.session.execute(db.select(Record).filter_by(uid=uid)).one()
+    return render_template("result_page.html", record=record)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
