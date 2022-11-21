@@ -1,0 +1,2 @@
+show tables;
+describe records;

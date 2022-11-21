@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import secrets
 import string
 
-
+localdb = True
 app = Flask(__name__)
 
 #columns=['Item', 'Payments/year', 'First Adult', 'Subsequent Adults', 'Children'])
@@ -13,12 +13,21 @@ EXPENSES = {'Food': [52, 50, 40, 30],
 
 app.config["DEBUG"] = True
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="cnwarwick",
-    password="4GmDuEH#8Rsx",
-    hostname="cnwarwick.mysql.pythonanywhere-services.com",
-    databasename="cnwarwick$expense1",
-)
+if localdb: #running locally
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+        username="localuser",
+        password="4GmDuEH#8Rsx",
+        hostname="localhost:3306",
+        databasename="test1",
+    )
+else: #running on pythonAnywhere
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+        username="cnwarwick",
+        password="4GmDuEH#8Rsx",
+        hostname="cnwarwick.mysql.pythonanywhere-services.com",
+        databasename="cnwarwick$expense1",
+    )
+
 
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
@@ -109,10 +118,10 @@ class Record(db.Model):
         
 #         #return id of expense record
 #         return uid, 201        
-@app.route("/<uid>", methods=["GET"])
+@app.route("/results/<uid>", methods=["GET"])
 def display_results(uid):
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).one()
-    return render_template("result_page.html", record=record)
+    return render_template("result_page.html", records=record)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
