@@ -1,0 +1,35 @@
+Javascript/Bootstrap slider, link to value
+Javascript/Bootstrap multiple pages without reloading webpage
+
+Check passing dictionaries, lists, list of dictionaries to Jinja
+
+What is quickest-to-read format of python dictionaries? .pickle?
+
+csv for main slider with [slider val, first adult, subs. adults, children, description]
+>> to list of dictionairies
+
+folder of csvs for customizations by category
+>> to eg. {'Food' : list of dictionaries, 'Housing' : ..}
+
+Make database with correct columns
+
+
+# Basic format
+0. Intro text
+1. Enter some info (your household composition, your area of uk)
+2. Main slider
+3. Customization by category
+4. See results
+a. X% of households have enough
+b Top 10%/1% have m * enough 
+c. Enough for everyone is X% of GDP
+>> Share
+>> Lock-in - see other votes
+5. Vote cast, see what other people have said is enough
+
+# Tables
+## Columns
+- Hash of all entered values
+- allowances per adult/child by category
+- total allowance per adult/child
+- n_votes
