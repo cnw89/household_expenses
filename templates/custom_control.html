@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Customize {% endblock %}
+{% block body %}
+    <div class="container">
+
+        <form action="{{url_for('custom_control')}}"  method="POST">
+            <div class="row">
+                <label for="rangecontents" class="form-label">Allowance - {{ startValues }}</label>
+                <div class="col-8">
+                    <input type="range" name="rangecontents" class="form-range" id="range1" onchange="text1.value=range1.value">
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">                        
+                        <span class="input-group-text" id="currency-label">£</span>
+                        <textarea name="contents" class="form-control" id="text1" oninput="range1.value=text1.value">50</textarea>
+                    </div>
+                </div>                    
+            </div>
+            <div class="row justify-content-end">
+                <div class="col-2">
+                    <input type="submit" class="btn btn-success" value="Post record">
+                </div>                    
+            </div>
+            
+        </form>            
+
+    </div><!-- /.container -->
+{% endblock %}

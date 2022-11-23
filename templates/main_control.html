@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Main control{% endblock %}
+{% block body %}
+    
+    <script>
+        const displayOptions = {{ options | safe }}
+        
+        const updateDisplay = (newVal) => {
+            document.getElementById("optionTitle").innerHTML=displayOptions[newVal].name;
+            document.getElementById("optionDescription").innerHTML=displayOptions[newVal].description;
+            document.getElementById("optionValue").innerHTML=displayOptions[newVal].value;
+        };        
+    </script>
+
+    <div class="container">
+
+        <form action="{{url_for('main_control')}}" method="POST">
+            <div class="row">
+                <label for="rangecontents" class="form-label">Allowance</label>
+                <input type="range" name="mainoption" class="form-range" id="range1" max="4" value="0" onchange="updateDisplay(this.value)">
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h1 id="optionTitle"></h1>
+                </div>
+                <div class="col">
+                    <h1 id="optionValue"></h1>
+                </div>
+            </div>
+            <div class="row" id="optionDescription">
+
+            </div>
+            <div class="row justify-content-end">
+                <div class="col-2">
+                    <input type="submit" class="btn btn-success" value="Next">
+                </div>                    
+            </div>
+            
+        </form>            
+
+    </div><!-- /.container -->
+    <script>updateDisplay("0")</script>
+{% endblock %}
