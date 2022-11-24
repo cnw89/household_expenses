@@ -1,17 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Welcome{% endblock %}
+{% block formaction %} action="{{url_for('user_info')}}" method="GET" {% endblock %}
 {% block body %}
-    <div class="container">
-
-        <form action="{{url_for('user_info')}}" method="GET">
-            <div class="row">Welcome!</div>
-            <div class="row justify-content-end">
-                <div class="col-2">
-                    <input type="submit" class="btn btn-success" value="Next">
-                </div>                    
-            </div>
-            
-        </form>            
-
-    </div><!-- /.container -->
+Enough can mean many things...
+{% endblock %}
+{% block navbuttons %}
+    <div class="row justify-content-end">
+        <div class="col-2">
+            <input type="submit" class="btn btn-primary" value="Next">
+        </div>                    
+    </div>
 {% endblock %}

@@ -1,9 +1,9 @@
 from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
-import secrets
-import string
 import json
-from object_definition import options
+import copy
+from object_definition import options, breakdowns, stepfun, cats
+from helper_funcs import dict_hash, freq_text_to_int
 
 localdb = True
 app = Flask(__name__)
@@ -34,11 +34,14 @@ db = SQLAlchemy(app)
 
 class Record(db.Model):
 
-    __tablename__ = "records"
+    __tablename__ = "records2"
 
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(4096))
-    content = db.Column(db.String(4096))
+    breakdown = db.Column(db.PickleType())
+    adult1 = db.Column(db.Integer())
+    adult2 = db.Column(db.Integer())
+    child = db.Column(db.Integer())
  
 
 @app.route("/allresults", methods=["GET"])
@@ -47,37 +50,71 @@ def all_results():
 
 @app.route("/results/<uid>", methods=["GET"])
 def display_results(uid):
+
+    n_adults = request.args.get('nadult', default='1')
+    n_children = request.args.get('nchild', default='0')
+
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).one()
-    return render_template("result_page.html", records=record)
+    return render_template("result_page.html", records=record,
+     n_adults=n_adults, n_children=n_children)
 
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
+
+    n_adults = request.args.get('nadult', default='1')
+    n_children = request.args.get('nchild', default='0')
+    mainoption = int(request.args.get('mainoption', default='1'))-1
+
+    breakdown = copy.deepcopy(breakdowns[mainoption])
+    maxop = breakdowns[-1]
+    
     if request.method == "GET":
 
-        mainoption = request.args.get('mainoption', default='1')
-        return render_template("custom_control.html", startValues=mainoption)
+        for cat, maxcat in zip(breakdown, maxop):
+            cat['value'] = cat['adult1'] * (1 + (int(n_adults)-1)*cat['adult2rat'] + int(n_children)*cat['childrat'])
+            cat['max'] = maxcat['adult1'] * (1 +(int(n_adults)-1)*maxcat['adult2rat'] + int(n_children)*maxcat['childrat'])
+            cat['step'] = stepfun(cat['max'])
 
-    uid = ''.join(secrets.choice(string.ascii_uppercase + string.ascii_lowercase) for i in range(7))
-    record = Record(uid=uid, content=request.form["contents"])
+        return render_template("custom_control.html", breakdown=breakdown, 
+            n_adults=n_adults, n_children=n_children, mainoption=mainoption)
+
+    
+    totals={'adult1': 0, 'adult2': 0, 'child': 0}
+
+    for cat in breakdown:
+        effratio = 1 + (int(n_adults)-1)*cat['adult2rat'] + int(n_children)*cat['childrat']        
+        val = int(request.form[cat['name']])/effratio
+
+        cat['adult1'] = val
+        del cat['description'] 
+
+        totals['adult1'] +=  freq_text_to_int(cat['freq']) * val
+        totals['adult2'] += freq_text_to_int(cat['freq']) * cat['adult2rat'] * val
+        totals['child'] += freq_text_to_int(cat['freq']) * cat['childrat'] * val
+
+    uid = dict_hash(breakdown)
+    record = Record(uid=uid, breakdown=breakdown, adult1=totals['adult1'], adult2=totals['adult2'], child=totals['child'])
     db.session.add(record)
     db.session.commit()
-    return redirect(url_for('display_results', uid=uid))
+    return redirect(url_for('display_results', uid=uid) + '?nadult=' + n_adults + '&nchild='+ n_children)
 
 @app.route("/page2", methods=["GET", "POST"])
 def main_control():
-    if request.method == "GET":
 
-        n_adults = int(request.args.get('nadult', default='2'))
-        n_children = int(request.args.get('nchild', default='0'))
+    n_adults = request.args.get('nadult', default='1')
+    n_children = request.args.get('nchild', default='0')
+
+    if request.method == "GET":        
 
         for opt in options:
-            opt['value']=opt['adult1'] + (n_adults-1)*opt['adult2'] + n_children*opt['child']
+            opt['value']=opt['adult1'] *(1 + (int(n_adults)-1)*opt['adult2rat'] + int(n_children)*opt['childrat'])
 
-        return render_template("main_control.html", options=json.dumps(options))
+        return render_template("main_control.html", options=json.dumps(options),
+         n_adults=n_adults, n_children=n_children)
 
     mainoption=request.form["mainoption"]
 
-    return redirect(url_for('custom_control') + '?mainoption=' + mainoption)
+    return redirect(url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption)
 
 @app.route("/page1", methods=["GET", "POST"])
 def user_info():

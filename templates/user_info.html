@@ -1,40 +1,29 @@
 {% extends "base.html" %}
 {% block title %}User info{% endblock %}
+{% block formaction %}action="{{url_for('user_info')}}" method="POST"{% endblock %}
 {% block body %}
-    <div class="container">
-
-        <form action="{{url_for('user_info')}}" method="POST">
-            <div class="row">About your household</div>
-            <div class="row">
-                <div class="col">
-                    <label for="adultselect">Number of Adults:</label>
-                    <select class="form-select" name="n_adults" id="adultselect">
-                        <option value="1" selected>1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label for="childrenselect">Number of Children:</label>
-                    <select class="form-select" name="n_children" id="childrenselect">                        
-                        <option value="0" selected>0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>                
-            </div>
-            <div class="row justify-content-end">
-                <div class="col-2">
-                    <input type="submit" class="btn btn-success" value="Next">
-                </div>                    
-            </div>
-            
-        </form>            
-
-    </div><!-- /.container -->
+    <div class="row">
+        <div class="col">
+            <label for="adultselect">Number of Adults:</label>
+            <select class="form-select" name="n_adults" id="adultselect">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="col">
+            <label for="childrenselect">Number of Children:</label>
+            <select class="form-select" name="n_children" id="childrenselect">                        
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>                
+    </div>            
 {% endblock %}
+{% block prevlink %}"."{% endblock %}
