@@ -7,7 +7,7 @@
         };        
     </script>
 {% endblock %}
-{% block formaction %}action="{{url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
+{% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
 
 {% block body %}    
     
@@ -28,4 +28,4 @@
         </div>
     {% endfor %}            
 {% endblock %}
-{% prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% prevlink %}
+{% block prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% endblock %}

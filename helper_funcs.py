@@ -1,5 +1,6 @@
 import json
 import hashlib
+import math
 
 def dict_hash(dictionary):
     """MD5 hash of a dictionary."""
@@ -20,3 +21,15 @@ def freq_text_to_int(freqstr):
         return 365
     else:
         return 1
+
+def salary_str(val):
+
+    return f'£{int(val):,}'
+
+def wage_str(val):
+
+    return f'£{math.round(val, 2):,}'
+
+def pc_str(val):
+    
+    return f'{int(100*val)}%'

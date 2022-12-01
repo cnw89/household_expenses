@@ -2,8 +2,9 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import copy
-from object_definition import options, breakdowns, stepfun, cats
+from object_definition import options, breakdowns, stepfun
 from helper_funcs import dict_hash, freq_text_to_int
+import analysis
 
 localdb = True
 app = Flask(__name__)
@@ -37,6 +38,7 @@ class Record(db.Model):
     __tablename__ = "records2"
 
     id = db.Column(db.Integer, primary_key=True)
+    #add date
     uid = db.Column(db.String(4096))
     breakdown = db.Column(db.PickleType())
     adult1 = db.Column(db.Integer())
@@ -54,18 +56,21 @@ def display_results(uid):
     n_adults = request.args.get('nadult', default='1')
     n_children = request.args.get('nchild', default='0')
 
-    record=db.session.execute(db.select(Record).filter_by(uid=uid)).one()
-    return render_template("result_page.html", records=record,
-     n_adults=n_adults, n_children=n_children)
+    record=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
+    
+    for rec in record: #only one of these
+        national_results, household_vars = analysis.run(rec.adult1, rec.adult2, rec.child, int(n_adults), int(n_children))
+
+    return render_template("result_page.html", results=national_results, vars=json.dumps(household_vars))
 
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
 
     n_adults = request.args.get('nadult', default='1')
     n_children = request.args.get('nchild', default='0')
-    mainoption = int(request.args.get('mainoption', default='1'))-1
+    mainoption = request.args.get('mainoption', default='1')
 
-    breakdown = copy.deepcopy(breakdowns[mainoption])
+    breakdown = copy.deepcopy(breakdowns[int(mainoption)-1])
     maxop = breakdowns[-1]
     
     if request.method == "GET":

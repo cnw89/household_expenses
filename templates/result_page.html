@@ -1,14 +1,185 @@
 {% extends "base.html" %}
 {% block title %}Results{% endblock %}
+{% block funcdef %}
+  <script>
+    const s = {{ vars | safe }}
+
+    const updateHouseholdComposition = (objectID) => {
+      // n.toLocaleString() to put thousasands commas in number n
+      // n.toFixed(2) to two d.p.
+      
+      if ((objectID == "adultselect1") || (objectID == "childrenselect1")){
+        var n_adults = parseInt(document.getElementById("adultselect1").value)
+        var n_children = parseInt(document.getElementById("childrenselect1").value)
+
+        document.getElementById("adultselect2").value = n_adults
+        document.getElementById("childrenselect2").value = n_children
+
+      } else {
+        var n_adults = parseInt(document.getElementById("adultselect2").value)
+        var n_children = parseInt(document.getElementById("childrenselect2").value)
+
+        document.getElementById("adultselect1").value = n_adults
+        document.getElementById("childrenselect1").value = n_children
+      }
+
+      let total = s.adult1 + (n_adults-1)*s.adult2 + n_children * s.child
+      document.getElementById("total").innerHTML = '£' + Math.ceil(total).toLocaleString()
+
+      let one_adult_salary = 1.4 * total
+      document.getElementById("one_adult_salary").innerHTML = '£' + Math.ceil(one_adult_salary).toLocaleString()
+
+      let two_adult_salary = 0.65 * total
+      document.getElementById("two_adult_salary").innerHTML = '£' + Math.ceil(two_adult_salary).toLocaleString()
+
+      let one_adult_hours_per_week = one_adult_salary/(s.min_wage * s.weeks_per_year)
+      document.getElementById("one_adult_hours_per_week").innerHTML = Math.ceil(one_adult_hours_per_week).toString()
+
+      let two_adult_hours_per_week = two_adult_salary/(s.min_wage * s.weeks_per_year)
+      document.getElementById("two_adult_hours_per_week").innerHTML = Math.ceil(two_adult_hours_per_week).toString()
+
+      let one_adult_hours_greater_than_default = (one_adult_hours_per_week > s.default_hours_per_week)
+      
+      let two_adult_hours_greater_than_default = (two_adult_hours_per_week > s.default_hours_per_week)
+      
+      let one_adult_wage_at_default_hours = one_adult_salary/(s.default_hours_per_week * s.weeks_per_year)
+      document.getElementById("one_adult_wage_at_default_hours").innerHTML = '£' + one_adult_wage_at_default_hours.toFixed(2).toString()
+
+      let two_adult_wage_at_default_hours = two_adult_salary/(s.default_hours_per_week * s.weeks_per_year)
+      document.getElementById("two_adult_wage_at_default_hours").innerHTML = '£' + two_adult_wage_at_default_hours.toFixed(2).toString()
+    }
+  </script>
+{% endblock %}
+{% block formaction %}action="/allresults" method="GET"{% endblock %}
 {% block body %}
-    <div class="container">
-        
-        {% for record in records %}
-            <div class="row">
-                <div class="col-md-4">{{ record.uid }}</div>                        
-                <div class="col-md-4">{{ record.content }}</div>
-            </div>
-        {% endfor %}
-        
-    </div><!-- /.container -->
+  {% macro printout(varname, prestr, poststr) %}
+      <strong><span id="{{ varname }}">{{ prestr | safe }}{{ results[varname] | round(2) | string }}{{ poststr | safe }}</span></strong>
+  {% endmacro %}
+<div class="accordion" id="resultsAccordian">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          How much is enough?
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#resultsAccordian">
+        <div class="accordion-body">
+          For a household of 
+          <span>
+            <label for="adultselect"></label>
+            <select class="form-select" name="n_adults" id="adultselect1" title="Adults" onchange="updateHouseholdComposition(this.id)">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+          </span>
+          adults and 
+          <span>
+            <label for="childrenselect"></label>
+            <select class="form-select" name="n_children" id="childrenselect1" title="Children" onchange="updateHouseholdComposition(this.id)">                        
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+          </span>
+          children you reckon that {{ printout('total', '£', '') }} is about enough. <br>
+          Including tax, without any other benefits, this would corresponds to an annual salary of about {{ printout('one_adult_salary', '£', '') }}
+           with one adult earning, or two adults each earning {{ printout('two_adult_salary', '£', '') }}. <br>
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          What does it take to get enough?
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#resultsAccordian">
+        <div class="accordion-body">
+          <span>
+            <label for="adultselect"></label>
+            <select class="form-select" name="n_adults" id="adultselect2" title="Adults" onchange="updateHouseholdComposition(this.id)">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+          </span>
+          adults and 
+          <span>
+            <label for="childrenselect"></label>
+            <select class="form-select" name="n_children" id="childrenselect2" title="Children" onchange="updateHouseholdComposition(this.id)">                        
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+          </span>
+          children
+          {{ printout('pc_households_with_enough', '', '%') }}
+          {{ printout('pc_households_with_enough', '', ' %') }}
+          {{ printout('one_adult_hours_per_week', '', ' %') }}
+          {{ printout('one_adult_wage_at_default_hours', '£', '%') }}
+          With one adult earning minimum wage without additional benefits it would take {{ printout('one_adult_hours_per_week', '', ' %') }} 
+          or a wage of {{ printout('one_adult_wage_at_default_hours', '£', 'week') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.<br>
+          With two adults earning minimum wage without additional benefits it would take {{ printout('two_adult_hours_per_week', '', ' hoursweek') }} 
+          or a wage of {{ printout('two_adult_wage_at_default_hours', '£', 'week') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingThree">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Who has enough?
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#resultsAccordian">
+        <div class="accordion-body">
+          {{ printout('one_adult_hours_per_week', '', ' hours/week') }}
+          By your definition, {{ printout('pc_households_with_enough', '', '%') }} of UK households earn enough. <br>
+          The poorest 10% have {{ printout('pc_enough_of_bottom_10', '', '%') }} of enough.<br>
+          The typical household has {{ printout('pc_enough_of_median', '', '%') }} of enough.<br>
+          The highest earning 10% have {{ printout('pc_enough_of_top_10', '', '%') }} of enough.<br>
+          The highest earning 1% have {{ printout('pc_enough_of_top_1', '', '%') }} of enough.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFour">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+            Do we have enough for everyone?
+          </button>
+        </h2>
+        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#resultsAccordian">
+          <div class="accordion-body">
+            The cost of everyone having enough is {{ printout('pc_everyone_household_earnings', '', '%') }} of total household expenditure, or
+            {{ printout('pc_everyone_gdp', '', '%') }} of UK GDP. <br>
+            To achieve this would require {{ printout('pc_growth_even', '', '%') }} of evenly distributed economic growth, taking approximately 
+            {{ printout('growth_even_years', '', ' years') }}.<br>
+            With growth distributed unevenly, in a similar manner to the last 30 years, it would require {{ printout('pc_growth_uneven', '', '%') }}   
+            of growth in the economy, taking approximately {{ printout('growth_uneven_years', '', ' years') }}.
+          </div>
+        </div>
+      </div>
+  </div>
+  <script>updateHouseholdComposition("initialize")</script>
+
+{% endblock %}
+{% block navbuttons %}
+    <div class="row justify-content-between">
+        <div class="col-2">
+            <a class="btn btn-primary" href="/page1" role="button">Start Again</a> 
+        </div>  
+        <div class="col-2">
+            <input type="submit" class="btn btn-primary" value="Next">
+        </div>                    
+    </div>
 {% endblock %}
