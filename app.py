@@ -68,9 +68,9 @@ def custom_control():
 
     n_adults = request.args.get('nadult', default='1')
     n_children = request.args.get('nchild', default='0')
-    mainoption = request.args.get('mainoption', default='1')
+    mainoption = request.args.get('mainoption', default='0')
 
-    breakdown = copy.deepcopy(breakdowns[int(mainoption)-1])
+    breakdown = copy.deepcopy(breakdowns[int(mainoption)])
     maxop = breakdowns[-1]
     
     if request.method == "GET":

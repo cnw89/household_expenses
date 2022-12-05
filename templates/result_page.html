@@ -4,6 +4,16 @@
   <script>
     const s = {{ vars | safe }}
 
+    const setDefaultHouseholdComposition = () => {
+
+      document.getElementById("adultselect1").value = s.n_adults
+      document.getElementById("adultselect2").value = s.n_adults
+
+      document.getElementById("childrenselect1").value = s.n_children
+      document.getElementById("childrenselect2").value = s.n_children
+
+    }
+
     const updateHouseholdComposition = (objectID) => {
       // n.toLocaleString() to put thousasands commas in number n
       // n.toFixed(2) to two d.p.
@@ -24,13 +34,13 @@
       }
 
       let total = s.adult1 + (n_adults-1)*s.adult2 + n_children * s.child
-      document.getElementById("total").innerHTML = '£' + Math.ceil(total).toLocaleString()
+      document.getElementById("total").innerHTML = Math.ceil(total).toLocaleString()
 
       let one_adult_salary = 1.4 * total
-      document.getElementById("one_adult_salary").innerHTML = '£' + Math.ceil(one_adult_salary).toLocaleString()
+      document.getElementById("one_adult_salary").innerHTML = Math.ceil(one_adult_salary).toLocaleString()
 
       let two_adult_salary = 0.65 * total
-      document.getElementById("two_adult_salary").innerHTML = '£' + Math.ceil(two_adult_salary).toLocaleString()
+      document.getElementById("two_adult_salary").innerHTML = Math.ceil(two_adult_salary).toLocaleString()
 
       let one_adult_hours_per_week = one_adult_salary/(s.min_wage * s.weeks_per_year)
       document.getElementById("one_adult_hours_per_week").innerHTML = Math.ceil(one_adult_hours_per_week).toString()
@@ -43,17 +53,17 @@
       let two_adult_hours_greater_than_default = (two_adult_hours_per_week > s.default_hours_per_week)
       
       let one_adult_wage_at_default_hours = one_adult_salary/(s.default_hours_per_week * s.weeks_per_year)
-      document.getElementById("one_adult_wage_at_default_hours").innerHTML = '£' + one_adult_wage_at_default_hours.toFixed(2).toString()
+      document.getElementById("one_adult_wage_at_default_hours").innerHTML = one_adult_wage_at_default_hours.toFixed(2).toString()
 
       let two_adult_wage_at_default_hours = two_adult_salary/(s.default_hours_per_week * s.weeks_per_year)
-      document.getElementById("two_adult_wage_at_default_hours").innerHTML = '£' + two_adult_wage_at_default_hours.toFixed(2).toString()
+      document.getElementById("two_adult_wage_at_default_hours").innerHTML = two_adult_wage_at_default_hours.toFixed(2).toString()
     }
   </script>
 {% endblock %}
 {% block formaction %}action="/allresults" method="GET"{% endblock %}
 {% block body %}
   {% macro printout(varname, prestr, poststr) %}
-      <strong><span id="{{ varname }}">{{ prestr | safe }}{{ results[varname] | round(2) | string }}{{ poststr | safe }}</span></strong>
+      <strong>{{ prestr | safe }}<span id="{{ varname }}">{{ results[varname] | round(2) | string }}</span>{{ poststr | safe }}</strong>
   {% endmacro %}
 <div class="accordion" id="resultsAccordian">
     <div class="accordion-item">
@@ -68,7 +78,7 @@
           <span>
             <label for="adultselect"></label>
             <select class="form-select" name="n_adults" id="adultselect1" title="Adults" onchange="updateHouseholdComposition(this.id)">
-                <option value="1" selected>1</option>
+                <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
@@ -79,14 +89,14 @@
           <span>
             <label for="childrenselect"></label>
             <select class="form-select" name="n_children" id="childrenselect1" title="Children" onchange="updateHouseholdComposition(this.id)">                        
-                <option value="0" selected>0</option>
+                <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
                 <option value="5">5</option>
             </select>
-          </span>
+          </span>          
           children you reckon that {{ printout('total', '£', '') }} is about enough. <br>
           Including tax, without any other benefits, this would corresponds to an annual salary of about {{ printout('one_adult_salary', '£', '') }}
            with one adult earning, or two adults each earning {{ printout('two_adult_salary', '£', '') }}. <br>
@@ -124,14 +134,10 @@
             </select>
           </span>
           children
-          {{ printout('pc_households_with_enough', '', '%') }}
-          {{ printout('pc_households_with_enough', '', ' %') }}
-          {{ printout('one_adult_hours_per_week', '', ' %') }}
-          {{ printout('one_adult_wage_at_default_hours', '£', '%') }}
-          With one adult earning minimum wage without additional benefits it would take {{ printout('one_adult_hours_per_week', '', ' %') }} 
-          or a wage of {{ printout('one_adult_wage_at_default_hours', '£', 'week') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.<br>
-          With two adults earning minimum wage without additional benefits it would take {{ printout('two_adult_hours_per_week', '', ' hoursweek') }} 
-          or a wage of {{ printout('two_adult_wage_at_default_hours', '£', 'week') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.
+          With one adult earning minimum wage without additional benefits it would take {{ printout('one_adult_hours_per_week', '', ' hours/week') }} 
+          or a wage of {{ printout('one_adult_wage_at_default_hours', '£', '/hour') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.<br>
+          With two adults earning minimum wage without additional benefits it would take {{ printout('two_adult_hours_per_week', '', ' hours/week') }} 
+          or a wage of {{ printout('two_adult_wage_at_default_hours', '£', '/hour') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.
         </div>
       </div>
     </div>
@@ -170,7 +176,10 @@
         </div>
       </div>
   </div>
-  <script>updateHouseholdComposition("initialize")</script>
+  <script>
+    setDefaultHouseholdComposition()
+    updateHouseholdComposition("initialize")
+  </script>
 
 {% endblock %}
 {% block navbuttons %}
