@@ -33,13 +33,13 @@
         document.getElementById("childrenselect1").value = n_children
       }
 
-      let total = s.adult1 + (n_adults-1)*s.adult2 + n_children * s.child
+      let total = (s.adult1 + (n_adults-1)*s.adult2 + n_children * s.child) * s.HEDI
       document.getElementById("total").innerHTML = Math.ceil(total).toLocaleString()
 
-      let one_adult_salary = 1.4 * total
+      let one_adult_salary = 1.4 * total //placeholder
       document.getElementById("one_adult_salary").innerHTML = Math.ceil(one_adult_salary).toLocaleString()
 
-      let two_adult_salary = 0.65 * total
+      let two_adult_salary = 0.65 * total //placeholder
       document.getElementById("two_adult_salary").innerHTML = Math.ceil(two_adult_salary).toLocaleString()
 
       let one_adult_hours_per_week = one_adult_salary/(s.min_wage * s.weeks_per_year)
@@ -149,12 +149,12 @@
       </h2>
       <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#resultsAccordian">
         <div class="accordion-body">
-          {{ printout('one_adult_hours_per_week', '', ' hours/week') }}
-          By your definition, {{ printout('pc_households_with_enough', '', '%') }} of UK households earn enough. <br>
-          The poorest 10% have {{ printout('pc_enough_of_bottom_10', '', '%') }} of enough.<br>
-          The typical household has {{ printout('pc_enough_of_median', '', '%') }} of enough.<br>
-          The highest earning 10% have {{ printout('pc_enough_of_top_10', '', '%') }} of enough.<br>
-          The highest earning 1% have {{ printout('pc_enough_of_top_1', '', '%') }} of enough.
+          By your definition, {{ printout('pc_individuals_with_enough', '', '%') }} of people and 
+          {{ printout('pc_households_with_enough', '', '%') }} of UK households earn enough. <br>
+          The poorest 10% have {{ printout('pc_enough_of_bottom_10', '', 'x') }} enough.<br>
+          The typical household has {{ printout('pc_enough_of_median', '', 'x') }} enough.<br>
+          The highest earning 10% have {{ printout('pc_enough_of_top_10', '', 'x') }} enough.<br>
+          The highest earning 1% have {{ printout('pc_enough_of_top_1', '', 'x') }} enough.
         </div>
       </div>
     </div>
@@ -166,12 +166,14 @@
         </h2>
         <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#resultsAccordian">
           <div class="accordion-body">
-            The cost of everyone having enough is {{ printout('pc_everyone_household_earnings', '', '%') }} of total household expenditure, or
-            {{ printout('pc_everyone_gdp', '', '%') }} of UK GDP. <br>
-            To achieve this would require {{ printout('pc_growth_even', '', '%') }} of evenly distributed economic growth, taking approximately 
+            The cost of everyone having enough is {{ printout('pc_enough_gdhi', '', '%') }} of Gross Disposable Household Income (GDHI). <br>
+            The gap between all those that don't have enough, and them having enough is {{ printout('pc_deficit_gdhi', '', '%') }} of GDHI, 
+            while the excess of those that have more than enough is {{ printout('pc_excess_gdhi', '', '%') }} of GDHI.<br>
+
+            For everyone to have enough, the incomes of the poorest 10% of households would need to grow {{ printout('pc_growth', '', '%') }}.  <br>
+            To achieve this with evenly distributed growth in the economy of {{ printout('annual_growth_even', '', '%/year') }} would take
             {{ printout('growth_even_years', '', ' years') }}.<br>
-            With growth distributed unevenly, in a similar manner to the last 30 years, it would require {{ printout('pc_growth_uneven', '', '%') }}   
-            of growth in the economy, taking approximately {{ printout('growth_uneven_years', '', ' years') }}.
+            With growth distributed unevenly, in a similar manner to the last N years, it would require approximately {{ printout('growth_uneven_years', '', ' years') }}.
           </div>
         </div>
       </div>

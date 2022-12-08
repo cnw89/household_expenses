@@ -5,6 +5,7 @@ import copy
 from object_definition import options, breakdowns, stepfun
 from helper_funcs import dict_hash, freq_text_to_int
 import analysis
+from analysis import equivalize, dequivalize
 
 localdb = True
 app = Flask(__name__)
@@ -34,16 +35,21 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Record(db.Model):
-
-    __tablename__ = "records2"
+    """
+    If updating record structure:
+    in python terminal:
+    from app import db
+    db.create_all()
+    """
+    __tablename__ = "records3"
 
     id = db.Column(db.Integer, primary_key=True)
     #add date
     uid = db.Column(db.String(4096))
     breakdown = db.Column(db.PickleType())
-    adult1 = db.Column(db.Integer())
-    adult2 = db.Column(db.Integer())
-    child = db.Column(db.Integer())
+    total_equivalized_spend = db.Column(db.Integer())
+    n_adults = db.Column(db.Integer())
+    n_children = db.Column(db.Integer())
  
 
 @app.route("/allresults", methods=["GET"])
@@ -53,22 +59,28 @@ def all_results():
 @app.route("/results/<uid>", methods=["GET"])
 def display_results(uid):
 
-    n_adults = request.args.get('nadult', default='1')
-    n_children = request.args.get('nchild', default='0')
-
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
     
     for rec in record: #only one of these
-        national_results, household_vars = analysis.run(rec.adult1, rec.adult2, rec.child, int(n_adults), int(n_children))
+        national_results, household_vars = analysis.run(rec.total_equivalized_spend)
+
+        n_adults = int(request.args.get('nadult', default=rec.n_adults))
+        n_children = int(request.args.get('nchild', default=rec.n_children))
+
+        household_vars['n_adults'] = n_adults
+        household_vars['n_children'] = n_children
 
     return render_template("result_page.html", results=national_results, vars=json.dumps(household_vars))
 
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
 
-    n_adults = request.args.get('nadult', default='1')
-    n_children = request.args.get('nchild', default='0')
+    n_adults_s = request.args.get('nadult', default='1')
+    n_children_s = request.args.get('nchild', default='0')
     mainoption = request.args.get('mainoption', default='0')
+
+    n_adults = int(n_adults_s)
+    n_children = int(n_children_s)
 
     breakdown = copy.deepcopy(breakdowns[int(mainoption)])
     maxop = breakdowns[-1]
@@ -76,50 +88,51 @@ def custom_control():
     if request.method == "GET":
 
         for cat, maxcat in zip(breakdown, maxop):
-            cat['value'] = cat['adult1'] * (1 + (int(n_adults)-1)*cat['adult2rat'] + int(n_children)*cat['childrat'])
-            cat['max'] = maxcat['adult1'] * (1 +(int(n_adults)-1)*maxcat['adult2rat'] + int(n_children)*maxcat['childrat'])
+            cat['value'] = dequivalize(cat['equivalized_spend'], n_adults, n_children)
+            cat['max'] = dequivalize(maxcat['equivalized_spend'], n_adults, n_children)
             cat['step'] = stepfun(cat['max'])
 
         return render_template("custom_control.html", breakdown=breakdown, 
-            n_adults=n_adults, n_children=n_children, mainoption=mainoption)
+            n_adults=n_adults_s, n_children=n_children_s, mainoption=mainoption)
 
     
-    totals={'adult1': 0, 'adult2': 0, 'child': 0}
+    total_equivalized_spend=0
 
     for cat in breakdown:
-        effratio = 1 + (int(n_adults)-1)*cat['adult2rat'] + int(n_children)*cat['childrat']        
-        val = int(request.form[cat['name']])/effratio
-
-        cat['adult1'] = val
+ 
+        cat['equivalized_spend'] = equivalize(int(request.form[cat['name']]), n_adults, n_children)
         del cat['description'] 
 
-        totals['adult1'] +=  freq_text_to_int(cat['freq']) * val
-        totals['adult2'] += freq_text_to_int(cat['freq']) * cat['adult2rat'] * val
-        totals['child'] += freq_text_to_int(cat['freq']) * cat['childrat'] * val
+        total_equivalized_spend +=  freq_text_to_int(cat['freq']) * cat['equivalized_spend']        
 
     uid = dict_hash(breakdown)
-    record = Record(uid=uid, breakdown=breakdown, adult1=totals['adult1'], adult2=totals['adult2'], child=totals['child'])
+    record = Record(uid=uid, breakdown=breakdown, total_equivalized_spend=total_equivalized_spend, 
+        n_adults=n_adults, n_children=n_children)
+
     db.session.add(record)
     db.session.commit()
-    return redirect(url_for('display_results', uid=uid) + '?nadult=' + n_adults + '&nchild='+ n_children)
+
+    return redirect(url_for('display_results', uid=uid) + '?nadult=' + n_adults_s + '&nchild='+ n_children_s)
 
 @app.route("/page2", methods=["GET", "POST"])
 def main_control():
 
-    n_adults = request.args.get('nadult', default='1')
-    n_children = request.args.get('nchild', default='0')
+    n_adults_s = request.args.get('nadult', default='1')
+    n_children_s = request.args.get('nchild', default='0')
+    n_adults = int(n_adults_s)
+    n_children = int(n_children_s)
 
     if request.method == "GET":        
 
         for opt in options:
-            opt['value']=opt['adult1'] *(1 + (int(n_adults)-1)*opt['adult2rat'] + int(n_children)*opt['childrat'])
+            opt['value']=equivalize(opt['equivalized_spend'], n_adults, n_children)
 
         return render_template("main_control.html", options=json.dumps(options),
-         n_adults=n_adults, n_children=n_children)
+         n_adults=n_adults_s, n_children=n_children_s)
 
     mainoption=request.form["mainoption"]
 
-    return redirect(url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption)
+    return redirect(url_for('custom_control') + '?nadult=' + n_adults_s + '&nchild='+ n_children_s + '&mainoption=' + mainoption)
 
 @app.route("/page1", methods=["GET", "POST"])
 def user_info():
