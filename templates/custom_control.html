@@ -13,16 +13,16 @@
     
     {% for cat in breakdown %}
         <div class="row">
-            <label for="{{ cat.name + '_input'}}" class="form-label">{{ cat.name }}</label>
+            <label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label>
             <div class="col-8">
                 <input type="range" name="{{ cat.name }}" class="form-range"                         
-                    id="{{ cat.name + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
+                    id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
                     value="{{ cat.value }}"
-                    onchange="updateDisplay({{ cat.name }}_output, this.value)">
+                    onchange="updateDisplay({{ cat.id }}_output, this.value)">
             </div>
             <div class="col">
                 <span class="input-group-text">£</span>
-                <span id="{{ cat.name + '_output' }}">{{ cat.value }}</span>
+                <span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>
                 <span class="input-group-text">/{{ cat.freq }}</span>
             </div>                    
         </div>

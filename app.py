@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import copy
-from object_definition import options, breakdowns, stepfun
+from object_definition import options, breakdowns, stepfun, optlist, catlist
 from helper_funcs import dict_hash, freq_text_to_int
 import analysis
 from analysis import equivalize, dequivalize
@@ -82,17 +82,27 @@ def custom_control():
     n_adults = int(n_adults_s)
     n_children = int(n_children_s)
 
-    breakdown = copy.deepcopy(breakdowns[int(mainoption)])
-    maxop = breakdowns[-1]
-    
+    breakdown = copy.deepcopy(breakdowns[optlist[int(mainoption)]])
+    maxop = breakdowns['max']
+    breakdown_data_list = []
+
     if request.method == "GET":
+        
+        for cat in catlist:
 
-        for cat, maxcat in zip(breakdown, maxop):
-            cat['value'] = dequivalize(cat['equivalized_spend'], n_adults, n_children)
-            cat['max'] = dequivalize(maxcat['equivalized_spend'], n_adults, n_children)
-            cat['step'] = stepfun(cat['max'])
+            cat_data = {}
+            catname = cat['name']
+            cat_data['name'] = catname
+            cat_data['id'] = cat['id']
+            cat_data['description'] = cat['description']
+            cat_data['value'] = dequivalize(breakdown[catname], n_adults, n_children)
+            cat_data['freq'] = 'month'
+            cat_data['max'] = dequivalize(maxop[catname], n_adults, n_children)
+            cat_data['step'] = stepfun(cat_data['max'])
 
-        return render_template("custom_control.html", breakdown=breakdown, 
+            breakdown_data_list.append(cat_data)
+
+        return render_template("custom_control.html", breakdown=breakdown_data_list, 
             n_adults=n_adults_s, n_children=n_children_s, mainoption=mainoption)
 
     
@@ -100,10 +110,9 @@ def custom_control():
 
     for cat in breakdown:
  
-        cat['equivalized_spend'] = equivalize(int(request.form[cat['name']]), n_adults, n_children)
-        del cat['description'] 
+        breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)        
 
-        total_equivalized_spend +=  freq_text_to_int(cat['freq']) * cat['equivalized_spend']        
+        total_equivalized_spend +=  12 * breakdown[cat]       
 
     uid = dict_hash(breakdown)
     record = Record(uid=uid, breakdown=breakdown, total_equivalized_spend=total_equivalized_spend, 

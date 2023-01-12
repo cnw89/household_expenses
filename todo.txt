@@ -1,18 +1,36 @@
-Javascript/Bootstrap slider, link to value
-Javascript/Bootstrap multiple pages without reloading webpage
+## For all pages
+- progress indicator (number of steps)
+- width of content
+- back/next button placement
+- Header
+    - How much is enough banner
+    - About/Info menu
+- Footer
+    - Copyright
 
-Check passing dictionaries, lists, list of dictionaries to Jinja
+## Landing page
+- Intro text
 
-What is quickest-to-read format of python dictionaries? .pickle?
+## User Info
+- Explanatory text
 
-csv for main slider with [slider val, first adult, subs. adults, children, description]
->> to list of dictionairies
+## Main Control
+- Explanatory text
 
-folder of csvs for customizations by category
->> to eg. {'Food' : list of dictionaries, 'Housing' : ..}
+## Customize
+- Explanatory text
+- Print descriptions
+- Two columns of sliders?
+- Display of value
+- Different max values
+- Savings and pensions as %
 
-Make database with correct columns
-
+## results
+- just % households, not % people
+- correct number of sig figs
+- Household numbers rethink
+- Graphics
+- Lock-in/vote
 
 # Basic format
 0. Intro text

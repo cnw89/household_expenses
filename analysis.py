@@ -79,7 +79,7 @@ def run(HEDI):
     s.pc_excess_gdhi = 100 * d['f_pcInd_to_excess_above'](pc_ind)/UK_GDHI
     s.uk_gdhi = UK_GDHI
 
-    s.pc_growth = 100 * (100 / s.pc_enough_of_bottom_10 - 1)
+    s.pc_growth = 100 * (1 / s.pc_enough_of_bottom_10 - 1)
     s.growth_even_years = years_of_growth(s.pc_growth/100, UK_ANNUAL_GROWTH)
     s.growth_uneven_years= years_of_growth(s.pc_growth/100, UK_ANNUAL_GROWTH * UK_LOWEST_DECILE_GROWTH_SHARE)
     s.annual_growth_even = 100 * UK_ANNUAL_GROWTH
