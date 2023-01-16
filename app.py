@@ -125,17 +125,17 @@ def custom_control():
     total_equivalized_spend=0
 
     for cat in breakdown:
-        if (cat['name'] == 'Savings'):
+        if (cat == 'Savings'):
             continue
-        elif (cat['name'] == 'Pension'):
+        elif (cat == 'Pension'):
             continue
-        
+
         breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)        
 
         total_equivalized_spend +=  12 * breakdown[cat]               
     
-    breakdown['Savings'] = (1/request.form['Savings']) * total_equivalized_spend
-    breakdown['Pension'] = (request.form['Pension']/100) * total_equivalized_spend
+    breakdown['Savings'] = (1/int(request.form['Savings'])) * total_equivalized_spend
+    breakdown['Pension'] = (int(request.form['Pension'])/100) * total_equivalized_spend
 
     total_equivalized_spend += breakdown['Savings']
     total_equivalized_spend += breakdown['Pension']
