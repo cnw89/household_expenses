@@ -89,6 +89,21 @@ def custom_control():
     if request.method == "GET":
         
         for cat in catlist:
+            
+            if (cat['name'] == 'Savings'):
+                savings_data = cat
+                savings_data['id'] = 'Savings'
+                savings_data['value'] = breakdown['Savings']
+                savings_data['max'] = maxop['Savings']
+                savings_data['step'] = 1
+                continue
+            elif (cat['name'] == 'Pension'):
+                pension_data = cat
+                pension_data['id'] = 'Pension'
+                pension_data['value'] = breakdown['Pension']
+                pension_data['max'] = maxop['Pension']
+                pension_data['step'] = 1
+                continue
 
             cat_data = {}
             catname = cat['name']
@@ -97,22 +112,33 @@ def custom_control():
             cat_data['description'] = cat['description']
             cat_data['value'] = dequivalize(breakdown[catname], n_adults, n_children)
             cat_data['freq'] = 'month'
-            cat_data['max'] = dequivalize(maxop[catname], n_adults, n_children)
+            cat_data['max'] = max(dequivalize(maxop[catname], n_adults, n_children), 3 * cat_data['value'])
             cat_data['step'] = stepfun(cat_data['max'])
 
             breakdown_data_list.append(cat_data)
 
         return render_template("custom_control.html", breakdown=breakdown_data_list, 
+            savings=savings_data, pension=pension_data,
             n_adults=n_adults_s, n_children=n_children_s, mainoption=mainoption)
 
     
     total_equivalized_spend=0
 
     for cat in breakdown:
- 
+        if (cat['name'] == 'Savings'):
+            continue
+        elif (cat['name'] == 'Pension'):
+            continue
+        
         breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)        
 
-        total_equivalized_spend +=  12 * breakdown[cat]       
+        total_equivalized_spend +=  12 * breakdown[cat]               
+    
+    breakdown['Savings'] = (1/request.form['Savings']) * total_equivalized_spend
+    breakdown['Pension'] = (request.form['Pension']/100) * total_equivalized_spend
+
+    total_equivalized_spend += breakdown['Savings']
+    total_equivalized_spend += breakdown['Pension']
 
     uid = dict_hash(breakdown)
     record = Record(uid=uid, breakdown=breakdown, total_equivalized_spend=total_equivalized_spend, 

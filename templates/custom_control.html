@@ -10,22 +10,72 @@
 {% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
 
 {% block body %}    
-    
-    {% for cat in breakdown %}
-        <div class="row">
-            <label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label>
-            <div class="col-8">
-                <input type="range" name="{{ cat.name }}" class="form-range"                         
-                    id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
-                    value="{{ cat.value }}"
-                    onchange="updateDisplay({{ cat.id }}_output, this.value)">
+    <div class="row row-cols-1 row-cols-lg-2 g-2">
+    {% for cat in breakdown %}        
+        <div class="col">
+            <div class="p-3 border bg-light">
+                <div class="row justify-content-between">
+                    <div class="col-9">
+                        <b><label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label></b><br>
+                        {{ cat.description }}
+                    </div>
+                    <div class="col-3">
+                        <p class="float-end">£<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/{{ cat.freq }}</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-10">
+                        <input type="range" name="{{ cat.name }}" class="form-range"                         
+                            id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
+                            value="{{ cat.value }}"
+                            onchange="updateDisplay({{ cat.id }}_output, this.value)">
+                    </div>                    
+                </div>
             </div>
-            <div class="col">
-                <span class="input-group-text">£</span>
-                <span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>
-                <span class="input-group-text">/{{ cat.freq }}</span>
-            </div>                    
-        </div>
-    {% endfor %}            
+        </div>                          
+    {% endfor %}
+        <div class="col">
+            <div class="p-3 border bg-light">
+                <div class="row justify-content-between">
+                    <div class="col-9">
+                        <b><label for="{{ savings.id + '_input'}}" class="form-label">{{ savings.name }}</label></b><br>
+                        {{ savings.description }}
+                    </div>
+                    <div class="col-3">
+                        <p class="float-end">1 month's expenses saved every <span id="{{ savings.id + '_output' }}">{{ savings.value }}</span> months</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-10">
+                        <input type="range" name="{{ savings.name }}" class="form-range"                         
+                            id="{{ savings.id + '_input'}}" max="{{ savings.max }}" step="{{ savings.step }}"
+                            value="{{ savings.value }}"
+                            onchange="updateDisplay({{ savings.id }}_output, this.value)">
+                    </div>                    
+                </div>
+            </div>
+        </div> 
+        <div class="col">
+            <div class="p-3 border bg-light">
+                <div class="row justify-content-between">
+                    <div class="col-9">
+                        <b><label for="{{ pension.id + '_input'}}" class="form-label">{{ pension.name }}</label></b><br>
+                        {{ pension.description }}
+                    </div>
+                    <div class="col-3">
+                        <p class="float-end"><span id="{{ pension.id + '_output' }}">{{ pension.value }}</span>%</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-10">
+                        <input type="range" name="{{ pension.name }}" class="form-range"                         
+                            id="{{ pension.id + '_input'}}" max="{{ pension.max }}" step="{{ pension.step }}"
+                            value="{{ pension.value }}"
+                            onchange="updateDisplay({{ pension.id }}_output, this.value)">
+                    </div>                    
+                </div>
+            </div>
+        </div> 
+    </div>            
 {% endblock %}
 {% block prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% endblock %}
