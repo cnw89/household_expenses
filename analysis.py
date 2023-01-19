@@ -67,8 +67,8 @@ def run(HEDI):
 
     #Now things that won't be updated in html:
     pc_ind = d['f_HEDI_to_pcInd'](HEDI)
-    s.pc_individuals_with_enough = 100 * pc_ind
-    s.pc_households_with_enough = 100 * d['f_pcInd_to_pcHouse'](pc_ind)
+    s.pc_individuals_with_enough = 100 * (1 - pc_ind)
+    s.pc_households_with_enough = 100 * (1 - d['f_pcInd_to_pcHouse'](pc_ind))
     s.pc_enough_of_bottom_10 = d['f_pcInd_to_HEDI'](0.05)/HEDI #check should this be 0.1
     s.pc_enough_of_median =  d['f_pcInd_to_HEDI'](0.5)/HEDI
     s.pc_enough_of_top_10 = d['f_pcInd_to_HEDI'](0.95)/HEDI #check should this be 0.9
@@ -76,7 +76,7 @@ def run(HEDI):
 
     s.pc_enough_gdhi = 100 * d['f_pcInd_to_required_incomesum'](pc_ind)/UK_GDHI
     s.pc_deficit_gdhi = 100 * d['f_pcInd_to_deficit_below'](pc_ind)/UK_GDHI
-    s.pc_excess_gdhi = 100 * d['f_pcInd_to_excess_above'](pc_ind)/UK_GDHI
+    s.pc_excess_gdhi = 100 - s.pc_enough_gdhi #100 * d['f_pcInd_to_excess_above'](pc_ind)/UK_GDHI
     s.uk_gdhi = UK_GDHI
 
     s.pc_growth = 100 * (1 / s.pc_enough_of_bottom_10 - 1)

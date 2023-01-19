@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Customize {% endblock %}
+{% block description %}
+<p>Now customize the budget by category of expense.</p>
+{% endblock %}
 {% block funcdef %}
     <script>
         const updateDisplay = (outid, newVal) => {
@@ -9,7 +11,15 @@
 {% endblock %}
 {% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
 
-{% block body %}    
+{% block body %}
+    <div class="row justify-content-between">
+        <div class="col-3">
+            <h2>Total: £<span id="total"></span></h2>
+        </div>
+        <div class="col-3">
+            <a class="btn btn-primary" href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}" role="button">Reset</a>
+        </div>
+    </div>    
     <div class="row row-cols-1 row-cols-lg-2 g-2">
     {% for cat in breakdown %}        
         <div class="col">
@@ -24,12 +34,18 @@
                     </div>
                 </div>
                 <div class="row justify-content-center">
-                    <div class="col-10">
+                    <div class="col-1">
+                        £0
+                    </div>
+                    <div class="col-9">
                         <input type="range" name="{{ cat.name }}" class="form-range"                         
                             id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
                             value="{{ cat.value }}"
-                            onchange="updateDisplay({{ cat.id }}_output, this.value)">
-                    </div>                    
+                            oninput="updateDisplay({{ cat.id }}_output, this.value)">
+                    </div>    
+                    <div class="col-2">
+                        £{{ cat.max }}
+                    </div>                
                 </div>
             </div>
         </div>                          
@@ -79,3 +95,4 @@
     </div>            
 {% endblock %}
 {% block prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% endblock %}
+{% block progress %}75{% endblock %}

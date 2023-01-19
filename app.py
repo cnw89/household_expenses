@@ -112,8 +112,8 @@ def custom_control():
             cat_data['description'] = cat['description']
             cat_data['value'] = dequivalize(breakdown[catname], n_adults, n_children)
             cat_data['freq'] = 'month'
-            cat_data['max'] = max(dequivalize(maxop[catname], n_adults, n_children), 3 * cat_data['value'])
-            cat_data['step'] = stepfun(cat_data['max'])
+            cat_data['max'] = max(dequivalize(maxop[catname], n_adults+2, n_children), 2 * cat_data['value'])
+            cat_data['step'] = 1#stepfun(cat_data['max'])
 
             breakdown_data_list.append(cat_data)
 
@@ -160,7 +160,7 @@ def main_control():
     if request.method == "GET":        
 
         for opt in options:
-            opt['value']=equivalize(opt['equivalized_spend'], n_adults, n_children)
+            opt['value']=dequivalize(opt['equivalized_spend'], n_adults, n_children)
 
         return render_template("main_control.html", options=json.dumps(options),
          n_adults=n_adults_s, n_children=n_children_s)

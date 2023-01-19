@@ -1,13 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Welcome{% endblock %}
+{% block description %}
+<p>What if there was some time to get on with <em>whatever</em> you wanted to do in the productive hours of your week, without the pressure to earn money then, without being worn out from overwork? <br>
+And what if it wasn't just you with the extra time but <em>everyone</em>?</p>
+<p>How would our culture be enriched by all those with the inclination to form the band they always wanted to be in, work on art projects or develop craftmanship skills?
+<br>How would our relationships be transformed by more time to spend face-to-face with family, friends and lovers?
+<br>How much would the resilience of our society be built by having more time to care for each other and work together as communities?</p>
+
+<p>On this site we want to ask <em>How close are we to all having enough to live on and allowing ourselves to work less?</em></p>
+<p>Tell us how much you think is enough and then we will answer:
+<ul><li>What fraction of UK households have enough?</li>
+    <li>How much more do those without enough need collectively?</li>
+    <li>How much more than enough do the wealthiest have collectively?</li>
+    <li>How much would the economy have to grow for everyone to have enough without redistributing wealth, and how long might this take?</li></ul></p>
+
+{% endblock %}
 {% block formaction %} action="{{url_for('user_info')}}" method="GET" {% endblock %}
 {% block body %}
-Enough can mean many things...
 {% endblock %}
 {% block navbuttons %}
     <div class="row justify-content-end">
         <div class="col-2">
-            <input type="submit" class="btn btn-primary" value="Next">
+            <input type="submit" class="btn btn-primary" value="Begin">
         </div>                    
     </div>
 {% endblock %}

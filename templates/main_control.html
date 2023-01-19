@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Main control{% endblock %}
+{% block description %}
+<p>Select one of our budget 'presets' based on our own estimates for what could be enough for a household of your size in the UK.
+    On the next page you can customize the budget by category.</p>
+{% endblock %}
 {% block funcdef %}
     <script>
         const displayOptions = {{ options | safe }}
@@ -7,7 +10,7 @@
         const updateDisplay = (newVal) => {
             document.getElementById("optionTitle").innerHTML=displayOptions[newVal].name;
             document.getElementById("optionDescription").innerHTML=displayOptions[newVal].description;
-            document.getElementById("optionValue").innerHTML=displayOptions[newVal].value;
+            document.getElementById("optionValue").innerHTML="£" + displayOptions[newVal].value + "/month";
         };        
 
     </script>
@@ -15,16 +18,18 @@
 {% block formaction %}action="{{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }}" method="POST"{% endblock %}
 {% block body %}
 
-    <div class="row">
-        <label for="rangecontents" class="form-label">Allowance</label>
-        <input type="range" name="mainoption" class="form-range" id="range1" max="4" value="0" onchange="updateDisplay(this.value)">
-    </div>
-    <div class="row">
-        <div class="col">
-            <h1 id="optionTitle"></h1>
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <label for="rangecontents" class="form-label">Allowance</label>
+            <input type="range" name="mainoption" class="form-range" id="range1" max="4" value="0" oninput="updateDisplay(this.value)">
         </div>
-        <div class="col">
-            <h1 id="optionValue"></h1>
+    </div>
+    <div class="row justify-content-between">
+        <div class="col-9">
+            <h2 id="optionTitle"></h2>
+        </div>
+        <div class="col-3">
+            <h2 id="optionValue" class="float-end"></h2>
         </div>
     </div>
     <div class="row" id="optionDescription"></div>
@@ -32,3 +37,4 @@
     <script>updateDisplay("0")</script>
 {% endblock %}
 {% block prevlink %}{{ url_for('user_info') }}{% endblock %}
+{% block progress %}50{% endblock %}

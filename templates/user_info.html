@@ -1,9 +1,14 @@
 {% extends "base.html" %}
-{% block title %}User info{% endblock %}
+{% block description %}
+<p>In a moment, we'll help you make a budget for what is 'enough' for your household. 
+    We will then estimate how much is enough per adult and per child in the household, allowing more for the first adult in a household than subsequent.
+</p>
+<p>First then, please enter the composition of your household:</p>
+{% endblock %}
 {% block formaction %}action="{{url_for('user_info')}}" method="POST"{% endblock %}
 {% block body %}
-    <div class="row">
-        <div class="col">
+    <div class="row justify-content-center">
+        <div class="col-4">
             <label for="adultselect">Number of Adults:</label>
             <select class="form-select" name="n_adults" id="adultselect">
                 <option value="1" selected>1</option>
@@ -13,7 +18,7 @@
                 <option value="5">5</option>
             </select>
         </div>
-        <div class="col">
+        <div class="col-4">
             <label for="childrenselect">Number of Children:</label>
             <select class="form-select" name="n_children" id="childrenselect">                        
                 <option value="0" selected>0</option>
@@ -27,3 +32,4 @@
     </div>            
 {% endblock %}
 {% block prevlink %}"."{% endblock %}
+{% block progress %}25{% endblock %}

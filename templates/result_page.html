@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Results{% endblock %}
+{% block description %}
+<p>Complete! See the results below.</p>
+{% endblock %}
 {% block funcdef %}
   <script>
     const s = {{ vars | safe }}
@@ -74,6 +76,7 @@
       </h2>
       <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#resultsAccordian">
         <div class="accordion-body">
+          <p>
           For a household of 
           <span>
             <label for="adultselect"></label>
@@ -99,7 +102,7 @@
           </span>          
           children you reckon that {{ printout('total', '£', '') }} is about enough. <br>
           Including tax, without any other benefits, this would corresponds to an annual salary of about {{ printout('one_adult_salary', '£', '') }}
-           with one adult earning, or two adults each earning {{ printout('two_adult_salary', '£', '') }}. <br>
+           with one adult earning, or two adults each earning {{ printout('two_adult_salary', '£', '') }}. <br></p>
         </div>
       </div>
     </div>
@@ -111,6 +114,8 @@
       </h2>
       <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#resultsAccordian">
         <div class="accordion-body">
+          <p>
+            For a household of
           <span>
             <label for="adultselect"></label>
             <select class="form-select" name="n_adults" id="adultselect2" title="Adults" onchange="updateHouseholdComposition(this.id)">
@@ -133,11 +138,12 @@
                 <option value="5">5</option>
             </select>
           </span>
-          children
+          children...
           With one adult earning minimum wage without additional benefits it would take {{ printout('one_adult_hours_per_week', '', ' hours/week') }} 
           or a wage of {{ printout('one_adult_wage_at_default_hours', '£', '/hour') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.<br>
           With two adults earning minimum wage without additional benefits it would take {{ printout('two_adult_hours_per_week', '', ' hours/week') }} 
           or a wage of {{ printout('two_adult_wage_at_default_hours', '£', '/hour') }} to earn this in {{ printout('default_hours_per_week', '', ' hours') }} per week.
+        </p>
         </div>
       </div>
     </div>
@@ -149,12 +155,11 @@
       </h2>
       <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#resultsAccordian">
         <div class="accordion-body">
-          By your definition, {{ printout('pc_individuals_with_enough', '', '%') }} of people and 
-          {{ printout('pc_households_with_enough', '', '%') }} of UK households earn enough. <br>
-          The poorest 10% have {{ printout('pc_enough_of_bottom_10', '', 'x') }} enough.<br>
+          By your definition {{ printout('pc_households_with_enough', '', '%') }} of UK households earn enough. <br>
+          The poorest 10% have on average {{ printout('pc_enough_of_bottom_10', '', 'x') }} enough.<br>
           The typical household has {{ printout('pc_enough_of_median', '', 'x') }} enough.<br>
-          The highest earning 10% have {{ printout('pc_enough_of_top_10', '', 'x') }} enough.<br>
-          The highest earning 1% have {{ printout('pc_enough_of_top_1', '', 'x') }} enough.
+          The highest earning 10% have on average {{ printout('pc_enough_of_top_10', '', 'x') }} enough.<br>
+          The highest earning 1% have on average {{ printout('pc_enough_of_top_1', '', 'x') }} enough.
         </div>
       </div>
     </div>
@@ -194,3 +199,4 @@
         </div>                    
     </div>
 {% endblock %}
+{% block progress %}100{% endblock %}
