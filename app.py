@@ -62,7 +62,7 @@ def display_results(uid):
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
     
     for rec in record: #only one of these
-        national_results, household_vars = analysis.run(rec.total_equivalized_spend)
+        f1, household_vars = analysis.run(rec.total_equivalized_spend)
 
         n_adults = int(request.args.get('nadult', default=rec.n_adults))
         n_children = int(request.args.get('nchild', default=rec.n_children))
@@ -70,7 +70,7 @@ def display_results(uid):
         household_vars['n_adults'] = n_adults
         household_vars['n_children'] = n_children
 
-    return render_template("result_page.html", results=national_results, vars=json.dumps(household_vars))
+    return render_template("result_page2.html", f1=f1, vars=json.dumps(household_vars))
 
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():

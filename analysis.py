@@ -29,42 +29,26 @@ def run(HEDI):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children. 
     """
-    
-    #vars used for calculating in the javascript - passed via json.dumps()
+    #vars directly injected into html with Jinja
+
+    # common variables for use in the text
     t = types.SimpleNamespace() 
-    t.HEDI = HEDI
-    #equivalization factors from OECD-modified standard:
-    t.adult1 = ADULT1
-    t.adult2 = ADULT2
-    t.child = CHILD
-    
     t.min_wage = MIN_WAGE
     t.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
     t.weeks_per_year = WEEKS_PER_YEAR
 
-    t.household_comps = list(d['d_household_comps_to_index'].keys())
+    #other variables organised by infographic
+    f1 = types.SimpleNamespace()  
+    adults = [1, 1, 2, 2, 2, 2]
+    children = [0, 1, 0, 1, 2, 3]
+    f1.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
+    f1.with_tax1 = [calc_with_tax(sal, 1) for sal in f1.base]
+    f1.with_tax2 = [calc_with_tax(sal, 2) for sal in f1.base]
 
-    #vars directly injected into html with Jinja
+    f3 = types.SimpleNamespace()  
+    
     s = types.SimpleNamespace() 
-    s.min_wage = MIN_WAGE
-    s.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
-    s.weeks_per_year = WEEKS_PER_YEAR
-
-    #FROM HERE... placeholders only - calculate in javascript to be adaptable to household composition
-    s.total = 0   
-    s.one_adult_salary = 0
-    s.two_adult_salary = 0
-
-    s.one_adult_hours_per_week = 0
-    s.two_adult_hours_per_week = 0
-
-    s.one_adult_hours_greater_than_default = False
-    s.two_adult_hours_greater_than_default = False
-
-    s.one_adult_wage_at_default_hours = 0
-    s.two_adult_wage_at_default_hours = 0
-    #TO HERE
-
+ 
     #Now things that won't be updated in html:
     pc_ind = d['f_HEDI_to_pcInd'](HEDI)
     s.pc_individuals_with_enough = 100 * (1 - pc_ind)
@@ -88,7 +72,7 @@ def run(HEDI):
     sout = s.__dict__
     tout = t.__dict__
 
-    return sout, tout
+    return f1.__dict__, tout
 
 def years_of_growth(total, annual_rate):
     # (1 + annual_rate) ** years_of_growth = 1 + total
@@ -102,3 +86,7 @@ def equivalize(val, na, nc):
 
 def dequivalize(val, na, nc):
     return int(val * (composition_to_equiv_factor(na, nc)/composition_to_equiv_factor(2, 0)))
+
+def calc_with_tax(val, n_earners):
+
+ return 1.3*val
