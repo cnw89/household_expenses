@@ -1,12 +1,12 @@
-const f2_vars = {{ f1 | safe }}
+const f2_vars = {{ d_howmuch | safe }};
+const d = {{ d_common | safe }};
+
 var f2_chart = echarts.init(document.getElementById('f2_chart')); 
 
 
 var nWorkers = 1;
-const STANDARD_HOURS = 37.5;
-var hours = STANDARD_HOURS;
-const MIN_WAGE = 10.4;
-var wage = MIN_WAGE;
+var hours = d.DEFAULT_HOURS_PER_WEEK;
+var wage = d.min_wage;
 const WEEKS_IN_YEAR = 52;
 
 function generate_wage_data() {
@@ -99,7 +99,8 @@ function make_hours_option(){
         title: {
             text: 'What it takes to earn enough',
             textAlign: 'center',
-            left: '50%'
+            left: '50%',
+            subtitle: 'By household composition'
         },
         grid: {
             top: 50,
@@ -176,8 +177,8 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
         if (do_update_range){
             range.setAttribute("min", "4.0");
             range.setAttribute("max", "80.0");
-            range.setAttribute("value", STANDARD_HOURS.toString());
-            range.value = STANDARD_HOURS.toString();
+            range.setAttribute("value", d.default_hours_per_week.toString());
+            range.value = d.default_hours_per_week.toString();
         }        
 
         range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value;
@@ -186,8 +187,8 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
         if (do_update_range){
             range.setAttribute("min", "3.0");
             range.setAttribute("max", "30.0");
-            range.setAttribute("value", MIN_WAGE.toString());
-            range.value = MIN_WAGE.toString();
+            range.setAttribute("value", d.min_wage.toString());
+            range.value = d.min_wage.toString();
         }
 
         range_label.innerHTML = hoursOrWageRangeLabelValues[0] + range.value + "0";        
@@ -209,14 +210,14 @@ function update_f2(do_update_range) {
     if (document.getElementById("wageHoursSwitch").checked){
         
         hours = parseFloat(document.getElementById("hoursOrWageRange").value);
-        wage = MIN_WAGE;
+        wage = d.MIN_WAGE;
 
         f2_chart.setOption(make_wage_option());
         document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[1];
     }else {
         
         wage = parseFloat(document.getElementById("hoursOrWageRange").value);
-        hours = STANDARD_HOURS;
+        hours = d.DEFAULT_HOURS_PER_WEEK;
 
         f2_chart.setOption(make_hours_option());
         document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[0];        

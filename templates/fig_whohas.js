@@ -1,4 +1,4 @@
-//const f3_vars = {{ f3 | safe }}
+//const f3_vars = {{ d_whohas | safe }}
 
 // Initialize the echarts instance based on the prepared dom
 var f3_chart = echarts.init(document.getElementById('f3_chart'));  
@@ -18,7 +18,7 @@ const f3_labelSetting = {
 // Specify the configuration items and data for the chart
 var f3_option = {
 title: {
-    text: 'What fraction of enough do UK households have?',
+    text: 'What fraction of enough do UK residents have?',
     textAlign: 'center',
     left: '50%'
 },
@@ -49,7 +49,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'UK Households by decile',
+    name: 'UK residents by decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,
@@ -67,7 +67,7 @@ series: [
     {
     name: 'Fraction of enough',
     type: 'bar',
-    data: [0.3, 0.4, 0.5, 0.7, 1, 1.2, 1.5, 1.8, 2.2, 6.4],
+    data: f3_vars.pc_enough_by_decile,
     label: f3_labelSetting,
     markLine: {
         symbol: 'none',

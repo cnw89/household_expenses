@@ -62,15 +62,21 @@ def display_results(uid):
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
     
     for rec in record: #only one of these
-        f1, household_vars = analysis.run(rec.total_equivalized_spend)
+        
+        d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend)
 
         n_adults = int(request.args.get('nadult', default=rec.n_adults))
         n_children = int(request.args.get('nchild', default=rec.n_children))
 
-        household_vars['n_adults'] = n_adults
-        household_vars['n_children'] = n_children
+        d_common['n_adults'] = n_adults
+        d_common['n_children'] = n_children
 
-    return render_template("result_page2.html", f1=f1, vars=json.dumps(household_vars))
+    return render_template("result_page2.html", 
+                            d_common=d_common,
+                            d_howmuch=d_howmuch, 
+                            d_whohas=d_whohas,
+                            d_dowe=d_dowe, 
+                            d_willgrowth=d_willgrowth)
 
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
@@ -117,9 +123,13 @@ def custom_control():
 
             breakdown_data_list.append(cat_data)
 
-        return render_template("custom_control.html", breakdown=breakdown_data_list, 
-            savings=savings_data, pension=pension_data,
-            n_adults=n_adults_s, n_children=n_children_s, mainoption=mainoption)
+        return render_template("custom_control.html", 
+                breakdown=breakdown_data_list, 
+                savings=savings_data, 
+                pension=pension_data,
+                n_adults=n_adults_s, 
+                n_children=n_children_s, 
+                mainoption=mainoption)
 
     
     total_equivalized_spend=0

@@ -1,4 +1,4 @@
-//const f5_vars = {{ f5 | safe }}
+//const f5_vars = {{ d_whohas | safe }}
 
 // Initialize the echarts instance based on the prepared dom
 var f5_chart = echarts.init(document.getElementById('f5_chart'));  
@@ -15,7 +15,7 @@ const f5_labelSetting = {
     },
   };
 
-var decile_data = [0.3, 0.4, 0.5, 0.7, 1, 1.2, 1.5, 1.8, 2.2, 6.4];
+var decile_data = f3_vars.pc_enough_by_decile.slice();
 var year = 2023;
 var growth_rate = 1.02;
 
@@ -25,7 +25,7 @@ const update_data = () => {
   }
   year += 1;
   if (year > 2050){
-    decile_data = [0.3, 0.4, 0.5, 0.7, 1, 1.2, 1.5, 1.8, 2.2, 6.4];
+    decile_data = f3_vars.pc_enough_by_decile.slice();
     year = 2023;
   }
   return decile_data
@@ -71,7 +71,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'UK Households by decile',
+    name: 'UK Residents by decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,
@@ -131,10 +131,10 @@ function beginTransition(){
 var myInterval;
 
 function update_growth(value_str){
-  clearInterval(myInterval);
+  //clearInterval(myInterval);
   growth_rate = 1 + parseFloat(value_str)/100;
   year = 2051;
-  myInterval = beginTransition();
+  //myInterval = beginTransition();
 }
 
 const update_growth_label = (value_str) => {

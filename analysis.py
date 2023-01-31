@@ -14,7 +14,6 @@ with open(filename, 'rb') as fID:
 
 MIN_WAGE = 10.5
 DEFAULT_HOURS_PER_WEEK = 37.5
-WEEKS_PER_YEAR = 52
 
 #equivalization factors from OECD-modified standard:
 ADULT1 = 1
@@ -32,27 +31,46 @@ def run(HEDI):
     #vars directly injected into html with Jinja
 
     # common variables for use in the text
-    t = types.SimpleNamespace() 
-    t.min_wage = MIN_WAGE
-    t.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
-    t.weeks_per_year = WEEKS_PER_YEAR
+    d_common = types.SimpleNamespace() 
+    d_common.min_wage = MIN_WAGE
+    d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
+    
+    d_common.first_adult = equivalize(HEDI, 1, 0)
+    d_common.second_adult = equivalize(HEDI, 2, 0) - equivalize(HEDI, 1, 0)
+    d_common.child = equivalize(HEDI, 1, 1) - equivalize(HEDI, 1, 0)
 
     #other variables organised by infographic
-    f1 = types.SimpleNamespace()  
+    #1 how much is enough
+    d_howmuch = types.SimpleNamespace()  
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
-    f1.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
-    f1.with_tax1 = [calc_with_tax(sal, 1) for sal in f1.base]
-    f1.with_tax2 = [calc_with_tax(sal, 2) for sal in f1.base]
+    d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
+    d_howmuch.with_tax1 = [calc_with_tax(sal, 1) for sal in d_howmuch.base]
+    d_howmuch.with_tax2 = [calc_with_tax(sal, 2) for sal in d_howmuch.base]
 
-    f3 = types.SimpleNamespace()  
-    
-    s = types.SimpleNamespace() 
+    #what does it take to earn enough calculated in browser from how much is enough...
+
+    #2 who has enough
+    d_whohas = types.SimpleNamespace()  
+    pc_ind = d['f_HEDI_to_pcInd'](HEDI) # the percentile individual who has this household equivalized disposable income
+    d_whohas.pc_individuals_without_enough = 100 * pc_ind
+    d_whohas.pc_households_without_enough = 100 * d['f_pcInd_to_pcHouse'](pc_ind).item()
+    d_whohas.pc_enough_by_decile = [dec/HEDI for dec in d['l_deciles_av'] ]
+
+    #3 do we have enough
+    d_dowe = types.SimpleNamespace()  
+    d_dowe.uk_gdhi = UK_GDHI
+    d_dowe.enough_for_everyone = d['f_pcInd_to_required_incomesum'](pc_ind).item()
+    d_dowe.deficit_without_enough = d['f_pcInd_to_deficit_below'](pc_ind).item()
+    print(d_dowe.uk_gdhi)
+    print(d_dowe.enough_for_everyone)
+    print(d_dowe.deficit_without_enough)    
+
+    #4 will growth
+    d_willgrowth = types.SimpleNamespace() 
  
-    #Now things that won't be updated in html:
-    pc_ind = d['f_HEDI_to_pcInd'](HEDI)
-    s.pc_individuals_with_enough = 100 * (1 - pc_ind)
-    s.pc_households_with_enough = 100 * (1 - d['f_pcInd_to_pcHouse'](pc_ind))
+    #Now things that won't be updated in html:    
+    """
     s.pc_enough_of_bottom_10 = d['f_pcInd_to_HEDI'](0.05)/HEDI #check should this be 0.1
     s.pc_enough_of_median =  d['f_pcInd_to_HEDI'](0.5)/HEDI
     s.pc_enough_of_top_10 = d['f_pcInd_to_HEDI'](0.95)/HEDI #check should this be 0.9
@@ -69,10 +87,10 @@ def run(HEDI):
     s.annual_growth_even = 100 * UK_ANNUAL_GROWTH
     s.annual_growth_uneven = 100 * UK_ANNUAL_GROWTH * UK_LOWEST_DECILE_GROWTH_SHARE
 
-    sout = s.__dict__
-    tout = t.__dict__
+    """
+    
 
-    return f1.__dict__, tout
+    return d_common.__dict__, d_howmuch.__dict__, d_whohas.__dict__, d_dowe.__dict__, d_willgrowth.__dict__
 
 def years_of_growth(total, annual_rate):
     # (1 + annual_rate) ** years_of_growth = 1 + total

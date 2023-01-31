@@ -1,4 +1,4 @@
-const f1_vars = {{ f1 | safe }}
+const f1_vars = {{ d_howmuch | safe }}
 
 // Initialize the echarts instance based on the prepared dom
 var f1_chart = echarts.init(document.getElementById('f1_chart'));  
@@ -23,7 +23,8 @@ var f1_option = {
 title: {
     text: 'How much is enough',
     textAlign: 'center',
-    left: '50%'
+    left: '50%',
+    subtitle: 'By household composition'
 },
 grid: {
     top: 100,

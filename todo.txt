@@ -1,6 +1,4 @@
 ## For all pages
-- progress indicator (number of steps)
-- width of content
 - back/next button placement
 - Header
     - How much is enough banner
@@ -8,29 +6,18 @@
 - Footer
     - Copyright
 
-## Landing page
-- Intro text
-
-## User Info
-- Explanatory text
-
-## Main Control
-- Explanatory text
-
-## Customize
-- Explanatory text
-- Print descriptions
-- Two columns of sliders?
-- Display of value
-- Different max values
-- Savings and pensions as %
+## custom
+- total displayed at the top
 
 ## results
 - just % households, not % people
 - correct number of sig figs
 - Household numbers rethink
+- Take out in-browser household composition editing
+- Proper tax calculation
 - Graphics
 - Lock-in/vote
+- Why not excess GDHI not simply 100 - enough?
 
 # Basic format
 0. Intro text
@@ -51,3 +38,25 @@ c. Enough for everyone is X% of GDP
 - allowances per adult/child by category
 - total allowance per adult/child
 - n_votes
+
+# Infographics
+## How much is enough
+- horizontal pictorial bar
+- Y: family composition
+- X: enough + tax(2 earning) + tax(1 earning)
+
+## What does it take to get enough?
+- horizontal pictorial bar
+- Y: family composition
+- X: hours/wage (toggle?)
+- toggle 1/2 earners?
+- slide hours/week or wage?
+
+##Who has enough?
+- coloured people scale
+- vertical bar chart for x% of enough from bottom 10% to 90%
+
+##Do we have enough for everyone?
+- 2 pies: deficit, GDHI (and excess subset)
+- Timeline of growth (historic + projection) - toggle growth?
+    - 'events' where milestone % of people having enough is achieved
