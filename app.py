@@ -157,7 +157,7 @@ def custom_control():
     db.session.add(record)
     db.session.commit()
 
-    return redirect(url_for('display_results', uid=uid) + '?nadult=' + n_adults_s + '&nchild='+ n_children_s)
+    return redirect(url_for('display_results', uid=uid))
 
 @app.route("/page2", methods=["GET", "POST"])
 def main_control():

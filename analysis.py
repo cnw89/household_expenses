@@ -1,8 +1,7 @@
 import types
 import pickle
-from scipy.interpolate import interp1d
 import numpy as np
-
+from scipy.interpolate import interp1d
 
 filename = 'income_assessment.pickle'
 with open(filename, 'rb') as fID:
@@ -12,7 +11,7 @@ with open(filename, 'rb') as fID:
 # 'f_pcInd_to_pcHouse_byComp', 'd_household_comps_to_index', 'f_pcInd_to_required_incomesum', 
 # 'f_pcInd_to_deficit_below', 'f_pcInd_to_excess_above'])
 
-MIN_WAGE = 10.5
+MIN_WAGE = 10.42
 DEFAULT_HOURS_PER_WEEK = 37.5
 
 #equivalization factors from OECD-modified standard:
@@ -23,6 +22,21 @@ CHILD = 0.3
 UK_GDHI = 1438237*1e6
 UK_ANNUAL_GROWTH = 0.015
 UK_LOWEST_DECILE_GROWTH_SHARE = 0.75
+
+#checked January 2023
+INCOME_TAX_THRESHOLDS = [150000, 50270, 12570] #annual salary thresholds
+INCOME_TAX_RATES = [0.45, 0.4, 0.2]
+
+thresh1 = (INCOME_TAX_THRESHOLDS[1] - INCOME_TAX_THRESHOLDS[2])*(1 - INCOME_TAX_RATES[2]) + INCOME_TAX_THRESHOLDS[2]
+thresh2 = (INCOME_TAX_THRESHOLDS[0] - INCOME_TAX_THRESHOLDS[1])*(1 - INCOME_TAX_RATES[1]) + thresh1
+INCOME_TAX_THRESHOLDS_INV = [thresh2, thresh1, INCOME_TAX_THRESHOLDS[2]]
+
+#Class 1A national insurance, employee contributions, valid to April 2023
+NI_THRESHOLDS = [967, 242.01] #weekly earnings thresholds
+NI_RATES = [0.02, 0.12]
+
+thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLDS[1]
+NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
 
 def run(HEDI):
     """
@@ -35,9 +49,9 @@ def run(HEDI):
     d_common.min_wage = MIN_WAGE
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
     
-    d_common.first_adult = equivalize(HEDI, 1, 0)
-    d_common.second_adult = equivalize(HEDI, 2, 0) - equivalize(HEDI, 1, 0)
-    d_common.child = equivalize(HEDI, 1, 1) - equivalize(HEDI, 1, 0)
+    d_common.first_adult = dequivalize(HEDI, 1, 0)
+    d_common.second_adult = dequivalize(HEDI, 2, 0) - dequivalize(HEDI, 1, 0)
+    d_common.child = dequivalize(HEDI, 1, 1) - dequivalize(HEDI, 1, 0)
 
     #other variables organised by infographic
     #1 how much is enough
@@ -45,8 +59,8 @@ def run(HEDI):
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
-    d_howmuch.with_tax1 = [calc_with_tax(sal, 1) for sal in d_howmuch.base]
-    d_howmuch.with_tax2 = [calc_with_tax(sal, 2) for sal in d_howmuch.base]
+    d_howmuch.with_tax1 = [calc_pre_tax_income(sal).item() for sal in d_howmuch.base]
+    d_howmuch.with_tax2 = [calc_pre_tax_income(sal/min(2, na)).item() for sal, na in zip(d_howmuch.base, adults)]
 
     #what does it take to earn enough calculated in browser from how much is enough...
 
@@ -105,6 +119,34 @@ def equivalize(val, na, nc):
 def dequivalize(val, na, nc):
     return int(val * (composition_to_equiv_factor(na, nc)/composition_to_equiv_factor(2, 0)))
 
-def calc_with_tax(val, n_earners):
+def calc_disposable_income(income):
+    """
+    subtract income tax and Class 1A employee contribution from income
+    """
+    income_remainder = income
+    disposable_income = income
 
- return 1.3*val
+    #first calculate income tax
+    for b, thresh in enumerate(INCOME_TAX_THRESHOLDS):
+
+        if income_remainder > thresh:
+            val_above = income_remainder - thresh
+            disposable_income -= val_above * INCOME_TAX_RATES[b]
+            income_remainder -= val_above
+
+    #now class 1A national insurance, employee contributions
+    ni_remainder = income/52
+    
+    for b, thresh in enumerate(NI_THRESHOLDS):
+
+        if ni_remainder >= thresh:
+            val_above = ni_remainder - thresh
+            disposable_income -= val_above * NI_RATES[b]
+            ni_remainder -= val_above
+    
+    return disposable_income
+
+incomes = [inc for inc in range(int(INCOME_TAX_THRESHOLDS_INV[2]), int(INCOME_TAX_THRESHOLDS_INV[0]), 1)]
+incomes.insert(0, 0)
+incomes.append(1000000)
+calc_pre_tax_income = interp1d([calc_disposable_income(inc) for inc in incomes], incomes)
