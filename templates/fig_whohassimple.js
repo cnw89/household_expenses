@@ -2,6 +2,9 @@ const f3_vars = {{ d_whohas | safe }};
 
 // Initialize the echarts instance based on the prepared dom
 var f3a_chart = echarts.init(document.getElementById('f3a_chart'));  
+window.addEventListener('resize', function() {
+    f3a_chart.resize();
+  });
 
 const f3a_pathSymbols = {
     person_red : 'image://{{ url_for('static', filename='img/person-red.svg') }}',
@@ -10,26 +13,27 @@ const f3a_pathSymbols = {
 
 
 const format_subtext = () =>{
-  let subtext_str = parseInt(100 - f3_vars.pc_households_without_enough) + "% of residents have more than enough,\n" 
-  + parseInt(f3_vars.pc_households_without_enough) + "% of residents do not have enough";
+  let subtext_str = parseInt(100 - f3_vars.pc_households_without_enough) + "% of non-retired UK residents have more than enough,\n" 
+  + parseInt(f3_vars.pc_households_without_enough) + "% of non-retired UK residents do not have enough";
   return subtext_str
 };
 
 var f3a_option = {
 title: {
-    text: 'Who has enough?',
+    text: format_subtext(),
     textAlign: 'center',
-    left: '50%',
-    subtext: format_subtext(),
-    subtextStyle: {
-      fontSize: 16
-    }
+    left: '50%'
+    // subtext: format_subtext(),
+    // subtextStyle: {
+    //   fontSize: 16
+    //}
 },
 grid: {
-    top: 0,
-    height: 200,
+    top: 0,//"50%",
+    //height: 200,
     left: 0,
-    right: 0
+    right: 0,
+    bottom: 0
 },
 
 xAxis: {
@@ -55,7 +59,7 @@ series: [
     symbolSize: ['15%', '25%'],
     symbol: f3a_pathSymbols.person_red,
     data: [f3_vars.pc_individuals_without_enough],    
-    z: 2        
+    z: 2     
     },
     {
     name: 'All people',
@@ -64,7 +68,7 @@ series: [
     symbolSize: ['15%', '25%'],
     symbol: f3a_pathSymbols.person_green,
     data: [100],    
-    z: 1        
+    z: 1  
     }
 ]
 };

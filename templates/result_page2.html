@@ -9,41 +9,98 @@
 {% block formaction %}action="/allresults" method="GET"{% endblock %}
 {% block body %}
 
+{% macro printout(varname, prestr, poststr) %}
+    <strong>{{ prestr | safe }}<span id="{{ varname }}">{{ "{:,.0f}".format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
+{% endmacro %}
+{% macro add_chart(name, height) %}
+<div class="row justify-content-center">
+    <div class="col-md-11" id="{{ name  }}" style="height:{{ height }}px;"></div>
+</div>
+{% endmacro %}
+<p>
+    Based on the expense budget you provided with a household of {{ printout('n_adults', '', ' adults')}} and 
+    {{ printout('n_children', '', ' children')}}, we estimate that an equivalent level of expenditure can be achieved 
+    in other non-retired households allowing {{ printout('first_adult', '£', '')}} for the first adult, {{ printout('second_adult', '£', '')}}
+    for subsequent adults, and {{ printout('child', '£', '')}} for children, per month.
+</p>
 
-<div id="f1_chart" style="width: 600px;height:400px;"></div>
+<h2>How much is enough?</h2>
 
-<div class="row">
-    <div class="col">
-        <div class="row">
-            <div class="col-10">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
-                    <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
-                </div>
-            </div>
-            <div class="col-10">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
-                    <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One worker per household</label>
-                </div>
-            </div>
-            <div class="col-10">
-                <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
-                <input type="range" class="form-range" id="hoursOrWageRange" min="4.0" step="0.1" max="80.0" value="37.5">
-            </div>
+<p>
+    Here is what 'enough' is for non-retired households of various sizes. Expected tax is calculated assuming a single earner counting expected Income Tax 
+    and Class 1A National Insurance employee contributions. If more than one earner is present in the household, total tax will usually be less.
+</p>
+{{ add_chart('f1_chart', '300') }}
+
+<h2>What does it take to earn enough?</h2>
+
+<p>
+    How many hours per week do earners need to work to make enough, or what wage do earners need to make enough in a given number of hours per week?
+    The UK National Living Wage, which is the legal minimum wage for those age 23 and over is currently {{ "£{:.2f}/hour".format(d_common['min_wage']) }}.
+    Use the controls below to see what it takes for different households.
+</p>
+
+<div class="row justify-content-center">
+
+    <div class="col-7">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
+            <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One earner per household</label>
+        </div>                
+    </div>
+    <div class="col-7">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
+            <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
         </div>
     </div>
-    <div class="col">
-        <div id="f2_chart" style="width: 600px;height:400px;"></div>
+    <div class="col-7">
+        <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
+        <div class="input-group">            
+            <span class="input-group-text" id="hoursOrWageRangeMinLabel">10</span>            
+            <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
+            <span class="input-group-text" id="hoursOrWageRangeMaxLabel">80</span>
+        </div>                
     </div>
 </div>
-<div id="f3a_chart" style="width: 600px;height:400px;"></div>
-<div id="f3_chart" style="width: 600px;height:400px;"></div>
-<div id="f4_chart" style="width: 600px;height:400px;"></div>
-<label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 2%</label>
-<input type="range" class="form-range" id="growthPCRange" min="0.25" step="0.25" max="5" value="2">
-<div id="f5_chart" style="width: 600px;height:400px;"></div>
+{{ add_chart('f2_chart', '300') }}
 
+<h2>Who has enough?</h2>
+<p>
+    Introducing this section...
+</p>
+{{ add_chart('f3a_chart', '150') }}
+<p>
+    The next chart shows what fraction of enough non-retired UK residents have...
+</p>
+{{ add_chart('f3_chart', '400') }}
+
+
+<h2>Do we have enough for everyone?</h2>
+<p>
+    Introducing this section...
+</p>
+{{ add_chart('f4_chart', '300') }}
+
+<h2>What does it take for everyone to have enough?</h2>
+<p>
+    Introducing this section...
+</p>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 2%</label>
+        <div class="input-group">
+            <span class="input-group-text">0.25</span>  
+            <input type="range" class="form-range from-control" id="growthPCRange" min="0.25" step="0.25" max="5.0" value="2.0">
+            <span class="input-group-text">5</span>  
+        </div>        
+    </div>
+</div>
+{{ add_chart('f5_chart', '400') }}
+<h2>And finally...</h2>
+<p>
+    If you thought this was interesting...
+</p>
 <script type="text/javascript">
     {% include 'fig_howmuch.js' %} 
     {% include 'fig_whatdoes.js' %}

@@ -2,6 +2,9 @@ const f1_vars = {{ d_howmuch | safe }}
 
 // Initialize the echarts instance based on the prepared dom
 var f1_chart = echarts.init(document.getElementById('f1_chart'));  
+window.addEventListener('resize', function() {
+    f1_chart.resize();
+  });
 
 const f1_pathSymbols = {
     gbp_black : 'image://{{ url_for('static', filename='img/gbp1.svg') }}',
@@ -20,17 +23,18 @@ const f1_labelSetting = {
 
 // Specify the configuration items and data for the chart
 var f1_option = {
-title: {
-    text: 'How much is enough',
-    textAlign: 'center',
-    left: '50%',
-    subtitle: 'By household composition'
-},
+// title: {
+//     text: 'How much is enough',
+//     textAlign: 'center',
+//     left: '50%',
+//     subtitle: 'By household composition'
+// },
 grid: {
-    top: 100,
-    height: 200,
+    //top: 100,
+    //height: 200,
     left: 220,
-    right: 0
+    right: 50,
+    bottom: 0
 },
 tooltip: {
     valueFormatter: function (value) {
@@ -40,7 +44,7 @@ tooltip: {
 color: ['#0066CC', '#000000'],
 legend: {
     data: ['Required Income', 'Including Expected Tax'],
-    top: 50,
+    //top: 50,
     textStyle: {
       fontSize: 16
     }

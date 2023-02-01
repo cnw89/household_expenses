@@ -2,12 +2,15 @@
 
 // Initialize the echarts instance based on the prepared dom
 var f3_chart = echarts.init(document.getElementById('f3_chart'));  
+window.addEventListener('resize', function() {
+  f3_chart.resize();
+});
 
 const f3_labelSetting = {
     show: true,
     distance: 5,
     position: 'insideBottom',
-    offset: [0, -190],
+    offset: [0, -270],
     fontSize: 14,
     color: '#000000',
     formatter: function (params) {
@@ -17,15 +20,17 @@ const f3_labelSetting = {
 
 // Specify the configuration items and data for the chart
 var f3_option = {
-title: {
-    text: 'What fraction of enough do UK residents have?',
-    textAlign: 'center',
-    left: '50%'
-},
+// title: {
+//     text: 'What fraction of enough do UK residents have?',
+//     textAlign: 'center',
+//     left: '50%'
+// },
 grid: {
-    top: 60,
-    height: 200,
+    //top: 60,
+    //height: 200,
     //width: 500,
+    top: 0,
+    bottom: 100,
     left: 70,
     right: 0
 },
@@ -49,7 +54,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'UK residents by decile',
+    name: 'Non-retired UK residents by disposable income decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,

@@ -1,4 +1,7 @@
 const f4_vars = {{ d_dowe | safe }};
+window.addEventListener('resize', function() {
+  f4_chart.resize();
+});
 
 // Initialize the echarts instance based on the prepared dom
 var f4_chart = echarts.init(document.getElementById('f4_chart'));  
@@ -22,10 +25,10 @@ const f4_labelSetting = {
   };
   
   f4_option = {
-    title: {
-      text: 'Do we have enough?',
-      left: 'center'
-    },
+    // title: {
+    //   text: 'Do we have enough?',
+    //   left: 'center'
+    // },
     tooltip: {
       trigger: 'item',
       formatter: '{b}<br> £{c} billion',

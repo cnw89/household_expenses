@@ -2,7 +2,9 @@ const f2_vars = {{ d_howmuch | safe }};
 const d = {{ d_common | safe }};
 
 var f2_chart = echarts.init(document.getElementById('f2_chart')); 
-
+window.addEventListener('resize', function() {
+    f2_chart.resize();
+  });
 
 var nWorkers = 1;
 var hours = d.DEFAULT_HOURS_PER_WEEK;
@@ -67,10 +69,27 @@ const f2wage_labelSetting = {
     },
   };
   
+  const f2wage_title = () => {
+    if (nWorkers==1){
+        return 'Required wage for ' + nWorkers.toString() + ' earner in the household,\nwith fixed hours of ' + hours.toString() + ' per week'
+    }else{
+        return 'Required wage for ' + nWorkers.toString() + ' earners (where present) in the\nhousehold, with fixed hours of ' + hours.toString() + ' per week'
+    }    
+  };
 
+  const f2hours_title = () => {
+    if (nWorkers==1){
+        return 'Required hours for ' + nWorkers.toString() + ' earner in the household,\nwith a fixed wage of £' + wage.toString() + '0 per hour'
+    }else{
+        return 'Required hours for ' + nWorkers.toString() + ' earners (where present) in the\nhousehold, with a fixed wage of £' + wage.toString() + '0 per hour'
+    }    
+  };
 // Specify the configuration items and data for the chart
 function make_wage_option(){
     var option = {
+        title: {
+            text: f2wage_title()
+        },
         tooltip: {
             valueFormatter: function (value) {
                 return '£' + value.toFixed(2) + '/hour';
@@ -97,16 +116,16 @@ function make_hours_option(){
     // Specify the configuration items and data for the chart
     var option = {
         title: {
-            text: 'What it takes to earn enough',
+            text: f2hours_title(),
             textAlign: 'center',
-            left: '50%',
-            subtitle: 'By household composition'
+            left: '50%'
         },
         grid: {
-            top: 50,
-            height: 200,
+            //top: 50,
+            //height: 200,
             left: 220,
-            right: 130
+            right: 130,
+            bottom: 0
         },
         tooltip: {
             valueFormatter: function (value) {
@@ -152,8 +171,8 @@ function make_hours_option(){
 }
 
 const wageHoursSwitchLabelValues = ["Fixed wage", "Fixed hours"];
-const nWorkersLabelValues = ["One worker per household", "Two workers per household (where present), earning equally"];
-const hoursOrWageRangeLabelValues = ["Wage (per hour): £", "Hours worked per week: "];
+const nWorkersLabelValues = ["One earner per household", "Two earners per household, earning equally"];
+const hoursOrWageRangeLabelValues = ["Wage: £", "Hours: "];
 
 function update_hoursOrWageRangeLabel(){
     let range = document.getElementById("hoursOrWageRange");
@@ -161,10 +180,10 @@ function update_hoursOrWageRangeLabel(){
 
     if (document.getElementById("wageHoursSwitch").checked) {        
         
-        range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value;
+        range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value + "/week";
     } else {
         
-        range_label.innerHTML = hoursOrWageRangeLabelValues[0] + range.value + "0";
+        range_label.innerHTML = hoursOrWageRangeLabelValues[0] + parseFloat(range.value).toFixed(2) + "/hour";
     }
 }
 
@@ -175,23 +194,27 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
     if (iswage) {
         
         if (do_update_range){
-            range.setAttribute("min", "4.0");
+            range.setAttribute("min", "10.0");
             range.setAttribute("max", "80.0");
             range.setAttribute("value", d.default_hours_per_week.toString());
+            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = 10
+            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = 80
             range.value = d.default_hours_per_week.toString();
         }        
 
-        range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value;
+        range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value + "/week";
 
     } else {
         if (do_update_range){
             range.setAttribute("min", "3.0");
             range.setAttribute("max", "30.0");
             range.setAttribute("value", d.min_wage.toString());
+            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = 3
+            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = 30
             range.value = d.min_wage.toString();
         }
 
-        range_label.innerHTML = hoursOrWageRangeLabelValues[0] + range.value + "0";        
+        range_label.innerHTML = hoursOrWageRangeLabelValues[0] + parseFloat(range.value).toFixed(2) + "/hour";        
     }
 }
 
