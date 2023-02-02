@@ -57,6 +57,10 @@ class Record(db.Model):
 def all_results():
     return render_template("all_results.html", records=Record.query.all())
 
+@app.route("/questions", methods=["GET"])
+def questions():
+    return render_template("further_questions.html")
+
 @app.route("/results/<uid>", methods=["GET"])
 def display_results(uid):
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block description %}
-<p>Now customize the budget by category of expense.</p>
+Now customize the budget by category of expense.
 {% endblock %}
 {% block funcdef %}
     <script>
@@ -21,19 +21,58 @@
             document.getElementById('total').innerHTML = total.toLocaleString();
         };
 
+        const adjustEverything = () => {
+
+            let multiplier = 1 + parseInt(document.getElementById("adjustEverythingRange").value)/100;
+
+            {% for cat in breakdown %}
+                val = parseInt(document.getElementById("{{ cat.id + '_input' }}").value);
+                newval = Math.round(val * multiplier);
+                document.getElementById("{{ cat.id + '_input' }}").value = newval;
+                document.getElementById("{{ cat.id + '_output' }}").innerHTML = newval;
+            {% endfor %}
+
+            updateTotal();
+            document.getElementById("adjustEverythingRange").value = 0;
+            updateDisplay(adjustEverythingRangeOutput, 0);
+        }
+
     </script>
 {% endblock %}
 {% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
 
 {% block body %}
-    <div class="row justify-content-between">
-        <div class="col-9">
-            <h2>Total: £<span id="total"></span>/month</h2>
-        </div>
-        <div class="col-3">
-            <a class="btn btn-primary float-end" href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}" role="button">Reset</a>
-        </div>
-    </div>    
+    <div class="p-3 border bg-light">
+        <div class="row justify-content-between align-items-center g-2">
+            <div class="col-5">
+                <h2>Total: £<span id="total"></span>/month</h2>
+            </div>
+            <div class="col-5">
+                <div class="row justify-content-center">
+                    <b><label for="adjustEverythingRange" class="form-label">Adjust Total: </label>
+                    <span id="adjustEverythingRangeOutput">0</span>%
+                    </b>
+                    <div class="col-2">
+                        -30%
+                    </div>
+                    <div class="col-8">
+                        <input type="range" name="adjustEverythingRange" class="form-range"                         
+                            id="adjustEverythingRange" min="-30" max="30" step="1"
+                            value="0"
+                            oninput="updateDisplay(adjustEverythingRangeOutput, this.value)"
+                            onchange="adjustEverything()">
+                    </div>
+                    <div class="col-2">
+                        +30%
+                    </div>                    
+                </div>
+            </div>
+            <div class="col-2">
+                <a class="btn btn-primary float-end" href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}" role="button">Reset</a>
+            </div>
+        </div>  
+    </div>
+    <p></p>
     <div class="row row-cols-1 row-cols-lg-2 g-2">
     {% for cat in breakdown %}        
         <div class="col">
@@ -120,8 +159,7 @@
                     </div>                      
                 </div>
             </div>
-        </div> 
-        <div class="col" style="height:50px;"></div>
+        </div>         
     </div> 
     <script> updateTotal(); </script>           
 {% endblock %}
