@@ -197,8 +197,8 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
             range.setAttribute("min", "10.0");
             range.setAttribute("max", "80.0");
             range.setAttribute("value", d.default_hours_per_week.toString());
-            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = 10
-            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = 80
+            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = "10/week"
+            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = "80/week"
             range.value = d.default_hours_per_week.toString();
         }        
 
@@ -209,8 +209,8 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
             range.setAttribute("min", "3.0");
             range.setAttribute("max", "30.0");
             range.setAttribute("value", d.min_wage.toString());
-            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = 3
-            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = 30
+            document.getElementById("hoursOrWageRangeMinLabel").innerHTML = "£3/hour"
+            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = "£30/hour"
             range.value = d.min_wage.toString();
         }
 

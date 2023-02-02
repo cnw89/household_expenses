@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block formaction %}action="/allresults" method="GET"{% endblock %}
-{% block body %}
 
 {% macro printout(varname, prestr, poststr) %}
     <strong>{{ prestr | safe }}<span id="{{ varname }}">{{ "{:,.0f}".format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
@@ -16,19 +15,35 @@
 <div class="row justify-content-center">
     <div class="col-md-11" id="{{ name  }}" style="height:{{ height }}px;"></div>
 </div>
+<p></p>
 {% endmacro %}
+
+{% macro query(title) %}
+<a tabindex="0" class="d-inline-block" role="button" data-bs-toggle="popover" data-bs-trigger="focus" 
+data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
+    <img src="{{ url_for('static', filename='img/question.svg') }}" alt="tooltip" width="24" height="24">
+</a>
+{% endmacro %}
+
+{% block body %}
+
 <p>
     Based on the expense budget you provided with a household of {{ printout('n_adults', '', ' adults')}} and 
     {{ printout('n_children', '', ' children')}}, we estimate that an equivalent level of expenditure can be achieved 
     in other non-retired households allowing {{ printout('first_adult', '£', '')}} for the first adult, {{ printout('second_adult', '£', '')}}
-    for subsequent adults, and {{ printout('child', '£', '')}} for children, per month.
+    for subsequent adults, and {{ printout('child', '£', '')}} for children, per month. {% call query('Equivalization of Expenses') %} We use the OECD-modified
+    equivalization factors of 1 for the first adult, 0.5 for subsequent adults and 0.3 for children. You can read about equivalization using this method
+    <a href='https://en.wikipedia.org/wiki/Equivalisation' target='_blank' rel='external'>here</a>.{% endcall %}
 </p>
 
 <h2>How much is enough?</h2>
 
 <p>
-    Here is what 'enough' is for non-retired households of various sizes. Expected tax is calculated assuming a single earner counting expected Income Tax 
-    and Class 1A National Insurance employee contributions. If more than one earner is present in the household, total tax will usually be less.
+    Here is what 'enough' is for non-retired households of various sizes. Expected tax is calculated assuming a single earner; if more than one earner is present in the household, 
+    total tax will usually be less.
+    {% call query('Tax Calculation') %}
+    The calculated tax includes Income Tax and and Class 1A National Insurance employee contributions. Rates are valid to April 2023.
+    {% endcall %}
 </p>
 {{ add_chart('f1_chart', '300') }}
 
@@ -40,7 +55,7 @@
     Use the controls below to see what it takes for different households.
 </p>
 
-<div class="row justify-content-center">
+<div class="row justify-content-center p-1 border bg-light gy-2">
 
     <div class="col-7">
         <div class="form-check form-switch">
@@ -55,23 +70,42 @@
         </div>
     </div>
     <div class="col-7">
-        <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
-        <div class="input-group">            
-            <span class="input-group-text" id="hoursOrWageRangeMinLabel">10</span>            
-            <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
-            <span class="input-group-text" id="hoursOrWageRangeMaxLabel">80</span>
-        </div>                
+        <div class="row">
+            <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
+            <div class="col-2">
+                <p class="float-end"><span id="hoursOrWageRangeMinLabel">10</span></p>
+            </div>
+            <div class="col-8">
+                <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
+            </div>
+            <div class="col-2">
+                <span id="hoursOrWageRangeMaxLabel">80</span>
+            </div>
+        </div>                      
     </div>
 </div>
+<p></p>
 {{ add_chart('f2_chart', '300') }}
 
 <h2>Who has enough?</h2>
 <p>
     Introducing this section...
+    {% call query('Data source') %}
+    The following sections are based on Office of National Statistics data, publicly available 
+    <a href='https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/householddisposableincomeandinequality'
+     target='_blank' rel='external'>here</a>.
+     {% endcall %}
 </p>
 {{ add_chart('f3a_chart', '150') }}
 <p>
     The next chart shows what fraction of enough non-retired UK residents have...
+    {% call query('Income deciles') %}
+    The 10 bars in the figure represent equivalized disposable income deciles of non-retired UK residents.
+    Disposable income is the income after tax and includes income from non-salary sources e.g. returns from investments.
+    Households' total income is equivalized to a standard household size of two adults and no children.
+    Individual non-retired UK residents are then ordered according to their household's equivalized disposable income.
+    {% endcall %}
+
 </p>
 {{ add_chart('f3_chart', '400') }}
 
@@ -86,21 +120,29 @@
 <p>
     Introducing this section...
 </p>
-<div class="row justify-content-center">
-    <div class="col-6">
+<div class="row justify-content-center p-1 border bg-light">
+    <div class="col-7">
         <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 2%</label>
-        <div class="input-group">
-            <span class="input-group-text">0.25</span>  
-            <input type="range" class="form-range from-control" id="growthPCRange" min="0.25" step="0.25" max="5.0" value="2.0">
-            <span class="input-group-text">5</span>  
+        <div class="row">
+            <div class="col-2">
+                <p class="float-end">0.25%</p>
+            </div>
+            <div class="col-8">
+                <input type="range" class="form-range from-control" id="growthPCRange" min="0.25" step="0.25" max="5.0" value="2.0">
+            </div>
+            <div class="col-2">
+                5%
+            </div>            
         </div>        
     </div>
 </div>
+<p></p>
 {{ add_chart('f5_chart', '400') }}
 <h2>And finally...</h2>
 <p>
     If you thought this was interesting...
 </p>
+<div class="col-12" style="height:50px;"></div>
 <script type="text/javascript">
     {% include 'fig_howmuch.js' %} 
     {% include 'fig_whatdoes.js' %}
@@ -108,13 +150,14 @@
     {% include 'fig_whohas.js' %}
     {% include 'fig_dowe.js' %}
     {% include 'fig_whohaswithgrowth.js' %} 
+
 </script>
 
 {% endblock %}
 {% block navbuttons %}
     <div class="row justify-content-between">
         <div class="col-2">
-            <a class="btn btn-primary" href="/page1" role="button">Start Again</a> 
+            <a class="btn btn-primary" href="/page1" role="button">Restart</a> 
         </div>  
         <div class="col-2">
             <input type="submit" class="btn btn-primary" value="Next">

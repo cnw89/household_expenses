@@ -10,7 +10,7 @@ const f5_labelSetting = {
     show: true,
     distance: 5,
     position: 'insideBottom',
-    offset: [0, -270],
+    offset: [0, -240],
     fontSize: 14,
     color: '#000000',
     formatter: function (params) {
@@ -47,7 +47,7 @@ title: {
     // }
 },
 grid: {
-  top: 0,
+  top: 60,
   bottom: 100,
   left: 70,
   right: 0

@@ -38,7 +38,9 @@ NI_RATES = [0.02, 0.12]
 thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLDS[1]
 NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
 
-def run(HEDI):
+EMPLOYER_PENSION_CONTRIB_PC = 3
+
+def run(HEDI, pension_pc):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children. 
     """
@@ -48,6 +50,7 @@ def run(HEDI):
     d_common = types.SimpleNamespace() 
     d_common.min_wage = MIN_WAGE
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
+    d_common.employer_pension_contrib_pc = EMPLOYER_PENSION_CONTRIB_PC
     
     d_common.first_adult = dequivalize(HEDI, 1, 0)
     d_common.second_adult = dequivalize(HEDI, 2, 0) - dequivalize(HEDI, 1, 0)
@@ -59,8 +62,8 @@ def run(HEDI):
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
-    d_howmuch.with_tax1 = [calc_pre_tax_income(sal).item() for sal in d_howmuch.base]
-    d_howmuch.with_tax2 = [calc_pre_tax_income(sal/min(2, na)).item() for sal, na in zip(d_howmuch.base, adults)]
+    d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension(sal, pension_pc).item() for sal in d_howmuch.base]
+    d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension(sal/min(2, na), pension_pc).item() for sal, na in zip(d_howmuch.base, adults)]
 
     #what does it take to earn enough calculated in browser from how much is enough...
 
@@ -150,3 +153,10 @@ incomes = [inc for inc in range(int(INCOME_TAX_THRESHOLDS_INV[2]), int(INCOME_TA
 incomes.insert(0, 0)
 incomes.append(1000000)
 calc_pre_tax_income = interp1d([calc_disposable_income(inc) for inc in incomes], incomes)
+
+def calc_pre_tax_income_pre_pension(disposable_income, pension_pc):
+
+    after_employee_pension_contrib = calc_pre_tax_income(disposable_income * (1 - pension_pc/100))
+    before_employee_pension_contrib = after_employee_pension_contrib/(1- (pension_pc - EMPLOYER_PENSION_CONTRIB_PC)/100)
+
+    return before_employee_pension_contrib

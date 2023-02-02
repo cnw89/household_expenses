@@ -41,13 +41,14 @@ class Record(db.Model):
     from app import db
     db.create_all()
     """
-    __tablename__ = "records3"
+    __tablename__ = "records4"
 
     id = db.Column(db.Integer, primary_key=True)
     #add date
     uid = db.Column(db.String(4096))
     breakdown = db.Column(db.PickleType())
     total_equivalized_spend = db.Column(db.Integer())
+    pension_pc = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
  
@@ -63,7 +64,7 @@ def display_results(uid):
     
     for rec in record: #only one of these
         
-        d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend)
+        d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend, rec.pension_pc)
 
         n_adults = int(request.args.get('nadult', default=rec.n_adults))
         n_children = int(request.args.get('nchild', default=rec.n_children))
@@ -144,15 +145,19 @@ def custom_control():
 
         total_equivalized_spend +=  12 * breakdown[cat]               
     
-    breakdown['Savings'] = (1/int(request.form['Savings'])) * total_equivalized_spend
-    breakdown['Pension'] = (int(request.form['Pension'])/100) * total_equivalized_spend
-
+    #saving pc is a pc of income not expense
+    savings_pc = int(request.form['Savings'])
+    breakdown['Savings'] = total_equivalized_spend * (savings_pc/(100-savings_pc))
     total_equivalized_spend += breakdown['Savings']
+
+    #pension pc is a pc of income not expense, including savings
+    pension_pc = int(request.form['Pension'])
+    breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
     total_equivalized_spend += breakdown['Pension']
 
     uid = dict_hash(breakdown)
     record = Record(uid=uid, breakdown=breakdown, total_equivalized_spend=total_equivalized_spend, 
-        n_adults=n_adults, n_children=n_children)
+        pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)
 
     db.session.add(record)
     db.session.commit()
