@@ -2,12 +2,12 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import copy
-from object_definition import options, breakdowns, stepfun, optlist, catlist
+from object_definition import options, breakdowns, optlist, catlist
 from helper_funcs import dict_hash, freq_text_to_int
 import analysis
 from analysis import equivalize, dequivalize
 
-localdb = True
+localdb = False
 app = Flask(__name__)
 
 app.config["DEBUG"] = True
@@ -46,12 +46,11 @@ class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     #add date
     uid = db.Column(db.String(4096))
-    breakdown = db.Column(db.PickleType())
     total_equivalized_spend = db.Column(db.Integer())
     pension_pc = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
- 
+
 
 @app.route("/allresults", methods=["GET"])
 def all_results():
@@ -65,9 +64,9 @@ def questions():
 def display_results(uid):
 
     record=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
-    
+
     for rec in record: #only one of these
-        
+
         d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend, rec.pension_pc)
 
         n_adults = int(request.args.get('nadult', default=rec.n_adults))
@@ -76,11 +75,11 @@ def display_results(uid):
         d_common['n_adults'] = n_adults
         d_common['n_children'] = n_children
 
-    return render_template("result_page2.html", 
+    return render_template("result_page2.html",
                             d_common=d_common,
-                            d_howmuch=d_howmuch, 
+                            d_howmuch=d_howmuch,
                             d_whohas=d_whohas,
-                            d_dowe=d_dowe, 
+                            d_dowe=d_dowe,
                             d_willgrowth=d_willgrowth)
 
 @app.route("/page3", methods=["GET", "POST"])
@@ -98,9 +97,9 @@ def custom_control():
     breakdown_data_list = []
 
     if request.method == "GET":
-        
+
         for cat in catlist:
-            
+
             if (cat['name'] == 'Savings'):
                 savings_data = cat
                 savings_data['id'] = 'Savings'
@@ -128,15 +127,15 @@ def custom_control():
 
             breakdown_data_list.append(cat_data)
 
-        return render_template("custom_control.html", 
-                breakdown=breakdown_data_list, 
-                savings=savings_data, 
+        return render_template("custom_control.html",
+                breakdown=breakdown_data_list,
+                savings=savings_data,
                 pension=pension_data,
-                n_adults=n_adults_s, 
-                n_children=n_children_s, 
+                n_adults=n_adults_s,
+                n_children=n_children_s,
                 mainoption=mainoption)
 
-    
+
     total_equivalized_spend=0
 
     for cat in breakdown:
@@ -145,10 +144,10 @@ def custom_control():
         elif (cat == 'Pension'):
             continue
 
-        breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)        
+        breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)
 
-        total_equivalized_spend +=  12 * breakdown[cat]               
-    
+        total_equivalized_spend +=  12 * breakdown[cat]
+
     #saving pc is a pc of income not expense
     savings_pc = int(request.form['Savings'])
     breakdown['Savings'] = total_equivalized_spend * (savings_pc/(100-savings_pc))
@@ -160,7 +159,7 @@ def custom_control():
     total_equivalized_spend += breakdown['Pension']
 
     uid = dict_hash(breakdown)
-    record = Record(uid=uid, breakdown=breakdown, total_equivalized_spend=total_equivalized_spend, 
+    record = Record(uid=uid, total_equivalized_spend=total_equivalized_spend,
         pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)
 
     db.session.add(record)
@@ -176,7 +175,7 @@ def main_control():
     n_adults = int(n_adults_s)
     n_children = int(n_children_s)
 
-    if request.method == "GET":        
+    if request.method == "GET":
 
         for opt in options:
             opt['value']=dequivalize(opt['equivalized_spend'], n_adults, n_children)

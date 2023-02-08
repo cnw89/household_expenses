@@ -3,12 +3,16 @@ import pickle
 import numpy as np
 from scipy.interpolate import interp1d
 
-filename = 'income_assessment.pickle'
+from pathlib import Path
+THIS_FOLDER = Path(__file__).parent.resolve()
+
+filename = THIS_FOLDER / "income_assessment.pickle"
+
 with open(filename, 'rb') as fID:
     d = pickle.load(fID)
 
-#dict_keys(['f_HEDI_to_pcInd', 'f_pcInd_to_HEDI', 'tot_households', 'f_pcInd_to_pcHouse', 
-# 'f_pcInd_to_pcHouse_byComp', 'd_household_comps_to_index', 'f_pcInd_to_required_incomesum', 
+#dict_keys(['f_HEDI_to_pcInd', 'f_pcInd_to_HEDI', 'tot_households', 'f_pcInd_to_pcHouse',
+# 'f_pcInd_to_pcHouse_byComp', 'd_household_comps_to_index', 'f_pcInd_to_required_incomesum',
 # 'f_pcInd_to_deficit_below', 'f_pcInd_to_excess_above'])
 
 MIN_WAGE = 10.42
@@ -42,23 +46,23 @@ EMPLOYER_PENSION_CONTRIB_PC = 3
 
 def run(HEDI, pension_pc):
     """
-    HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children. 
+    HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
     """
     #vars directly injected into html with Jinja
 
     # common variables for use in the text
-    d_common = types.SimpleNamespace() 
+    d_common = types.SimpleNamespace()
     d_common.min_wage = MIN_WAGE
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
     d_common.employer_pension_contrib_pc = EMPLOYER_PENSION_CONTRIB_PC
-    
+
     d_common.first_adult = dequivalize(HEDI, 1, 0)
     d_common.second_adult = dequivalize(HEDI, 2, 0) - dequivalize(HEDI, 1, 0)
     d_common.child = dequivalize(HEDI, 1, 1) - dequivalize(HEDI, 1, 0)
 
     #other variables organised by infographic
     #1 how much is enough
-    d_howmuch = types.SimpleNamespace()  
+    d_howmuch = types.SimpleNamespace()
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
@@ -68,25 +72,25 @@ def run(HEDI, pension_pc):
     #what does it take to earn enough calculated in browser from how much is enough...
 
     #2 who has enough
-    d_whohas = types.SimpleNamespace()  
+    d_whohas = types.SimpleNamespace()
     pc_ind = d['f_HEDI_to_pcInd'](HEDI) # the percentile individual who has this household equivalized disposable income
     d_whohas.pc_individuals_without_enough = 100 * pc_ind
     d_whohas.pc_households_without_enough = 100 * d['f_pcInd_to_pcHouse'](pc_ind).item()
     d_whohas.pc_enough_by_decile = [dec/HEDI for dec in d['l_deciles_av'] ]
 
     #3 do we have enough
-    d_dowe = types.SimpleNamespace()  
+    d_dowe = types.SimpleNamespace()
     d_dowe.uk_gdhi = UK_GDHI
     d_dowe.enough_for_everyone = d['f_pcInd_to_required_incomesum'](pc_ind).item()
     d_dowe.deficit_without_enough = d['f_pcInd_to_deficit_below'](pc_ind).item()
     print(d_dowe.uk_gdhi)
     print(d_dowe.enough_for_everyone)
-    print(d_dowe.deficit_without_enough)    
+    print(d_dowe.deficit_without_enough)
 
     #4 will growth
-    d_willgrowth = types.SimpleNamespace() 
- 
-    #Now things that won't be updated in html:    
+    d_willgrowth = types.SimpleNamespace()
+
+    #Now things that won't be updated in html:
     """
     s.pc_enough_of_bottom_10 = d['f_pcInd_to_HEDI'](0.05)/HEDI #check should this be 0.1
     s.pc_enough_of_median =  d['f_pcInd_to_HEDI'](0.5)/HEDI
@@ -105,7 +109,7 @@ def run(HEDI, pension_pc):
     s.annual_growth_uneven = 100 * UK_ANNUAL_GROWTH * UK_LOWEST_DECILE_GROWTH_SHARE
 
     """
-    
+
 
     return d_common.__dict__, d_howmuch.__dict__, d_whohas.__dict__, d_dowe.__dict__, d_willgrowth.__dict__
 
@@ -139,14 +143,14 @@ def calc_disposable_income(income):
 
     #now class 1A national insurance, employee contributions
     ni_remainder = income/52
-    
+
     for b, thresh in enumerate(NI_THRESHOLDS):
 
         if ni_remainder >= thresh:
             val_above = ni_remainder - thresh
             disposable_income -= val_above * NI_RATES[b]
             ni_remainder -= val_above
-    
+
     return disposable_income
 
 incomes = [inc for inc in range(int(INCOME_TAX_THRESHOLDS_INV[2]), int(INCOME_TAX_THRESHOLDS_INV[0]), 1)]
