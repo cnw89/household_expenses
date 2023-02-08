@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 {% block description %}
-<p>What if there was some time to get on with <em>whatever</em> you wanted to do in the productive hours of your week, without the pressure to earn money then, without being worn out from overwork? <br>
-And what if it wasn't just you with the extra time but <em>everyone</em>?</p>
-<p>How would our culture be enriched by all those with the inclination to form the band they always wanted to be in, work on art projects or develop craftmanship skills?
-<br>How would our relationships be transformed by more time to spend face-to-face with family, friends and lovers?
-<br>How much would the resilience of our society be built by having more time to care for each other and work together as communities?</p>
+<p>
+    On this site we're interested in how much income is enough for a UK household. 
+</p><p>
+    '<em>Enough for what?</em>' you may ask.
+</p><p>
+    It could be enough for just surviving, or enough for lavish holidays - you decide as we guide you through making a household budget.    
+</p>
 
-<p>On this site we want to ask <em>How close are we to all having enough to live on and allowing ourselves to work less?</em></p>
-<p>Tell us how much you think is enough and then we will answer:
-<ul style="padding-left:40px;"><li>What fraction of UK households have enough?</li> {# list-style-position:inside; #}
-    <li>How much more do those without enough need collectively?</li>
-    <li>How much more than enough do the wealthiest have collectively?</li>
-    <li>How much would the economy have to grow for everyone to have enough without redistributing wealth, and how long might this take?</li></ul></p>
+<p>For whatever 'enough' you choose, we will make an analysis using Office of National Statistics data to answer a few questions:
+    <ul style="padding-left:40px;">
+    <li> What does it take for different household sizes to earn enough? </li>
+	<li>What fraction of people have enough?</li>
+    <li>How much more or less than enough do the wealthiest and poorest have?</li>
+    <li>Do we have enough for everyone?</li>
+    <li>How long might it take for the poorest to earn enough?</li>
+    </ul>
+</p>
 
 {% endblock %}
 {% block formaction %} action="{{url_for('user_info')}}" method="GET" {% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block description %}
-Now customize the budget by category of expense.
+Now adjust the budget as you like, either by adjusting the total, or by changing the allowance per category of expense.
 {% endblock %}
 {% block funcdef %}
     <script>
@@ -14,9 +14,9 @@ Now customize the budget by category of expense.
             {% for cat in breakdown %}  
                 total += parseInt(document.getElementById("{{ cat.id + '_input' }}").value);
             {% endfor %}
-            pension_contrib = total * parseInt(document.getElementById("{{ pension.id + '_input' }}").value)/100;
-            savings_contrib = total * parseInt(document.getElementById("{{ savings.id + '_input' }}").value)/100;
-            total += pension_contrib + savings_contrib;
+            total = total / ( 1 - parseInt(document.getElementById("{{ savings.id + '_input' }}").value)/100);
+            total = total / ( 1 - parseInt(document.getElementById("{{ pension.id + '_input' }}").value)/100);
+            
             total = Math.round(total);
             document.getElementById('total').innerHTML = total.toLocaleString();
         };

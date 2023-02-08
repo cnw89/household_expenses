@@ -2,6 +2,7 @@ import types
 import pickle
 import numpy as np
 from scipy.interpolate import interp1d
+import copy
 
 from pathlib import Path
 THIS_FOLDER = Path(__file__).parent.resolve()
@@ -39,12 +40,14 @@ INCOME_TAX_THRESHOLDS_INV = [thresh2, thresh1, INCOME_TAX_THRESHOLDS[2]]
 NI_THRESHOLDS = [967, 242.01] #weekly earnings thresholds
 NI_RATES = [0.02, 0.12]
 
+COUNCIL_TAX = 1600
+
 thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLDS[1]
 NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
 
 EMPLOYER_PENSION_CONTRIB_PC = 3
 
-def run(HEDI, pension_pc):
+def run(HEDI, pension_pc, n_adults, n_children):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
     """
@@ -55,10 +58,25 @@ def run(HEDI, pension_pc):
     d_common.min_wage = MIN_WAGE
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
     d_common.employer_pension_contrib_pc = EMPLOYER_PENSION_CONTRIB_PC
+    d_common.council_tax = COUNCIL_TAX
+    
+    #monthly
+    d_common.first_adult = dequivalize(HEDI, 1, 0)/12
+    d_common.second_adult = (dequivalize(HEDI, 2, 0) - dequivalize(HEDI, 1, 0))/12
+    d_common.child = (dequivalize(HEDI, 1, 1) - dequivalize(HEDI, 1, 0))/12
 
-    d_common.first_adult = dequivalize(HEDI, 1, 0)
-    d_common.second_adult = dequivalize(HEDI, 2, 0) - dequivalize(HEDI, 1, 0)
-    d_common.child = dequivalize(HEDI, 1, 1) - dequivalize(HEDI, 1, 0)
+    #personalized for the respondant
+    d_common.n_adults = n_adults
+    d_common.n_children = n_children
+    d_common.base = dequivalize(HEDI, n_adults, n_children)
+    d_common.with_tax1 = calc_pre_tax_income_pre_pension((d_common.base + COUNCIL_TAX), pension_pc)
+    d_common.with_tax2 = calc_pre_tax_income_pre_pension((d_common.base + COUNCIL_TAX)/2, pension_pc)
+    d_common.hours_1 = d_common.with_tax1/(MIN_WAGE * 52)
+    d_common.hours_2 = d_common.with_tax2/(MIN_WAGE * 52)
+    # d_common.is_long_hours_1 = d_common.hours_1 > DEFAULT_HOURS_PER_WEEK
+    # d_common.is_long_hours_2 = d_common.hours_2 > DEFAULT_HOURS_PER_WEEK
+    d_common.wage_1 = d_common.with_tax1/(DEFAULT_HOURS_PER_WEEK * 52)
+    d_common.wage_2 = d_common.with_tax2/(DEFAULT_HOURS_PER_WEEK * 52)
 
     #other variables organised by infographic
     #1 how much is enough
@@ -66,8 +84,8 @@ def run(HEDI, pension_pc):
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
-    d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension(sal, pension_pc).item() for sal in d_howmuch.base]
-    d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension(sal/min(2, na), pension_pc).item() for sal, na in zip(d_howmuch.base, adults)]
+    d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX), pension_pc) for sal in d_howmuch.base]
+    d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX)/min(2, na), pension_pc) for sal, na in zip(d_howmuch.base, adults)]
 
     #what does it take to earn enough calculated in browser from how much is enough...
 
@@ -82,34 +100,51 @@ def run(HEDI, pension_pc):
     d_dowe = types.SimpleNamespace()
     d_dowe.uk_gdhi = UK_GDHI
     d_dowe.enough_for_everyone = d['f_pcInd_to_required_incomesum'](pc_ind).item()
+    d_dowe.enough_for_everyone_ratio = d_dowe.enough_for_everyone/UK_GDHI
     d_dowe.deficit_without_enough = d['f_pcInd_to_deficit_below'](pc_ind).item()
-    print(d_dowe.uk_gdhi)
-    print(d_dowe.enough_for_everyone)
-    print(d_dowe.deficit_without_enough)
+    d_dowe.deficit_without_enough_ratio = d_dowe.deficit_without_enough/UK_GDHI
 
     #4 will growth
-    d_willgrowth = types.SimpleNamespace()
+    d_willgrowth = types.SimpleNamespace() 
+    d_willgrowth.years = [1977, 2021]
+    d_willgrowth.growth_bottom = 1.5
+    d_willgrowth.growth_top = 2.2
+    d_willgrowth.growth_UK = 1.9
+    d_willgrowth.bottom_growth_to_enough = 100 * (1/d_whohas.pc_enough_by_decile[0] - 1)
+    d_willgrowth.bottom_years_to_enough = years_of_growth(d_willgrowth.bottom_growth_to_enough/100, d_willgrowth.growth_bottom/100)
 
-    #Now things that won't be updated in html:
-    """
-    s.pc_enough_of_bottom_10 = d['f_pcInd_to_HEDI'](0.05)/HEDI #check should this be 0.1
-    s.pc_enough_of_median =  d['f_pcInd_to_HEDI'](0.5)/HEDI
-    s.pc_enough_of_top_10 = d['f_pcInd_to_HEDI'](0.95)/HEDI #check should this be 0.9
-    s.pc_enough_of_top_1 =  d['f_pcInd_to_HEDI'](0.995)/HEDI #PLACEHOLDER - need more data for 1%
+    #find fraction of wealth over a multiple of enough, which is 
+    tax_thresh_ratio = min(3, np.floor(d_whohas.pc_enough_by_decile[-1]))
+    if tax_thresh_ratio > 1:
+        pc_ind_tax_thresh = d['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
+        excess_over_tax_thresh = d['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
-    s.pc_enough_gdhi = 100 * d['f_pcInd_to_required_incomesum'](pc_ind)/UK_GDHI
-    s.pc_deficit_gdhi = 100 * d['f_pcInd_to_deficit_below'](pc_ind)/UK_GDHI
-    s.pc_excess_gdhi = 100 - s.pc_enough_gdhi #100 * d['f_pcInd_to_excess_above'](pc_ind)/UK_GDHI
-    s.uk_gdhi = UK_GDHI
+        while (excess_over_tax_thresh < d_dowe.deficit_without_enough) and (tax_thresh_ratio > 1):
+            tax_thresh_ratio -= 1
+            pc_ind_tax_thresh = d['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
+            excess_over_tax_thresh = d['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
-    s.pc_growth = 100 * (1 / s.pc_enough_of_bottom_10 - 1)
-    s.growth_even_years = years_of_growth(s.pc_growth/100, UK_ANNUAL_GROWTH)
-    s.growth_uneven_years= years_of_growth(s.pc_growth/100, UK_ANNUAL_GROWTH * UK_LOWEST_DECILE_GROWTH_SHARE)
-    s.annual_growth_even = 100 * UK_ANNUAL_GROWTH
-    s.annual_growth_uneven = 100 * UK_ANNUAL_GROWTH * UK_LOWEST_DECILE_GROWTH_SHARE
+        if (excess_over_tax_thresh >= d_dowe.deficit_without_enough) and (tax_thresh_ratio >= 1):
+            tax_rate = d_dowe.deficit_without_enough/excess_over_tax_thresh
+            d_willgrowth.tax_rate = 100 * tax_rate
+            d_willgrowth.tax_thresh_ratio = tax_thresh_ratio
+            d_willgrowth.tax_found = True
 
-    """
+            d_willgrowth.pc_enough_pre_tax_by_decile = copy.deepcopy(d_whohas.pc_enough_by_decile)
+            d_willgrowth.pc_enough_post_tax_by_decile = []
 
+            for pc in d_whohas.pc_enough_by_decile:
+                if pc > tax_thresh_ratio:
+                    new_pc = pc - (pc - tax_thresh_ratio)*tax_rate
+                else:
+                    new_pc = pc
+
+                d_willgrowth.pc_enough_post_tax_by_decile.append(new_pc)
+
+        else:
+            d_willgrowth.tax_found = False
+    else:
+        d_willgrowth.tax_found = False
 
     return d_common.__dict__, d_howmuch.__dict__, d_whohas.__dict__, d_dowe.__dict__, d_willgrowth.__dict__
 
@@ -160,7 +195,7 @@ calc_pre_tax_income = interp1d([calc_disposable_income(inc) for inc in incomes],
 
 def calc_pre_tax_income_pre_pension(disposable_income, pension_pc):
 
-    after_employee_pension_contrib = calc_pre_tax_income(disposable_income * (1 - pension_pc/100))
+    after_employee_pension_contrib = calc_pre_tax_income(disposable_income * (1 - pension_pc/100)).item()
     before_employee_pension_contrib = after_employee_pension_contrib/(1- (pension_pc - EMPLOYER_PENSION_CONTRIB_PC)/100)
 
     return before_employee_pension_contrib

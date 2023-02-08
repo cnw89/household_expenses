@@ -13,20 +13,27 @@ const f3a_pathSymbols = {
 
 
 const format_subtext = () =>{
-  let subtext_str = parseInt(100 - f3_vars.pc_households_without_enough) + "% of non-retired UK residents have more than enough,\n" 
-  + parseInt(f3_vars.pc_households_without_enough) + "% of non-retired UK residents do not have enough";
+  let subtext_str = parseInt(100 - f3_vars.pc_individuals_without_enough) + "% of non-retired UK residents have more than enough,\n" 
+  + parseInt(f3_vars.pc_individuals_without_enough) + "% of non-retired UK residents do not have enough";
   return subtext_str
 };
 
 var f3a_option = {
-title: {
-    text: format_subtext(),
-    textAlign: 'center',
-    left: '50%'
-    // subtext: format_subtext(),
-    // subtextStyle: {
-    //   fontSize: 16
-    //}
+// title: {
+//     text: format_subtext(),
+//     textAlign: 'center',
+//     left: '50%'
+//     // subtext: format_subtext(),
+//     // subtextStyle: {
+//     //   fontSize: 16
+//     //}
+// },
+legend: {
+    data: ['UK non-retired residents without enough', 'UK non-retired residents with enough'],
+    //top: 50,
+    textStyle: {
+      fontSize: 16
+    }
 },
 grid: {
     top: 0,//"50%",
@@ -52,20 +59,20 @@ yAxis: {
 },
 series: [
     {
-    name: 'Those without enough',
+    name: 'UK non-retired residents without enough',
     type: 'pictorialBar',
     symbolRepeat: true,
     symbolClip: true,
-    symbolSize: ['15%', '25%'],
+    symbolSize: ['15%', '35%'],
     symbol: f3a_pathSymbols.person_red,
     data: [f3_vars.pc_individuals_without_enough],    
     z: 2     
     },
     {
-    name: 'All people',
+    name: 'UK non-retired residents with enough',
     type: 'pictorialBar',
     symbolRepeat: 'fixed',
-    symbolSize: ['15%', '25%'],
+    symbolSize: ['15%', '35%'],
     symbol: f3a_pathSymbols.person_green,
     data: [100],    
     z: 1  

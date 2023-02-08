@@ -16,8 +16,8 @@
 
 {% block formaction %}action="/questions" method="GET"{% endblock %}
 
-{% macro printout(varname, prestr, poststr) %}
-    <strong>{{ prestr | safe }}<span id="{{ varname }}">{{ "{:,.0f}".format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
+{% macro printout(varname, prestr='', poststr='') %}
+    <strong>{{ prestr | safe }}<span id='{{ varname }}'>{{ '{:,.0f}'.format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
 {% endmacro %}
 {% macro add_chart(name, height) %}
 <div class="row justify-content-center">
@@ -38,10 +38,16 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <h2>How much is enough?</h2>
 
     <p>
-        Here is what 'enough' is for non-retired households of various sizes. Expected tax is calculated assuming a single earner; if more than one earner is present in the household, 
+        For your household you have said 'enough' is {{ printout('base', '£', '/year') }}.  
+        Including tax this would require a single earner with an annual salary of {{ printout('with_tax1', '£') }}, 
+        or two earners each with a salary of {{ printout('with_tax2', '£') }}.
+        See the graphic below for other household sizes. Expected tax is calculated with a single earner; if more than one earner is present in the household, 
         total tax will usually be less.
         {% call query('Tax Calculation') %}
-        The calculated tax includes Income Tax and and Class 1A National Insurance employee contributions. Rates are valid to April 2023.
+        The calculated tax includes Income Tax and and Class 1A National Insurance employee contributions and a 
+        fixed council tax of {{ printout('council_tax', '£', '/year') }}. Of the pension contribution, {{ printout('employer_pension_contrib_pc', '', '%') }}
+        is assumed to be paid directly by the employer (and so is not part of these numbers) and the remaining pension contributions are made prior to 
+        tax deductions. Tax rates are valid to April 2023.
         {% endcall %}
     </p>
     {{ add_chart('f1_chart', '300') }}
@@ -51,9 +57,17 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <h2>What does it take to earn enough?</h2>
 
     <p>
-        How many hours per week do earners need to work to make enough, or what wage do earners need to make enough in a given number of hours per week?
-        The UK National Living Wage, which is the legal minimum wage for those age 23 and over is currently {{ "£{:.2f}/hour".format(d_common['min_wage']) }}.
-        Use the controls below to see what it takes for different households.
+        For your household, for a single earner to earn enough on the UK National Living Wage  
+        (the legal minimum wage for those age 23, currently {{ "£{:.2f}/hour".format(d_common['min_wage']) }}), would take {{ printout('hours_1', '', ' hours/week')}} of work.
+        For two earners earning equally it would take {{ printout('hours_2', '', ' hours/week')}}.
+    </p><p>
+        {% if d_common.hours_1 is gt(d_common.default_hours_per_week) %}
+        For a single earner to earn this in {{ d_common.default_hours_per_week }} hours/week, they would need a wage of {{ printout('wage_1', '£', '/hour') }}.
+        {% endif %}
+        {% if d_common.hours_2 is gt(d_common.default_hours_per_week) %}
+        For two earners to earn this in {{ d_common.default_hours_per_week }} hours/week each, they would need a wage of {{ printout('wage_2', '£', '/hour') }}.
+        {% endif %}
+        Use the controls below to see what it takes for different households for different wages or hours worked per week.
     </p>
 
     <div class="row justify-content-between p-1 bg-white gy-2">
@@ -92,7 +106,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <div class="p-3 border bg-light">
     <h2>Who has enough?</h2>
     <p>
-        Introducing this section...
+        For your 'enough', approximately <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough) }}</strong> of UK non-retired residents have enough household income, leaving 
+        <strong>{{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough) }}</strong> of non-retired residents that do not.
         {% call query('Data source') %}
         The following sections are based on Office of National Statistics data, publicly available 
         <a href='https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/householddisposableincomeandinequality'
@@ -101,7 +116,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     </p>
     {{ add_chart('f3a_chart', '150') }}
     <p>
-        The next chart shows what fraction of enough non-retired UK residents have...
+        Those with the bottom 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[0]) }}</strong> enough, while those
+        with the top 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[-1]) }}</strong> enough.
         {% call query('Income deciles') %}
         The 10 bars in the figure represent equivalized disposable income deciles of non-retired UK residents.
         Disposable income is the income after tax and includes income from non-salary sources e.g. returns from investments.
@@ -116,7 +132,9 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <div class="p-3 border bg-light">
     <h2>Do we have enough for everyone?</h2>
     <p>
-        Introducing this section...
+        Total UK household disposable income is <strong>{{ "{:.2f}x".format(1/d_dowe.enough_for_everyone_ratio) }}</strong> of enough for everyone.
+        The deficit between enough and current earnings for those that don't have enough is approximately 
+        <strong>{{ "{:.2f}x".format(d_dowe.deficit_without_enough_ratio) }}</strong> of total UK household disposable income.
     </p>
     {{ add_chart('f4_chart', '300') }}
 </div>
@@ -124,17 +142,31 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <div class="p-3 border bg-light">
     <h2>What does it take for everyone to have enough?</h2>
     <p>
-        Introducing this section...
+        Between 1977 and 2021 the growth of the whole UK economy has been equivalent to annual growth of <strong>{{ d_willgrowth.growth_UK }}%</strong>, but 
+        growth of the bottom 10%'s incomes has been closer to <strong>{{ d_willgrowth.growth_bottom }}%</strong> while those in the top 10% of incomes has been 
+        <strong>{{ d_willgrowth.growth_top }}%</strong>.         
+        If the bottom 10% of household disposable incomes continue to grow at an annual rate of {{ d_willgrowth.growth_bottom }}%, 
+        it will take <strong>{{ "{:.1f}".format(d_willgrowth.bottom_years_to_enough) }} years</strong> before those households earn enough.
+        {% call query('Growth of incomes and the UK economy') %}
+        Stated here are the compound annual growth rates (CAGRs) of the bottom and top decile points of household equivalized disposable income between 
+        1977 and 2021. Additionally the CAGR of UK GDP between the same years, using data from 
+        <a href='https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyp/pn2'>here</a>.
+        Compound annual growth rates are explained 
+        <a href='https://en.wikipedia.org/wiki/Compound_annual_growth_rate'>here</a>.
+        {% endcall %}
+    </p>
+    <p>
+        Below you can see how the rate of growth (applied evenly across all incomes) affects how much of enough different households have over the coming years.
     </p>
     <div class="row justify-content-center p-1 bg-white">
         <div class="col-7">
-            <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 2%</label>
+            <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 1.5%</label>
             <div class="row">
                 <div class="col-2">
-                    <p class="float-end">0.25%</p>
+                    <p class="float-end">0.1%</p>
                 </div>
                 <div class="col-8">
-                    <input type="range" class="form-range from-control" id="growthPCRange" min="0.25" step="0.25" max="5.0" value="2.0">
+                    <input type="range" class="form-range from-control" id="growthPCRange" min="0.1" step="0.1" max="5.0" value="1.5">
                 </div>
                 <div class="col-2">
                     5%
@@ -144,6 +176,12 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     </div>
     <p></p>
     {{ add_chart('f5_chart', '400') }}
+    {% if d_willgrowth.tax_found %}
+    <p>
+        The deficit of those without enough is equal to <strong>{{ "{:.1f}%".format(d_willgrowth.tax_rate) }}</strong> of all income above 
+        <strong>{{ "{:d}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough.
+    </p>
+    {% endif %}
 </div>
 <p></p>
 <div class="p-3 border bg-light">
