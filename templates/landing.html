@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "form.html" %}
 {% block description %}
 <p>
     On this site we're interested in how much income is enough for a UK household. 
@@ -20,7 +20,7 @@
 
 {% endblock %}
 {% block formaction %} action="{{url_for('user_info')}}" method="GET" {% endblock %}
-{% block body %}
+{% block formbody %}
 {% endblock %}
 {% block navbuttons %}
     <div class="row justify-content-end">

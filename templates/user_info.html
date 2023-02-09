@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "form.html" %}
 {% block description %}
 In a moment, we'll help you make a budget for what is 'enough' for your household. 
     We will then estimate how much is enough per adult and per child in the household, allowing more for the first adult in a household than subsequent.
 
 {% endblock %}
 {% block formaction %}action="{{url_for('user_info')}}" method="POST"{% endblock %}
-{% block body %}
+{% block formbody %}
 <div class="p-3 border bg-light">
     <p>First then, please enter the composition of your household:</p>
     <div class="row justify-content-center">

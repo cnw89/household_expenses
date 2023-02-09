@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "form.html" %}
 {% block description %}
 Select one of our budget 'presets' based on our own estimates for what could be enough for a household of your size in the UK.
     On the next page you can customize the budget by category.
@@ -16,7 +16,7 @@ Select one of our budget 'presets' based on our own estimates for what could be 
     </script>
 {% endblock %}
 {% block formaction %}action="{{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }}" method="POST"{% endblock %}
-{% block body %}
+{% block formbody %}
 <div class="p-3 border bg-light">
     <div class="row justify-content-center">
         <h5><label for="rangecontents" class="form-label">Allowance</label></h5>

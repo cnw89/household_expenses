@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+<form {% block formaction %}{% endblock %}>                       
+    {% block formbody %}{% endblock %}
+    <p></p>
+    {% block navbuttons %}                
+        <div class="row justify-content-between">
+            <div class="col-2">
+                <a class="btn btn-primary" href={% block prevlink %}{% endblock %} role="button">Back</a> 
+            </div>  
+            <div class="col-2">
+                <p class="float-end"> <input type="submit" class="btn btn-primary" value="Next"></p>
+            </div>                    
+        </div>
+    {% endblock %}
+</form>                          
+{% endblock %}

@@ -4,7 +4,6 @@
     Here's some of the thought behind it...
 </p>
 {% endblock %}
-{% block formaction %}action="/allresults" method="GET"{% endblock %}
 
 {% macro item(title, id, expanded=false) %}
 <div class="accordion-item">
@@ -36,14 +35,5 @@
 <div style="height:50px;"></div>
 
 {% endblock %}
-{% block navbuttons %}
-    <div class="row justify-content-between">
-        <div class="col-2">
-            <a class="btn btn-primary" href="/page1" role="button">Restart</a> 
-        </div>  
-        <div class="col-2">
-            <p class="float-end"><input type="submit" class="btn btn-primary" value="Next"></p>
-        </div>                    
-    </div>
-{% endblock %}
-{% block progress %}100{% endblock %}
+
+{% block progressbar %}{% endblock %}

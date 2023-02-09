@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "form.html" %}
 {% block headcontent %}
 <script src="{{ url_for('static', filename='/js/lib/echarts.js') }}"></script>
 {% endblock %}
@@ -42,7 +42,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </a>
 {% endmacro %}
 
-{% block body %}
+{% block formbody %}
 <div class="p-3 border bg-light">
     <h3>How much is enough?</h3><p></p>
 
@@ -221,3 +221,12 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     </div>
 {% endblock %}
 {% block progress %}100{% endblock %}
+{% block lastscript %}
+<script>
+    //activate dismissable popovers
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl, {trigger: 'focus', html:true});
+    });
+</script>
+{% endblock %}
