@@ -44,30 +44,30 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
 {% block body %}
     <div class="p-3 border bg-light">
         <div class="row justify-content-between align-items-center g-2">
-            <div class="col-5">
-                <h2>Total: £<span id="total"></span>/month</h2>
+            <div class="col-12 col-sm-5">
+                <h3>Total: £<span id="total"></span>/month</h3>
             </div>
-            <div class="col-5">
+            <div class="col-9 col-sm-5">
                 <div class="row justify-content-center">
                     <b><label for="adjustEverythingRange" class="form-label">Adjust Total: </label>
                     <span id="adjustEverythingRangeOutput">0</span>%
                     </b>
-                    <div class="col-2">
+                    <div class="col-3 col-sm-2">
                         -30%
                     </div>
-                    <div class="col-8">
+                    <div class="col-6 col-sm-8">
                         <input type="range" name="adjustEverythingRange" class="form-range"                         
                             id="adjustEverythingRange" min="-30" max="30" step="1"
                             value="0"
                             oninput="updateDisplay(adjustEverythingRangeOutput, this.value)"
                             onchange="adjustEverything()">
                     </div>
-                    <div class="col-2">
-                        +30%
+                    <div class="col-3 col-sm-2">
+                        <p class="float-end">+30%</p>
                     </div>                    
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-3 col-sm-2">
                 <a class="btn btn-primary float-end" href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}" role="button">Reset</a>
             </div>
         </div>  
@@ -78,11 +78,11 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
         <div class="col">
             <div class="p-3 border bg-light">
                 <div class="row justify-content-between">
-                    <div class="col-9" style="min-height:140px;">
+                    <div class="col-8 col-sm-9" style="min-height:140px;">
                         <b><label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label></b><br>
                         {{ cat.description }}
                     </div>
-                    <div class="col-3">
+                    <div class="col-4 col-sm-3">
                         <p class="float-end">£<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/{{ cat.freq }}</p>
                     </div>
                 </div>

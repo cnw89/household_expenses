@@ -32,8 +32,8 @@ var f1_option = {
 grid: {
     //top: 100,
     //height: 200,
-    left: 220,
-    right: 50,
+    left: 130,
+    right: 70,
     bottom: 0
 },
 tooltip: {
@@ -56,7 +56,7 @@ xAxis: {
     axisLine: { show: false }
 },
 yAxis: {
-    data: ['1 adult', '1 adult and 1 child', '2 adults', '2 adults and 1 child', '2 adults and 2 children', '2 adults and 3 children'],
+    data: ['1 adult', '1 adult and\n 1 child', '2 adults', '2 adults and\n 1 child', '2 adults and\n 2 children', '2 adults and\n 3 children'],
     inverse: true,
     axisLine: { show: false },
     axisTick: { show: false },

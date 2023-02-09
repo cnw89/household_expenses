@@ -33,7 +33,8 @@ legend: {
     //top: 50,
     textStyle: {
       fontSize: 16
-    }
+    },
+    selectedMode: false
 },
 grid: {
     top: 0,//"50%",

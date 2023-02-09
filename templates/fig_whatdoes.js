@@ -123,8 +123,8 @@ function make_hours_option(){
         grid: {
             //top: 50,
             //height: 200,
-            left: 220,
-            right: 130,
+            left: 130,
+            right: 100,
             bottom: 0
         },
         tooltip: {
@@ -141,7 +141,7 @@ function make_hours_option(){
             axisLine: { show: false }
         },
         yAxis: {
-            data: ['1 adult', '1 adult and 1 child', '2 adults', '2 adults and 1 child', '2 adults and 2 children', '2 adults and 3 children'],
+            data: ['1 adult', '1 adult and\n 1 child', '2 adults', '2 adults and\n 1 child', '2 adults and\n 2 children', '2 adults and\n 3 children'],
             inverse: true,
             axisLine: { show: false },
             axisTick: { show: false },

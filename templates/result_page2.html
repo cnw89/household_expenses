@@ -4,6 +4,15 @@
 {% endblock %}
 {% block description %}
 <p>Complete!</p>
+<p id="smallScreenAlert"></p>
+
+<script>
+    var width = window.innerWidth;
+    if (width < 576){
+        document.getElementById("smallScreenAlert").innerHTML=
+        "<div class='alert alert-warning' role='alert'>If you are viewing this page on a smartphone, turn your phone on its side (in landscape orientation) to see this page best!</div>";
+    }
+</script>
 <p>
     Based on the expense budget you provided with a household of {{ printout('n_adults', '', ' adults')}} and 
     {{ printout('n_children', '', ' children')}}, we estimate that an equivalent level of expenditure can be achieved 
@@ -16,9 +25,9 @@
 
 {% block formaction %}action="/questions" method="GET"{% endblock %}
 
-{% macro printout(varname, prestr='', poststr='') %}
+{%- macro printout(varname, prestr='', poststr='') -%}
     <strong>{{ prestr | safe }}<span id='{{ varname }}'>{{ '{:,.0f}'.format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
-{% endmacro %}
+{%- endmacro -%}
 {% macro add_chart(name, height) %}
 <div class="row justify-content-center">
     <div class="col-md-11" id="{{ name  }}" style="height:{{ height }}px;"></div>
@@ -35,7 +44,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 
 {% block body %}
 <div class="p-3 border bg-light">
-    <h2>How much is enough?</h2>
+    <h3>How much is enough?</h3><p></p>
 
     <p>
         For your household you have said 'enough' is {{ printout('base', '£', '/year') }}.  
@@ -54,7 +63,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h2>What does it take to earn enough?</h2>
+    <h3>What does it take to earn enough?</h3><p></p>
 
     <p>
         For your household, for a single earner to earn enough on the UK National Living Wage  
@@ -62,10 +71,10 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         For two earners earning equally it would take {{ printout('hours_2', '', ' hours/week')}}.
     </p><p>
         {% if d_common.hours_1 is gt(d_common.default_hours_per_week) %}
-        For a single earner to earn this in {{ d_common.default_hours_per_week }} hours/week, they would need a wage of {{ printout('wage_1', '£', '/hour') }}.
+        For a single earner to earn this in {{ d_common.default_hours_per_week }} hours/week, they would need a wage of <strong>{{ "£{:.2f}/hour".format(d_common.wage_1) }}</strong>.
         {% endif %}
         {% if d_common.hours_2 is gt(d_common.default_hours_per_week) %}
-        For two earners to earn this in {{ d_common.default_hours_per_week }} hours/week each, they would need a wage of {{ printout('wage_2', '£', '/hour') }}.
+        For two earners to earn this in {{ d_common.default_hours_per_week }} hours/week each, they would need a wage of <strong>{{ "£{:.2f}/hour".format(d_common.wage_2) }}</strong>.
         {% endif %}
         Use the controls below to see what it takes for different households for different wages or hours worked per week.
     </p>
@@ -84,16 +93,16 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
             </div>                
         </div>
         
-        <div class="col-6">
+        <div class="col-12 col-sm-6">
             <div class="row">
                 <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
-                <div class="col-2">
+                <div class="col-3">
                     <p class="float-end"><span id="hoursOrWageRangeMinLabel">10</span></p>
                 </div>
-                <div class="col-8">
+                <div class="col-6">
                     <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                     <span id="hoursOrWageRangeMaxLabel">80</span>
                 </div>
             </div>                      
@@ -104,7 +113,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h2>Who has enough?</h2>
+    <h3>Who has enough?</h3><p></p>
     <p>
         For your 'enough', approximately <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough) }}</strong> of UK non-retired residents have enough household income, leaving 
         <strong>{{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough) }}</strong> of non-retired residents that do not.
@@ -130,7 +139,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h2>Do we have enough for everyone?</h2>
+    <h3>Do we have enough for everyone?</h3><p></p>
     <p>
         Total UK household disposable income is <strong>{{ "{:.2f}x".format(1/d_dowe.enough_for_everyone_ratio) }}</strong> of enough for everyone.
         The deficit between enough and current earnings for those that don't have enough is approximately 
@@ -140,7 +149,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h2>What does it take for everyone to have enough?</h2>
+    <h3>What does it take for everyone to have enough?</h3><p></p>
     <p>
         Between 1977 and 2021 the growth of the whole UK economy has been equivalent to annual growth of <strong>{{ d_willgrowth.growth_UK }}%</strong>, but 
         growth of the bottom 10%'s incomes has been closer to <strong>{{ d_willgrowth.growth_bottom }}%</strong> while those in the top 10% of incomes has been 
@@ -185,7 +194,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h2>And finally...</h2>
+    <h3>And finally...</h3><p></p>
     <p>
         If you thought this was interesting...
     </p>

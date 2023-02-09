@@ -7,7 +7,7 @@ from helper_funcs import dict_hash, freq_text_to_int
 import analysis
 from analysis import equivalize, dequivalize
 
-localdb = False
+localdb = True
 app = Flask(__name__)
 
 app.config["DEBUG"] = True
