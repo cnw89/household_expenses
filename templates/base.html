@@ -16,17 +16,59 @@
         <div class="container-md g-3"><div class="row justify-content-center"><div class="col-lg-8">
             <nav class="navbar navbar-dark bg-dark bg-gradient">
                 <div class="container-fluid">
-                  <a class="navbar-brand h1" href="#">
+                  <a class="navbar-brand h1" href="/">
                     <!-- <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top"> -->
                     How much is enough?
                   </a>                  
                     <div class="nav">
-                        <a class="nav-link text-light" href="#">Why?</a>
-                        <a class="nav-link text-light float-end" href="#">About</a>
-                        <a class="nav-link text-light float-end" href="#">Contact</a>                  
+                        <a class="nav-link text-light" href="/questions">Why?</a>
+                        <a class="nav-link text-light float-end" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+                        <a class="nav-link text-light float-end" href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact</a>                  
                     </div>                  
                 </div>
             </nav>
+  
+            <!-- About Modal -->
+            <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel">About</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    This has been the work of me.
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>                    
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- Contact Modal -->
+            <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form>                        
+                        <div class="mb-3">
+                          <label for="message-text" class="col-form-label">Message:</label>
+                          <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Send message</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             <div class="row justify-content-center gy-3">
                 <p></p>
                 <div class="col-12"><h2 style="text-align:center;">How much is enough?</h2></div>
