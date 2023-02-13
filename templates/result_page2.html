@@ -1,4 +1,4 @@
-{% extends "form.html" %}
+{% extends "base.html" %}
 {% block headcontent %}
 <script src="{{ url_for('static', filename='/js/lib/echarts.js') }}"></script>
 {% endblock %}
@@ -23,8 +23,6 @@
 </p>
 {% endblock %}
 
-{% block formaction %}action="/questions" method="GET"{% endblock %}
-
 {%- macro printout(varname, prestr='', poststr='') -%}
     <strong>{{ prestr | safe }}<span id='{{ varname }}'>{{ '{:,.0f}'.format(d_common[varname]) }}</span>{{ poststr | safe }}</strong>
 {%- endmacro -%}
@@ -42,7 +40,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </a>
 {% endmacro %}
 
-{% block formbody %}
+{% block body %}
 <div class="p-3 border bg-light">
     <h3>How much is enough?</h3><p></p>
 
@@ -193,11 +191,48 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     {% endif %}
 </div>
 <p></p>
+{% macro nextstep(button_text, href=false, modal=false, onclick=false) %}
+<div class="p-1 border-bottom">
+    <div class="row justify-content-between align-items-center g-0">
+        <div class="col-9 col-sm-10">
+            {{ caller() }}
+        </div>
+        <div class="col-3 col-sm-2">
+            <a class="btn btn-primary float-end" role="button" style="width:90px;"
+            {% if href %} href="{{ href }}"{% endif %}
+            {% if modal %}data-bs-toggle="modal" data-bs-target="{{ modal }}"{% endif %}
+            {% if onclick %}onclick="{{ onclick }}"{% endif %}
+            >{{ button_text }}</a>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
 <div class="p-3 border bg-light">
     <h3>And finally...</h3><p></p>
     <p>
-        If you thought this was interesting...
+        If you thought this was interesting you might like to take to do one of the following:
     </p>
+    {% call nextstep("Copy", false, false, "copyToClipboard()") %}
+    Share your results - your results have a unique URL that can be shared with others.
+    {% endcall %}
+
+    {% call nextstep("Why?", "/questions") %}
+    See some of our thoughts.
+    {% endcall %}
+
+    {% call nextstep("Restart", "/") %}
+    Have another go - try a different level of 'enough'.
+    {% endcall %}
+
+    <!-- {% call nextstep("Go", "/") %}
+    Get involved
+    {% endcall %} -->
+
+    {% call nextstep("Contact", false, "#contactModal") %}
+    Get in touch - we would love to hear your thoughts!
+    {% endcall %}
+
 </div>
 <script type="text/javascript">
     {% include 'fig_howmuch.js' %} 
@@ -207,19 +242,20 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     {% include 'fig_dowe.js' %}
     {% include 'fig_whohaswithgrowth.js' %} 
 
+    function copyToClipboard() {
+        // Get the text field
+        var copyText = document.URL;
+      
+         // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText);
+      
+        // Alert the copied text
+        alert("Link copied to clipboard!");
+      }
 </script>
 
 {% endblock %}
-{% block navbuttons %}
-    <div class="row justify-content-between">
-        <div class="col-2">
-            <a class="btn btn-primary" href="/page1" role="button">Restart</a> 
-        </div>  
-        <div class="col-2">
-            <p class="float-end"><input type="submit" class="btn btn-primary" value="Next"></p>
-        </div>                    
-    </div>
-{% endblock %}
+{% block navbuttons %}{% endblock %}
 {% block progress %}100{% endblock %}
 {% block lastscript %}
 <script>
