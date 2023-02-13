@@ -147,7 +147,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h3>What does it take for everyone to have enough?</h3><p></p>
+    <h3>Is growing the whole economy a good way to give everyone enough?</h3><p></p>
     <p>
         Between 1977 and 2021 the growth of the whole UK economy has been equivalent to annual growth of <strong>{{ d_willgrowth.growth_UK }}%</strong>, but 
         growth of the bottom 10%'s incomes has been closer to <strong>{{ d_willgrowth.growth_bottom }}%</strong> while those in the top 10% of incomes has been 
@@ -185,9 +185,10 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     {{ add_chart('f5_chart', '400') }}
     {% if d_willgrowth.tax_found %}
     <p>
-        The deficit of those without enough is equal to <strong>{{ "{:.1f}%".format(d_willgrowth.tax_rate) }}</strong> of all income above 
+        Meanwhile, the deficit of those without enough is equal to <strong>{{ "{:.1f}%".format(d_willgrowth.tax_rate) }}</strong> of all income above 
         <strong>{{ "{:d}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough.
     </p>
+    {{ add_chart('f6_chart', '400') }}
     {% endif %}
 </div>
 <p></p>
@@ -241,6 +242,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     {% include 'fig_whohas.js' %}
     {% include 'fig_dowe.js' %}
     {% include 'fig_whohaswithgrowth.js' %} 
+    {% if d_willgrowth.tax_found %}{% include 'fig_whohasredistributed.js' %}{% endif %}
 
     function copyToClipboard() {
         // Get the text field

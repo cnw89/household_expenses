@@ -130,7 +130,8 @@ def run(HEDI, pension_pc, n_adults, n_children):
             d_willgrowth.tax_thresh_ratio = tax_thresh_ratio
             d_willgrowth.tax_found = True
 
-            d_willgrowth.pc_enough_pre_tax_by_decile = copy.deepcopy(d_whohas.pc_enough_by_decile)
+            d_willgrowth.taxed = []
+            d_willgrowth.credited = []
             d_willgrowth.pc_enough_post_tax_by_decile = []
 
             for pc in d_whohas.pc_enough_by_decile:
@@ -140,6 +141,8 @@ def run(HEDI, pension_pc, n_adults, n_children):
                     new_pc = pc
 
                 d_willgrowth.pc_enough_post_tax_by_decile.append(new_pc)
+                d_willgrowth.taxed.append(pc - new_pc)
+                d_willgrowth.credited.append(max(0, 1 - pc))
 
         else:
             d_willgrowth.tax_found = False
