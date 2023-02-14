@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
-import copy
+import datetime
 from object_definition import options, prep_expenses_for_serving, catlist
 from helper_funcs import dict_hash
 import analysis
@@ -41,12 +41,14 @@ class Record(db.Model):
     from app import db
     db.create_all()
     """
-    __tablename__ = "records4"
+    __tablename__ = "records"
 
     id = db.Column(db.Integer, primary_key=True)
-    #add date
+    date = db.Column(db.DateTime())
     uid = db.Column(db.String(4096))
     total_equivalized_spend = db.Column(db.Integer())
+    breakdown = db.Column(db.String(4096))
+    lifetime_breakdown = db.Column(db.String(4096))
     pension_pc = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
@@ -71,9 +73,11 @@ def display_results(uid):
         n_children = int(request.args.get('nchild', default=rec.n_children))
         
         d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend,
-            rec.pension_pc,
-            n_adults,
-            n_children)
+                                                                           json.loads(rec.breakdown),
+                                                                           json.loads(rec.lifetime_breakdown),
+                                                                           rec.pension_pc,
+                                                                           n_adults,
+                                                                           n_children)
         
 
     return render_template("result_page2.html", 
@@ -115,9 +119,10 @@ def custom_control():
         elif (cat == 'Pension'):
             continue
 
-        breakdown[cat] = equivalize(int(request.form[cat]), n_adults, n_children)        
+        #now switch to annual:
+        breakdown[cat] = 12 * equivalize(int(request.form[cat]), n_adults, n_children)        
 
-        total_equivalized_spend +=  12 * breakdown[cat]               
+        total_equivalized_spend +=  breakdown[cat]               
     
     #saving pc is a pc of income not expense
     savings_pc = int(request.form['Savings'])
@@ -129,19 +134,28 @@ def custom_control():
     breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
     total_equivalized_spend += breakdown['Pension']
 
-    #house downpayment
+    lifetime_breakdown = {} #for storing non-averaged lifetime payments
+
+    #averaged house downpayment
     house = int(request.form['house'])
-    breakdown['House_deposit'] = house/NON_RETIRED_HOUSEHOLD_YEARS
+    lifetime_breakdown['House_deposit'] = house
+    breakdown['House_deposit'] = equivalize(house/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)  
     total_equivalized_spend += breakdown['House_deposit']
 
-    #Pre-school childcare fees 
-    childcare = int(request.form['childcare']) * 12 * float(request.form['childcare_years'])
-    breakdown['Childcare'] = childcare * AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS
+    #Averaged Pre-school childcare fees 
+    childcare = int(request.form['childcare']) * 12 
+    childcare_years = float(request.form['childcare_years'])
+    lifetime_breakdown['Childcare'] = childcare
+    lifetime_breakdown['Childcare_years'] = childcare_years
+    breakdown['Childcare'] = equivalize(childcare * childcare_years * AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)
     total_equivalized_spend += breakdown['Childcare']
     
     uid = dict_hash(breakdown)
-    record = Record(uid=uid, total_equivalized_spend=total_equivalized_spend, 
-        pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)
+    now = datetime.datetime.now()
+    record = Record(date=now, uid=uid, total_equivalized_spend=total_equivalized_spend, 
+                    breakdown=json.dumps(breakdown),
+                    lifetime_breakdown=json.dumps(lifetime_breakdown),
+                    pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)
 
     db.session.add(record)
     db.session.commit()

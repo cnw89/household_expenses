@@ -17,9 +17,16 @@
     Based on the expense budget you provided with a household of {{ printout('n_adults', '', ' adults')}} and 
     {{ printout('n_children', '', ' children')}}, we estimate that an equivalent level of expenditure can be achieved 
     in other non-retired households allowing {{ printout('first_adult', '£', '')}} for the first adult, {{ printout('second_adult', '£', '')}}
-    for subsequent adults, and {{ printout('child', '£', '')}} for children, per month. {% call query('Equivalization of Expenses') %} We use the OECD-modified
-    equivalization factors of 1 for the first adult, 0.5 for subsequent adults and 0.3 for children. You can read about equivalization using this method
-    <a href='https://en.wikipedia.org/wiki/Equivalisation' target='_blank' rel='external'>here</a>.{% endcall %}
+    for subsequent adults, and {{ printout('child', '£', '')}} for children, per month. This includes averaged values for the cost of big 'lifetime' expenses
+     - the deposit on your first house, and the pre-school childcare - over a typical non-retired household lifetime.    
+    {% call query('Equivalization of Expenses') %} We use the OECD-modified
+    equivalization factors of 1 for the first adult, 0.5 for subsequent adults and 0.3 for children to equivalize the regular expenses. 
+    You can read about equivalization using this method
+    <a href='https://en.wikipedia.org/wiki/Equivalisation' target='_blank' rel='external'>here</a>.
+    The large 'lifetime' expenses are averaged over a non-retired household lifetime of {{ d_common.non_retired_household_years }} years,
+    and (for the pre-school childcare expenses) an average number of children per household of {{ d_common.average_children_per_house }} children 
+    prior to equivalization.
+    {% endcall %}
 </p>
 {% endblock %}
 
@@ -56,8 +63,16 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         is assumed to be paid directly by the employer (and so is not part of these numbers) and the remaining pension contributions are made prior to 
         tax deductions. Tax rates are valid to April 2023.
         {% endcall %}
-    </p>
+    </p>    
     {{ add_chart('f1_chart', '300') }}
+    <p> 
+        To calculate these values we averaged the cost of big 'lifetime' expenses - the deposit on your first house, and the pre-school childcare - over a 
+        lifetime of a non-retired household.
+        Those that are saving for a deposit on their first house over {{ d_howmuch.save_for_first_house_years }} years, would require an additional 
+        <strong>{{ "£{:,.0f}".format(d_howmuch.while_saving_for_first_house) }}</strong> per year for a household of your size. 
+        Those with children in pre-school childcare would require an additional 
+        <strong>{{ "£{:,.0f}".format(d_howmuch.while_preschool_childcare) }}</strong> per child, per year for a household of your size. 
+    </p>
 </div>
 <p></p>
 <div class="p-3 border bg-light">

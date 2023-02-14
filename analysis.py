@@ -46,10 +46,11 @@ thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLD
 NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
 
 EMPLOYER_PENSION_CONTRIB_PC = 3
-AVERAGE_CHILDREN_PER_HOUSE = 1.5
+AVERAGE_CHILDREN_PER_HOUSE = 0.8
 NON_RETIRED_HOUSEHOLD_YEARS = 40
+SAVE_FOR_FIRST_HOUSE_YEARS = 7
 
-def run(HEDI, pension_pc, n_adults, n_children):
+def run(HEDI, breakdown, lifetime_breakdown, pension_pc, n_adults, n_children):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
     """
@@ -61,6 +62,8 @@ def run(HEDI, pension_pc, n_adults, n_children):
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
     d_common.employer_pension_contrib_pc = EMPLOYER_PENSION_CONTRIB_PC
     d_common.council_tax = COUNCIL_TAX
+    d_common.average_children_per_house = AVERAGE_CHILDREN_PER_HOUSE 
+    d_common.non_retired_household_years = NON_RETIRED_HOUSEHOLD_YEARS 
     
     #monthly
     d_common.first_adult = dequivalize(HEDI, 1, 0)/12
@@ -88,6 +91,10 @@ def run(HEDI, pension_pc, n_adults, n_children):
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
     d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX), pension_pc) for sal in d_howmuch.base]
     d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX)/min(2, na), pension_pc) for sal, na in zip(d_howmuch.base, adults)]
+
+    d_howmuch.save_for_first_house_years = SAVE_FOR_FIRST_HOUSE_YEARS
+    d_howmuch.while_saving_for_first_house = (lifetime_breakdown['House_deposit']/SAVE_FOR_FIRST_HOUSE_YEARS) - dequivalize(breakdown['House_deposit'], n_adults, n_children)
+    d_howmuch.while_preschool_childcare = lifetime_breakdown['Childcare'] - dequivalize(breakdown['Childcare'], n_adults, n_children)
 
     #what does it take to earn enough calculated in browser from how much is enough...
 
