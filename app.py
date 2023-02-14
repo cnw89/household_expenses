@@ -2,10 +2,10 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import datetime
-from object_definition import options, prep_expenses_for_serving, catlist
+from object_definition import options, prep_expenses_for_serving, prep_expenses_for_recording
 from helper_funcs import dict_hash
 import analysis
-from analysis import equivalize, dequivalize, NON_RETIRED_HOUSEHOLD_YEARS, AVERAGE_CHILDREN_PER_HOUSE
+from analysis import dequivalize
 
 localdb = True
 app = Flask(__name__)
@@ -111,44 +111,9 @@ def custom_control():
                 mainoption=mainoption)
 
     
-    total_equivalized_spend=0
-    breakdown = {}
-    for cat in catlist:
-        if (cat == 'Savings'):
-            continue
-        elif (cat == 'Pension'):
-            continue
-
-        #now switch to annual:
-        breakdown[cat] = 12 * equivalize(int(request.form[cat]), n_adults, n_children)        
-
-        total_equivalized_spend +=  breakdown[cat]               
-    
-    #saving pc is a pc of income not expense
-    savings_pc = int(request.form['Savings'])
-    breakdown['Savings'] = total_equivalized_spend * (savings_pc/(100-savings_pc))
-    total_equivalized_spend += breakdown['Savings']
-
-    #pension pc is a pc of income not expense, including savings
-    pension_pc = int(request.form['Pension'])
-    breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
-    total_equivalized_spend += breakdown['Pension']
-
-    lifetime_breakdown = {} #for storing non-averaged lifetime payments
-
-    #averaged house downpayment
-    house = int(request.form['house'])
-    lifetime_breakdown['House_deposit'] = house
-    breakdown['House_deposit'] = equivalize(house/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)  
-    total_equivalized_spend += breakdown['House_deposit']
-
-    #Averaged Pre-school childcare fees 
-    childcare = int(request.form['childcare']) * 12 
-    childcare_years = float(request.form['childcare_years'])
-    lifetime_breakdown['Childcare'] = childcare
-    lifetime_breakdown['Childcare_years'] = childcare_years
-    breakdown['Childcare'] = equivalize(childcare * childcare_years * AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)
-    total_equivalized_spend += breakdown['Childcare']
+    total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc = prep_expenses_for_recording(request.form, 
+                                                                                                     n_adults,
+                                                                                                     n_children)
     
     uid = dict_hash(breakdown)
     now = datetime.datetime.now()

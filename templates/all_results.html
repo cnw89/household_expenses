@@ -1,13 +1,27 @@
 {% extends "base.html" %}
-{% block title %}All results{% endblock %}
+{% block progress %}{% endblock %}
+{% block description %}All results{% endblock %}
 {% block body %}
-    <div class="container">
-        {% for record in records %}
-            <div class="row">
-                <div class="col-md-4">{{ record.uid }}</div>                        
-                <div class="col-md-4">{{ record.content }}</div>
-            </div>
-        {% endfor %}
-
-    </div><!-- /.container -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date-time</th>
+                <th scope="col">HEDI</th>
+                <th scope="col">N Adults</th>
+                <th scope="col">N Children</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <th scope="row">{{ record.date }}</th>                        
+                    <td>{{ record.total_equivalized_spend }}</td>
+                    <td>{{ record.n_adults }}</td>
+                    <td>{{ record.n_children }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    
 {% endblock %}
