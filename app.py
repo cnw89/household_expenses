@@ -2,10 +2,10 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import copy
-from object_definition import options, breakdowns, stepfun, optlist, catlist
-from helper_funcs import dict_hash, freq_text_to_int
+from object_definition import options, prep_expenses_for_serving, catlist
+from helper_funcs import dict_hash
 import analysis
-from analysis import equivalize, dequivalize
+from analysis import equivalize, dequivalize, NON_RETIRED_HOUSEHOLD_YEARS, AVERAGE_CHILDREN_PER_HOUSE
 
 localdb = True
 app = Flask(__name__)
@@ -93,40 +93,10 @@ def custom_control():
     n_adults = int(n_adults_s)
     n_children = int(n_children_s)
 
-    breakdown = copy.deepcopy(breakdowns[optlist[int(mainoption)]])
-    maxop = breakdowns['max']
-    breakdown_data_list = []
-
+    
     if request.method == "GET":
         
-        for cat in catlist:
-            
-            if (cat['name'] == 'Savings'):
-                savings_data = cat
-                savings_data['id'] = 'Savings'
-                savings_data['value'] = breakdown['Savings']
-                savings_data['max'] = maxop['Savings']
-                savings_data['step'] = 1
-                continue
-            elif (cat['name'] == 'Pension'):
-                pension_data = cat
-                pension_data['id'] = 'Pension'
-                pension_data['value'] = breakdown['Pension']
-                pension_data['max'] = maxop['Pension']
-                pension_data['step'] = 1
-                continue
-
-            cat_data = {}
-            catname = cat['name']
-            cat_data['name'] = catname
-            cat_data['id'] = cat['id']
-            cat_data['description'] = cat['description']
-            cat_data['value'] = dequivalize(breakdown[catname], n_adults, n_children)
-            cat_data['freq'] = 'month'
-            cat_data['max'] = max(dequivalize(maxop[catname], n_adults+2, n_children), 2 * cat_data['value'])
-            cat_data['step'] = 1#stepfun(cat_data['max'])
-
-            breakdown_data_list.append(cat_data)
+        breakdown_data_list, savings_data, pension_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
 
         return render_template("custom_control.html", 
                 breakdown=breakdown_data_list, 
@@ -138,8 +108,8 @@ def custom_control():
 
     
     total_equivalized_spend=0
-
-    for cat in breakdown:
+    breakdown = {}
+    for cat in catlist:
         if (cat == 'Savings'):
             continue
         elif (cat == 'Pension'):
@@ -159,6 +129,16 @@ def custom_control():
     breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
     total_equivalized_spend += breakdown['Pension']
 
+    #house downpayment
+    house = int(request.form['house'])
+    breakdown['House_deposit'] = house/NON_RETIRED_HOUSEHOLD_YEARS
+    total_equivalized_spend += breakdown['House_deposit']
+
+    #Pre-school childcare fees 
+    childcare = int(request.form['childcare']) * 12 * float(request.form['childcare_years'])
+    breakdown['Childcare'] = childcare * AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS
+    total_equivalized_spend += breakdown['Childcare']
+    
     uid = dict_hash(breakdown)
     record = Record(uid=uid, total_equivalized_spend=total_equivalized_spend, 
         pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)

@@ -5,7 +5,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
 {% block funcdef %}
     <script>
         const updateDisplay = (outid, newVal) => {
-            outid.innerHTML=newVal;
+            outid.innerHTML=parseFloat(newVal).toLocaleString();
         };      
         
         const updateTotal = () => {
@@ -45,122 +45,218 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
     <div class="p-3 border bg-light">
         <div class="row justify-content-between align-items-center g-2">
             <div class="col-12 col-sm-5">
-                <h3>Total: £<span id="total"></span>/month</h3>
+                <h2>1. Regular expenses</h2>
             </div>
             <div class="col-9 col-sm-5">
-                <div class="row justify-content-center">
-                    <b><label for="adjustEverythingRange" class="form-label">Adjust Total: </label>
-                    <span id="adjustEverythingRangeOutput">0</span>%
-                    </b>
-                    <div class="col-3 col-sm-2">
-                        -30%
+                <h3 class="float-end">Total: £<span id="total"></span>/month</h3>
+            </div> 
+        </div>
+    
+        <p></p>
+        <div class="p-3 border bg-white">
+            <div class="row align-items-center g-2">   
+                <div class="col-9 col-sm-10">
+                    <div class="row justify-content-center">
+                        <b><label for="adjustEverythingRange" class="form-label">Adjust Total: </label>
+                        <span id="adjustEverythingRangeOutput">0</span>%
+                        </b>
+                        <div class="col-3 col-sm-2 text-end">
+                            -30%
+                        </div>
+                        <div class="col-6 col-sm-8">
+                            <input type="range" name="adjustEverythingRange" class="form-range"                         
+                                id="adjustEverythingRange" min="-30" max="30" step="1"
+                                value="0"
+                                oninput="updateDisplay(adjustEverythingRangeOutput, this.value)"
+                                onchange="adjustEverything()">
+                        </div>
+                        <div class="col-3 col-sm-2">
+                            +30%
+                        </div>                    
                     </div>
-                    <div class="col-6 col-sm-8">
-                        <input type="range" name="adjustEverythingRange" class="form-range"                         
-                            id="adjustEverythingRange" min="-30" max="30" step="1"
-                            value="0"
-                            oninput="updateDisplay(adjustEverythingRangeOutput, this.value)"
-                            onchange="adjustEverything()">
+                </div> 
+                <div class="col-3 col-sm-2">
+                    <a class="btn btn-primary float-end" 
+                    href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"
+                    role="button">Reset</a>
+                </div>            
+            </div>  
+        </div>
+        <p></p>
+        <div class="row row-cols-1 row-cols-lg-2 g-2">
+        {% for cat in breakdown %}        
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8" style="min-height:140px;">
+                            <b><label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label></b><br>
+                            {{ cat.description }}
+                        </div>
+                        <div class="col-4 text-end">
+                            £<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/{{ cat.freq }}
+                        </div>
                     </div>
-                    <div class="col-3 col-sm-2">
-                        <p class="float-end">+30%</p>
-                    </div>                    
+                    <div class="row justify-content-center">
+                        <div class="col-3 col-sm-2 text-end">
+                            £0
+                        </div>
+                        <div class="col-6 col-sm-8">
+                            <input type="range" name="{{ cat.name }}" class="form-range"                         
+                                id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
+                                value="{{ cat.value }}"
+                                oninput="updateDisplay({{ cat.id }}_output, this.value)"
+                                onchange="updateTotal()">
+                        </div>    
+                        <div class="col-3 col-sm-2">
+                            £{{ cat.max }}
+                        </div>                
+                    </div>
                 </div>
-            </div>
-            <div class="col-3 col-sm-2">
-                <a class="btn btn-primary float-end" href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}" role="button">Reset</a>
-            </div>
-        </div>  
+            </div>                          
+        {% endfor %}
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b><label for="{{ savings.id + '_input'}}" class="form-label">{{ savings.name }}</label></b><br>
+                            {{ savings.description }}
+                        </div>
+                        <div class="col-4 col-sm-3 text-end">
+                            <span id="{{ savings.id + '_output' }}">{{ savings.value }}</span>%
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-3 col-sm-2 text-end">
+                            0%
+                        </div>
+                        <div class="col-6 col-sm-8">
+                            <input type="range" name="{{ savings.name }}" class="form-range"                         
+                                id="{{ savings.id + '_input'}}" max="{{ savings.max }}" step="{{ savings.step }}"
+                                value="{{ savings.value }}"
+                                oninput="updateDisplay({{ savings.id }}_output, this.value)"
+                                onchange="updateTotal()">
+                        </div>
+                        <div class="col-3 col-sm-2">
+                            {{ savings.max }}%
+                        </div>                    
+                    </div>
+                </div>
+            </div> 
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b><label for="{{ pension.id + '_input'}}" class="form-label">{{ pension.name }}</label></b><br>
+                            {{ pension.description }}
+                        </div>
+                        <div class="col-4 col-sm-3 text-end">
+                            <span id="{{ pension.id + '_output' }}">{{ pension.value }}</span>%
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-3 col-sm-2 text-end">
+                            0%
+                        </div>   
+                        <div class="col-6 col-sm-6">
+                            <input type="range" name="{{ pension.name }}" class="form-range"                         
+                                id="{{ pension.id + '_input'}}" max="{{ pension.max }}" step="{{ pension.step }}"
+                                value="{{ pension.value }}"
+                                oninput="updateDisplay({{ pension.id }}_output, this.value)"
+                                onchange="updateTotal()">
+                        </div> 
+                        <div class="col-3 col-sm-2">
+                            {{ pension.max }}%
+                        </div>                      
+                    </div>
+                </div>
+            </div>         
+        </div>        
     </div>
     <p></p>
-    <div class="row row-cols-1 row-cols-lg-2 g-2">
-    {% for cat in breakdown %}        
-        <div class="col">
-            <div class="p-3 border bg-light">
-                <div class="row justify-content-between">
-                    <div class="col-8 col-sm-9" style="min-height:140px;">
-                        <b><label for="{{ cat.id + '_input'}}" class="form-label">{{ cat.name }}</label></b><br>
-                        {{ cat.description }}
+    <div class="p-3 border bg-light">
+        <div class="row justify-content-between align-items-center g-2">
+            <div class="col-12">
+                <h2>2. Lifetime expenses</h2>
+            </div>            
+        </div>  
+    
+        <p></p>
+        <div class="row row-cols-1 g-2">
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b><label for="house_input" class="form-label">First house downpayment</label></b><br>
+                            Deposit for buying a first house   
+                        </div>
+                        <div class="col-4 col-sm-3">
+                            <p class="float-end">£<span id="house_output">20,000</span></p>
+                        </div>
                     </div>
-                    <div class="col-4 col-sm-3">
-                        <p class="float-end">£<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/{{ cat.freq }}</p>
+                    <div class="row justify-content-center">
+                        <div class="col-2 text-end">
+                            £0
+                        </div>
+                        <div class="col-8">
+                            <input type="range" name="house" class="form-range"                         
+                                id="house_input" max="50000" step="1000"
+                                value="20000"
+                                oninput="updateDisplay(house_output, this.value)">
+                        </div>    
+                        <div class="col-2">
+                            £50,000
+                        </div>                
                     </div>
                 </div>
-                <div class="row justify-content-center">
-                    <div class="col-1">
-                        £0
+            </div>
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b>Pre-school Childcare</b><br>
+                            Monthly payments for pre-school childcare, over and above government-provided childcare
+                            hours of 15-30 hours/week during term times for ages 3 and over. 
+                            Calculated for each child - input even if your household does not have children.
+                        </div>
+                        <div class="col-4 col-sm-3">
+                            <p class="float-end">£<span id="childcare_output">600</span>/month<br>
+                            for <span id="childcare_years_output">2</span> years</p>                         
+                        </div>
                     </div>
-                    <div class="col-8">
-                        <input type="range" name="{{ cat.name }}" class="form-range"                         
-                            id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
-                            value="{{ cat.value }}"
-                            oninput="updateDisplay({{ cat.id }}_output, this.value)"
-                            onchange="updateTotal()">
-                    </div>    
-                    <div class="col-3">
-                        £{{ cat.max }}
+                    <label for="childcare_input" class="form-label">Monthly Payment:</label>
+                    <div class="row justify-content-center">
+                        <div class="col-2 text-end">
+                            £0/month
+                        </div>
+                        <div class="col-8">                        
+                            <input type="range" name="childcare" class="form-range"                         
+                                id="childcare_input" max="1200" step="50"
+                                value="600"
+                                oninput="updateDisplay(childcare_output, this.value)">
+                        </div>    
+                        <div class="col-2">
+                            £1,200/month
+                        </div>                
+                    </div>
+                    <label for="childcare_years_input" class="form-label">Number of years of payments:</label>
+                    <div class="row justify-content-center">
+                        <div class="col-2 text-end">
+                            0 years
+                        </div>
+                        <div class="col-8">                        
+                            <input type="range" name="childcare_years" class="form-range"                         
+                                id="childcare_years_input" max="4" step="0.5"
+                                value="2"
+                                oninput="updateDisplay(childcare_years_output, this.value)">
+                        </div>    
+                        <div class="col-2">
+                            4 years
+                        </div>                
                     </div>                
                 </div>
             </div>
-        </div>                          
-    {% endfor %}
-        <div class="col">
-            <div class="p-3 border bg-light">
-                <div class="row justify-content-between">
-                    <div class="col-9" style="min-height:140px;">
-                        <b><label for="{{ savings.id + '_input'}}" class="form-label">{{ savings.name }}</label></b><br>
-                        {{ savings.description }}
-                    </div>
-                    <div class="col-3">
-                        <p class="float-end"><span id="{{ savings.id + '_output' }}">{{ savings.value }}</span>%</p>
-                    </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-1">
-                        0%
-                    </div>
-                    <div class="col-8">
-                        <input type="range" name="{{ savings.name }}" class="form-range"                         
-                            id="{{ savings.id + '_input'}}" max="{{ savings.max }}" step="{{ savings.step }}"
-                            value="{{ savings.value }}"
-                            oninput="updateDisplay({{ savings.id }}_output, this.value)"
-                            onchange="updateTotal()">
-                    </div>
-                    <div class="col-3">
-                        {{ savings.max }}%
-                    </div>                    
-                </div>
-            </div>
-        </div> 
-        <div class="col">
-            <div class="p-3 border bg-light">
-                <div class="row justify-content-between">
-                    <div class="col-9" style="min-height:140px;">
-                        <b><label for="{{ pension.id + '_input'}}" class="form-label">{{ pension.name }}</label></b><br>
-                        {{ pension.description }}
-                    </div>
-                    <div class="col-3">
-                        <p class="float-end"><span id="{{ pension.id + '_output' }}">{{ pension.value }}</span>%</p>
-                    </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-1">
-                        0%
-                    </div>   
-                    <div class="col-8">
-                        <input type="range" name="{{ pension.name }}" class="form-range"                         
-                            id="{{ pension.id + '_input'}}" max="{{ pension.max }}" step="{{ pension.step }}"
-                            value="{{ pension.value }}"
-                            oninput="updateDisplay({{ pension.id }}_output, this.value)"
-                            onchange="updateTotal()">
-                    </div> 
-                    <div class="col-3">
-                        {{ pension.max }}%
-                    </div>                      
-                </div>
-            </div>
-        </div>         
-    </div> 
+        </div>
+    </div>
     <script> updateTotal(); </script>           
 {% endblock %}
 {% block prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% endblock %}

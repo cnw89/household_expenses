@@ -76,34 +76,35 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         {% endif %}
         Use the controls below to see what it takes for different households for different wages or hours worked per week.
     </p>
-
-    <div class="row justify-content-between p-1 bg-white gy-2">
-        <div class="col-6">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
-                <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
+    <div class="p-3 border bg-white">
+        <div class="row justify-content-between gy-2">
+            <div class="col-6">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
+                    <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
+                </div>
             </div>
-        </div>
-        <div class="col-6">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
-                <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One earner per household</label>
-            </div>                
-        </div>
-        
-        <div class="col-12 col-sm-6">
-            <div class="row">
-                <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
-                <div class="col-3">
-                    <p class="float-end"><span id="hoursOrWageRangeMinLabel">10</span></p>
-                </div>
-                <div class="col-6">
-                    <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
-                </div>
-                <div class="col-3">
-                    <span id="hoursOrWageRangeMaxLabel">80</span>
-                </div>
-            </div>                      
+            <div class="col-6">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
+                    <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One earner per household</label>
+                </div>                
+            </div>
+            
+            <div class="col-12 col-sm-6">
+                <div class="row">
+                    <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
+                    <div class="col-3">
+                        <p class="float-end"><span id="hoursOrWageRangeMinLabel">10</span></p>
+                    </div>
+                    <div class="col-6">
+                        <input type="range" class="form-range form-control" id="hoursOrWageRange" min="10.0" step="0.1" max="80.0" value="37.5">
+                    </div>
+                    <div class="col-3">
+                        <span id="hoursOrWageRangeMaxLabel">80</span>
+                    </div>
+                </div>                      
+            </div>
         </div>
     </div>
     <p></p>
@@ -165,27 +166,29 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <p>
         Below you can see how the rate of growth (applied evenly across all incomes) affects how much of enough different households have over the coming years.
     </p>
-    <div class="row justify-content-center p-1 bg-white">
-        <div class="col-7">
-            <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 1.5%</label>
-            <div class="row">
-                <div class="col-2">
-                    <p class="float-end">0.1%</p>
-                </div>
-                <div class="col-8">
-                    <input type="range" class="form-range from-control" id="growthPCRange" min="0.1" step="0.1" max="5.0" value="1.5">
-                </div>
-                <div class="col-2">
-                    5%
-                </div>            
-            </div>        
+    <div class="p-3 border bg-white">
+        <div class="row justify-content-center">
+            <div class="col-7">
+                <label for="growthPCRange" class="form-label" id="growthPCRangeLabel">Growth percent: 1.5%</label>
+                <div class="row">
+                    <div class="col-2">
+                        <p class="float-end">0.1%</p>
+                    </div>
+                    <div class="col-8">
+                        <input type="range" class="form-range from-control" id="growthPCRange" min="0.1" step="0.1" max="5.0" value="1.5">
+                    </div>
+                    <div class="col-2">
+                        5%
+                    </div>            
+                </div>        
+            </div>
         </div>
     </div>
     <p></p>
     {{ add_chart('f5_chart', '400') }}
     {% if d_willgrowth.tax_found %}
     <p>
-        Meanwhile, the deficit of those without enough is equal to <strong>{{ "{:.1f}%".format(d_willgrowth.tax_rate) }}</strong> of all income above 
+        Meanwhile, the deficit of those without enough is equal to <strong>{{ "{:.0f}%".format(d_willgrowth.tax_rate) }}</strong> of all disposable income above 
         <strong>{{ "{:d}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough.
     </p>
     {{ add_chart('f6_chart', '400') }}
