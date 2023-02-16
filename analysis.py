@@ -37,7 +37,7 @@ thresh2 = (INCOME_TAX_THRESHOLDS[0] - INCOME_TAX_THRESHOLDS[1])*(1 - INCOME_TAX_
 INCOME_TAX_THRESHOLDS_INV = [thresh2, thresh1, INCOME_TAX_THRESHOLDS[2]]
 
 #Class 1A national insurance, employee contributions, valid to April 2023
-NI_THRESHOLDS = [967, 242.01] #weekly earnings thresholds
+NI_THRESHOLDS = [52*967, 52*242.01] #weekly earnings thresholds
 NI_RATES = [0.02, 0.12]
 
 COUNCIL_TAX = 1600
@@ -45,7 +45,6 @@ COUNCIL_TAX = 1600
 thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLDS[1]
 NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
 
-EMPLOYER_PENSION_CONTRIB_PC = 3
 AVERAGE_CHILDREN_PER_HOUSE = 0.8
 NON_RETIRED_HOUSEHOLD_YEARS = 40
 SAVE_FOR_FIRST_HOUSE_YEARS = 7
@@ -60,7 +59,6 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, n_adults, n_children):
     d_common = types.SimpleNamespace()
     d_common.min_wage = MIN_WAGE
     d_common.default_hours_per_week = DEFAULT_HOURS_PER_WEEK
-    d_common.employer_pension_contrib_pc = EMPLOYER_PENSION_CONTRIB_PC
     d_common.council_tax = COUNCIL_TAX
     d_common.average_children_per_house = AVERAGE_CHILDREN_PER_HOUSE 
     d_common.non_retired_household_years = NON_RETIRED_HOUSEHOLD_YEARS 
@@ -89,8 +87,8 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, n_adults, n_children):
     adults = [1, 1, 2, 2, 2, 2]
     children = [0, 1, 0, 1, 2, 3]
     d_howmuch.base = [dequivalize(HEDI, na, nc) for (na, nc) in zip(adults, children)]
-    d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX), pension_pc) for sal in d_howmuch.base]
-    d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension((sal + COUNCIL_TAX)/min(2, na), pension_pc) for sal, na in zip(d_howmuch.base, adults)]
+    d_howmuch.with_tax1 = [calc_pre_tax_income_pre_pension(sal, pension_pc) for sal in d_howmuch.base]
+    d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension(sal/min(2, na), pension_pc) for sal, na in zip(d_howmuch.base, adults)]
 
     d_howmuch.save_for_first_house_years = SAVE_FOR_FIRST_HOUSE_YEARS
     d_howmuch.while_saving_for_first_house = (lifetime_breakdown['House_deposit']/SAVE_FOR_FIRST_HOUSE_YEARS) - dequivalize(breakdown['House_deposit'], n_adults, n_children)
@@ -189,7 +187,7 @@ def calc_disposable_income(income):
             income_remainder -= val_above
 
     #now class 1A national insurance, employee contributions
-    ni_remainder = income/52
+    ni_remainder = income
 
     for b, thresh in enumerate(NI_THRESHOLDS):
 
@@ -206,8 +204,9 @@ incomes.append(1000000)
 calc_pre_tax_income = interp1d([calc_disposable_income(inc) for inc in incomes], incomes)
 
 def calc_pre_tax_income_pre_pension(disposable_income, pension_pc):
+    
+    pension = disposable_income * pension_pc/100
 
-    after_employee_pension_contrib = calc_pre_tax_income(disposable_income * (1 - pension_pc/100)).item()
-    before_employee_pension_contrib = after_employee_pension_contrib/(1- (pension_pc - EMPLOYER_PENSION_CONTRIB_PC)/100)
+    pre_tax = pension + calc_pre_tax_income(disposable_income - pension + COUNCIL_TAX).item()    
 
-    return before_employee_pension_contrib
+    return pre_tax

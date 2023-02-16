@@ -59,9 +59,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         total tax will usually be less.
         {% call query('Tax Calculation') %}
         The calculated tax includes Income Tax and and Class 1A National Insurance employee contributions and a 
-        fixed council tax of {{ printout('council_tax', '£', '/year') }}. Of the pension contribution, {{ printout('employer_pension_contrib_pc', '', '%') }}
-        is assumed to be paid directly by the employer (and so is not part of these numbers) and the remaining pension contributions are made prior to 
-        tax deductions. Tax rates are valid to April 2023.
+        fixed council tax of {{ printout('council_tax', '£', '/year') }}. The pension component of the expenses is excluded from the tax calculation. 
+        Tax rates are valid to April 2023.
         {% endcall %}
     </p>    
     {{ add_chart('f1_chart', '300') }}
