@@ -80,7 +80,7 @@ def display_results(uid):
                                                                            n_children)
         
 
-    return render_template("result_page2.html", 
+    return render_template("result_page.html", 
                             d_common=d_common,
                             d_howmuch=d_howmuch, 
                             d_whohas=d_whohas,
