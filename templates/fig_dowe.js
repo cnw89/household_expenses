@@ -69,12 +69,12 @@ const f4_labelSetting = {
         }
       },
       {
-        name: 'Deficit of those Without Enough',
+        name: 'Shortfall of those Without Enough',
         type: 'pie',
         radius: set_radius(f4_vars.deficit_without_enough),
         center: ['80%', '50%'],
         data: [
-          { value: Math.round(f4_vars.deficit_without_enough/1e9), name: 'Deficit of those Without Enough' }
+          { value: Math.round(f4_vars.deficit_without_enough/1e9), name: 'Shortfall of those Without Enough' }
         ],
         label: f4_labelSetting,
         emphasis: {

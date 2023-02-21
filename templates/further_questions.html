@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block description %}
 <p>
-    Here's some of the thought behind it...
+    See below for some of the thoughts we had in developing this app.
 </p>
 {% endblock %}
 
@@ -20,18 +20,173 @@
     </div>
 </div>
 {% endmacro %}
+{% macro listitem(title, usebreak=true) %}
+<li>
+  <strong>{{ title }}</strong>{% if usebreak %}<br>{% endif %}
+  {{ caller() | safe }}
+</li>
+{% endmacro %}
 
 {% block body %}
 
 <div class="accordion" id="questionsAccordian">
-    {% call item('What is this site about?', "0", true) %}
-    This is about such and such...
+    {% call item('Why is it important to consider how much is enough?', "0", true) %}
+    We believe that considering how much is enough is important for both those that don't have enough and those that do:
+    <ul>
+      {% call listitem("For those that don't have enough.", false) %}
+        It helps quantify the financial shortfall of low income households and the 
+        size of the changes that are needed to address that, as well as putting in relatable terms the financial difficulties of many in the UK 
+      {% endcall %}
+      {% call listitem("For those that have more than enough.", false) %}
+        It can highlight the possibility of another way of living in which we 
+        work and spend less, bringing many benefits to individuals and society generally (discussed more below)
+      {% endcall %}
+    </ul>	
+    Ultimately we believe that thinking about how much is enough can help us make choices at an individual and 
+    societal level that lead to greater wellbeing for all.
     {% endcall %}
 
-    {% call item('What do you mean by enough?', "1") %}
-    Well you're missing the point.
+    {% call item('What are the individual benefits of working and spending less?', "2") %}
+    For those that have more than enough, working and spending less each brings benefits:
+    <ul>
+      {% call listitem('More free time') %}
+      This allows us the time to develop better relationships, and have more resilient families
+       and communities, able to care for each other when needed. With more time to spend on the 
+       things we feel passionate about, rather than things that are profitable, we can have the 
+       opportunity to develop skills that may open up new opportunities for how we earn a living
+        in addition to the boost in life satisfaction it provides. 
+      {% endcall %}
+      {% call listitem('A simpler, more sustainable lifestyle') %}
+      Consuming things and services in excess of what we need is often driven by the desire to 
+      compensate ourselves for long working hours, or keep-up with our peers, and often comes with 
+      hidden costs and stresses for both us and the environment. A simpler, less cluttered way of 
+      living can be more satisfying and have a much-reduced impact on the environment.
+      {% endcall %}
+    </ul>
     {% endcall %}
-</div>
+    {% call item('What are the benefits of everyone working and spending less for society?', "3") %}
+    Working and spending less brings even more benefits when we do so collectively as a society:
+    <ol>
+      {% call listitem('Richer culture') %}
+      With everyone having more time to spend on hobbies, the arts, crafts, sports, community activities etc. 
+      it's not just the people who partake in them that benefit, but others benefit from the fruits of these
+       activities too. For example, more community and sports events to attend, better kept green spaces and 
+       live music in public places. With more choice of activities for young people to engage with in the 
+       evenings, anti-social behaviour could be reduced.
+      {% endcall %}
+      {% call listitem('Meeting national climate targets and improving sustainability') %}
+      Limiting global warming is enormously challenging and requires massive changes to our economy, but 
+      not doing so has dire consequences. Reducing consumption for households with more than enough is the
+       easiest and quickest way to contribute to meeting emissions targets, and is necessary to limit 
+       global warming to 1.5C. All aspects of sustainability are improved by reducing consumption.
+      {% endcall %}
+      {% call listitem('Reversing the epidemic of mental health problems and increasing social resilience') %}
+      With less busyness and stress from long working hours, and more time for developing caring relationships and passions.
+      {% endcall %}
+      {% call listitem('Greater gender equality') %}
+      We have made great progress in half of the project of gender equality: women entering the traditionally-male paid 
+      economy; but very little progress on the other half: men spending more time in traditionally-female activities of 
+      child care, elderly care and household upkeep. Instead, as women have had less time for these activities the shortfall 
+      has been met by buying these services from (often female) service providers. But this is not an ideal solution as the
+       gender imbalance remains, while high reliance on care services can be alienating for those that use them and relations. 
+       To increase gender equality we need to create a culture in which it is normal for men and women to work less than 
+       40 hours/week, to create more space for men to contribute to care activities.
+      {% endcall %}
+      {% call listitem('Better adaptation and management of technological change') %}
+      When those who have more than enough work less, we can expect more well-paid jobs to be available in the firms where they 
+      work. This is particularly helpful in the face of more jobs being at risk of being cut due to automation. 
+      {% endcall %}
+    </ol>
+    {% endcall %}
+    {% call item("How can I work less in my full-time job?", "4") %}
+    It can be difficult to secure fewer hours at work, however the law is gradually changing to strengthen employees' rights in
+     requesting flexible working. You can read more about the most recent changes 
+     <a href="https://realemploymentlawadvice.co.uk/2022/12/08/changes-to-flexible-working-rights-announced/">here</a>.
+     There is though plenty more that can be done though and a number of organisations campaign for reduced working hours, for example
+     the <a href="https://www.4dayweek.co.uk/">four-day week campaign</a>.     
+     {% endcall %}
+     {% call item("Won't working and spending less harm economic growth?", "5") %}
+     <p>
+      In our view economic growth needs to serve human and the ecosystem's interests, rather than vice versa. While historically
+      the material output of the economy has not been enough for a good standard of living for everyone, this is no longer the case. 
+      Meanwhile the incomes of the lowest income households still needs to grow significantly such as would take decades by growing 
+      the whole economy without any additional wealth redistribution. Consequently, growing the net size of the economy (rather than 
+      economic growth with no net impact on the size of the economy due to reductions elsewhere) is neither necessary nor effective at
+       providing everyone with enough. There are even some who argue that net economic growth in wealthy nations should stop or reduce -
+       see an exaplanatory video <a href="https://www.youtube.com/watch?v=Ia8u5P0KbPQ">here</a>.        
+     </p>
+     <p>
+      Unfortunately our economy is structurally dependent on net economic growth - many financial products, insurance products and government
+       policies rely on it. Without it things go badly, people lose lots of money and unemployment increases. However this is not inevitable, 
+       with changes we could decouple our economy from its reliance on economic growth, so that
+        our society does not suffer severe consequences from no net growth in the size of the economy. How we do this is an active area of 
+        research by organisations such as the <a href="https://www.postgrowtheconomics.org/">Post-growth Economics Network</a>.
+     </p>
+     {% endcall %}
+     {% call item('How might we make sure everyone has enough?', "1") %}
+    We believe that in a country like the UK that collectively has enough for everyone, it should be a goal of 
+    government to create the conditions that everyone is able to have enough, at least for basic needs. There are 
+    already many benefits and tax credits available to low income households, but by using this app you may find 
+    that this is inadequate to provide low income households with enough as you have defined it. 
+    There are many ways beyond simply increasing benefits to ensure low-income households have enough. These include:
+    <ol>
+      {% call listitem('Addressing the areas in which income flows from poorest to wealthiest') %}
+      This is particularly important for housing, the greatest expense for most households, where market 
+      speculation results in the price of housing (for renting or purchase) being greatly in excess of the
+       costs of providing it. This largely benefits wealthy landlords, landowners and big property developers 
+       at the expense of everyone else. This can be addressed by strict rent controls and a large expansion of
+        social housing provided at cost to tenants. Outside of housing, more wealth can be kept amongst 
+        British workers by promoting employee ownership of businesses, through cooperatives and Employee
+         Ownership Trusts. This passes profits to workers 'at source' rather than them being passed to wealthier
+          shareholders through dividends and share buybacks, which are often taxed at a lower effective rate 
+          than the workers' incomes. 
+      {% endcall %}
+      
+      {% call listitem('Increasing the minimum wage') %}
+      The Living Wage Foundation has been effective at promoting a national living wage, although the legal
+       minimum wage is still below this. However even in the case of the Real Living Wage calculated by the Foundation:
+         <ul>
+          {% call listitem("It falls short of providing enough for everyone.", false) %}
+            It is based on an average for different household
+             sizes, so only ensures the average household will have enough. It does not provide enough for 
+             single parents with children or couples with two or more children.
+          {% endcall %}
+          {% call listitem("It relies on working hours that are not good for families.", false) %}
+            It assumes all adults in a household 
+            should work at least 37.5 hours/week and so for a family of two adults and two children this 
+            requires childcare around school hours and/or anti-social working hours. This reduces family 
+            resilience and allows little time for families to be together during the week. 
+          {% endcall %}
+         </ul>
+         Considering both these factors, for a family of four to have enough by the same standards as used
+          by the Foundation on a total of 60 hours work (rather than 75), the living wage would need to be ~30% higher.
+      {% endcall %}
+      
+      {% call listitem('Boosting intergenerational wealth redistribution') %}
+      Young adults and in particular young families, who may be paying childcare fees comparable to the 
+      amount of rent they pay, as well as saving for a deposit on a house face some of the greatest costs. 
+      Those that are able to receive financial assistance from parents and grandparents typically do so, 
+      but that is not much help to those that are not and entrenches wealth inequalities. Some have proposed
+       a single payment to all young adults on reaching a certain age, alternatively financial assistance 
+       could be more directly tied to purchase of a first house or childcare payments. This could be funded 
+       by inheritance and other wealth taxes to help boost social mobility.
+      {% endcall %}
+      
+      {% call listitem('More progressive taxation') %}
+      Reducing government income's reliance of unprogressive taxes such as VAT and National Insurance in
+       exchange for increases in progressive income and wealth taxes, such as capital gains tax and dividend tax.
+      {% endcall %}
+
+      {% call listitem('Reducing income traps') %}
+      Means testing of benefits can mean for some households that earning marginally more has little impact
+       on take-home pay, keeping low income households in a low-income 'trap'. Avoiding these, by changing 
+       how the means testing works, or more radical measures such as a universal basic income could be part
+        of the solution to making sure every household has enough.
+      {% endcall %}
+    </ol>
+    {% endcall %}
+
+  </div>
 <div style="height:50px;"></div>
 
 {% endblock %}

@@ -122,7 +122,7 @@ series: [
     z: 1        
     },
     {
-    name: 'Deficit',
+    name: 'Shortfall',
     type: 'bar',
     color: 'green',
     data: f6_vars.credited,      

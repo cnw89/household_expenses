@@ -68,7 +68,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         To calculate these values we averaged the cost of big 'lifetime' expenses - the deposit on your first house, and the pre-school childcare - over a 
         lifetime of a non-retired household.
         Those that are saving for a deposit on their first house over {{ d_howmuch.save_for_first_house_years }} years, would require an additional 
-        <strong>{{ "£{:,.0f}".format(d_howmuch.while_saving_for_first_house) }}</strong> per year for a household of your size. 
+        <strong>{{ "£{:,.0f}".format(d_howmuch.while_saving_for_first_house) }}</strong> per year plus tax for a household of your size. 
         Those with children in pre-school childcare would require an additional 
         <strong>{{ "£{:,.0f}".format(d_howmuch.while_preschool_childcare) }}</strong> per child, per year for a household of your size. 
     </p>
@@ -128,8 +128,10 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <div class="p-3 border bg-light">
     <h3>Who has enough?</h3><p></p>
     <p>
-        For your 'enough', approximately <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough) }}</strong> of UK non-retired residents have enough household income, leaving 
+        For your 'enough', approximately <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough) }}</strong> of UK non-retired residents have enough
+        disposable household income, leaving 
         <strong>{{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough) }}</strong> of non-retired residents that do not.
+        By disposable household income, we mean income after tax is deducted, including income from benefits and investments as well as waged work.
         {% call query('Data source') %}
         The following sections are based on Office of National Statistics data, publicly available 
         <a href='https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/householddisposableincomeandinequality'
@@ -202,7 +204,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     {{ add_chart('f5_chart', '400') }}
     {% if d_willgrowth.tax_found %}
     <p>
-        Meanwhile, the deficit of those without enough is equal to <strong>{{ "{:.0f}%".format(d_willgrowth.tax_rate) }}</strong> of all disposable income above 
+        Meanwhile, the shortfall of those without enough is equal to <strong>{{ "{:.0f}%".format(d_willgrowth.tax_rate) }}</strong> of all disposable income above 
         <strong>{{ "{:d}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough.
     </p>
     {{ add_chart('f6_chart', '400') }}
