@@ -4,16 +4,91 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
 {% endblock %}
 {% block funcdef %}
     <script>
+
+        var monthly_values = new Object();
+
+        {% for cat in breakdown %}  
+            monthly_values["{{ cat.id }}"] = {{ cat.value }};
+        {% endfor %}
+
+        var monthly_maxes = new Object();
+
+        {% for cat in breakdown %}  
+            monthly_maxes["{{ cat.id }}"] = {{ cat.max }};
+        {% endfor %}
+
         const updateDisplay = (outid, newVal) => {
             outid.innerHTML=parseFloat(newVal).toLocaleString();
         };      
         
-        const updateTotal = () => {
+        const updateDisplayFrequency = (newFreq) => {
+            
+            if (newFreq == "weekly"){
+                multiplier = 12/52;
+                freq = "week";
+            }
+            else if (newFreq == "yearly"){
+                multiplier = 12;
+                freq = "year";
+            }
+            else {
+                multiplier = 1;
+                freq = "month";
+            }
+
+            {% for cat in breakdown %}
+                max = monthly_maxes["{{ cat.id }}"];
+                newmax = Math.round(max * multiplier);
+                document.getElementById("{{ cat.id + '_input' }}").max = newmax;
+                document.getElementById("{{ cat.id + '_max' }}").innerHTML = newmax.toLocaleString();
+
+                val = monthly_values["{{ cat.id }}"];
+                newval = Math.round(val * multiplier);
+                document.getElementById("{{ cat.id + '_input' }}").value = newval;
+                document.getElementById("{{ cat.id + '_output' }}").innerHTML = newval.toLocaleString();
+
+                document.getElementById("{{ cat.id + '_freq' }}").innerHTML = freq;
+                
+            {% endfor %}
+        };
+
+        const updateTotal = (catId="none") => {
+
+            //find what display frequency we are using at the moment...
+            ismonthly = + document.getElementById("monthlyRadio").checked;
+            isyearly = + document.getElementById("yearlyRadio").checked;
+            freq = ismonthly + 2 * isyearly // (0 - weekly, 1 - monthly, 2 - yearly)
+
+            if (freq == 0){
+                multiplier = 12/52;                
+            }
+            else if (freq == 2){
+                multiplier = 12;                
+            }
+            else {
+                multiplier = 1;                
+            }
+
+            //first update monthly values
+            if (catId=="none"){//savings or pensions updated
+                // do nothing
+            }
+            else if (catId == "all"){ //adjust everything called
+                {% for cat in breakdown %}  
+                monthly_values["{{ cat.id }}"] = parseInt(document.getElementById("{{ cat.id + '_input' }}").value)/multiplier;
+                {% endfor %}
+            }
+            else {
+                monthly_values[catId] = parseInt(document.getElementById(catId.concat('_input')).value)/multiplier;
+            }
+
+            //then calculate total from monthly values
             let total = 0;
 
             {% for cat in breakdown %}  
-                total += parseInt(document.getElementById("{{ cat.id + '_input' }}").value);
+                total += monthly_values["{{ cat.id }}"];
             {% endfor %}
+
             total = total / ( 1 - parseInt(document.getElementById("{{ savings.id + '_input' }}").value)/100);
             total = total / ( 1 - parseInt(document.getElementById("{{ pension.id + '_input' }}").value)/100);
             
@@ -29,10 +104,10 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                 val = parseInt(document.getElementById("{{ cat.id + '_input' }}").value);
                 newval = Math.round(val * multiplier);
                 document.getElementById("{{ cat.id + '_input' }}").value = newval;
-                document.getElementById("{{ cat.id + '_output' }}").innerHTML = newval;
+                document.getElementById("{{ cat.id + '_output' }}").innerHTML = newval.toLocaleString();
             {% endfor %}
 
-            updateTotal();
+            updateTotal("all");
             document.getElementById("adjustEverythingRange").value = 0;
             updateDisplay(adjustEverythingRangeOutput, 0);
         }
@@ -47,9 +122,14 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
             <div class="col-12 col-sm-5">
                 <h2>1. Regular expenses</h2>
             </div>
-            <div class="col-9 col-sm-5">
+            <div class="col-12 col-sm-7">
                 <h3 class="float-end">Total: £<span id="total"></span>/month</h3>
             </div> 
+            <div class="col-12">
+                <p>
+                    All expenses, except first house deposit and pre-school childcare. 
+                </p>
+            </div>
         </div>
     
         <p></p>
@@ -83,6 +163,22 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
             </div>  
         </div>
         <p></p>
+        <div class="p-3 border bg-white">
+            Show regular expenses as:   
+            <div class="form-check form-check-inline float-end">
+                <input class="form-check-input" type="radio" name="displayFrequency" id="yearlyRadio" value="yearly" onchange="updateDisplayFrequency(this.value)">
+                <label class="form-check-label" for="yearlyRadio">Yearly</label>
+            </div>
+            <div class="form-check form-check-inline float-end">
+                <input class="form-check-input" type="radio" name="displayFrequency" id="monthlyRadio" value="monthly" onchange="updateDisplayFrequency(this.value)" checked>
+                <label class="form-check-label" for="monthlyRadio">Monthly</label>
+            </div>
+            <div class="form-check form-check-inline float-end">
+                <input class="form-check-input" type="radio" name="displayFrequency" id="weeklyRadio" value="weekly" onchange="updateDisplayFrequency(this.value)">
+                <label class="form-check-label" for="weeklyRadio">Weekly</label>
+            </div>
+        </div>
+        <p></p>
         <div class="row row-cols-1 row-cols-lg-2 g-2">
         {% for cat in breakdown %}        
             <div class="col">
@@ -93,7 +189,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             {{ cat.description }}
                         </div>
                         <div class="col-4 text-end">
-                            £<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/{{ cat.freq }}
+                            £<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/<span id="{{ cat.id + '_freq' }}">{{ cat.freq }}</span>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -105,10 +201,10 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                                 id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
                                 value="{{ cat.value }}"
                                 oninput="updateDisplay({{ cat.id }}_output, this.value)"
-                                onchange="updateTotal()">
+                                onchange="updateTotal({{ cat.id }})">
                         </div>    
                         <div class="col-3 col-sm-2">
-                            £{{ cat.max }}
+                            £<span id="{{ cat.id + '_max' }}">{{ cat.max }}</span>
                         </div>                
                     </div>
                 </div>
@@ -177,6 +273,9 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
         <div class="row justify-content-between align-items-center g-2">
             <div class="col-12">
                 <h2>2. Lifetime expenses</h2>
+                <p>
+                    The largest expenses that are not typically part of routine expenses for the average household.
+                </p>
             </div>            
         </div>  
     
