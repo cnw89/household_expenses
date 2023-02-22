@@ -201,7 +201,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                                 id="{{ cat.id + '_input'}}" max="{{ cat.max }}" step="{{ cat.step }}"
                                 value="{{ cat.value }}"
                                 oninput="updateDisplay({{ cat.id }}_output, this.value)"
-                                onchange="updateTotal({{ cat.id }})">
+                                onchange="updateTotal('{{ cat.id }}')">
                         </div>    
                         <div class="col-3 col-sm-2">
                             £<span id="{{ cat.id + '_max' }}">{{ cat.max }}</span>
