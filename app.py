@@ -50,6 +50,7 @@ class Record(db.Model):
     breakdown = db.Column(db.String(4096))
     lifetime_breakdown = db.Column(db.String(4096))
     pension_pc = db.Column(db.Integer())
+    retirement_equivalized_spend = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
  
@@ -100,27 +101,33 @@ def custom_control():
     
     if request.method == "GET":
         
-        breakdown_data_list, savings_data, pension_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
+        breakdown_data_list, savings_data, pension_data, retirement_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
 
         return render_template("custom_control.html", 
                 breakdown=breakdown_data_list, 
                 savings=savings_data, 
                 pension=pension_data,
+                retirement=retirement_data,
                 n_adults=n_adults_s, 
                 n_children=n_children_s, 
                 mainoption=mainoption)
 
     
-    total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc = prep_expenses_for_recording(request.form, 
+    total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc, retirement_equivalized_spend = prep_expenses_for_recording(request.form, 
                                                                                                      n_adults,
                                                                                                      n_children)
     
     uid = dict_hash(breakdown)
     now = datetime.datetime.now()
-    record = Record(date=now, uid=uid, total_equivalized_spend=total_equivalized_spend, 
+    record = Record(date=now, 
+                    uid=uid, 
+                    total_equivalized_spend=total_equivalized_spend, 
                     breakdown=json.dumps(breakdown),
                     lifetime_breakdown=json.dumps(lifetime_breakdown),
-                    pension_pc=pension_pc, n_adults=n_adults, n_children=n_children)
+                    pension_pc=pension_pc, 
+                    retirement_equivalized_spend=retirement_equivalized_spend,
+                    n_adults=n_adults, 
+                    n_children=n_children)
 
     db.session.add(record)
     db.session.commit()

@@ -277,8 +277,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                     The largest expenses that are not typically part of routine expenses for the average household.
                 </p>
             </div>            
-        </div>  
-    
+        </div> 
         <p></p>
         <div class="row row-cols-1 g-2">
             <div class="col">
@@ -352,6 +351,45 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             4 years
                         </div>                
                     </div>                
+                </div>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <div class="p-3 border bg-light">
+        <div class="row justify-content-between align-items-center g-2">
+            <div class="col-12">
+                <h2>3. Retirement</h2>
+            </div>            
+        </div> 
+        <p></p>
+        <div class="row row-cols-1 g-2">
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b><label for="retirement_input" class="form-label">Enough for Retirement</label></b><br>
+                            Percentage of regular expenses for all adults in the household, excluding savings and pension contributions,
+                            that is enough for retirement.
+                        </div>
+                        <div class="col-4 col-sm-3">
+                            <p class="float-end"><span id="retirement_output">{{ retirement.value }}</span>%</p>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-2 text-end">
+                            0
+                        </div>
+                        <div class="col-8">
+                            <input type="range" name="Retirement" class="form-range"                         
+                                id="retirement_input" max="100" step="1"
+                                value="{{ retirement.value }}"
+                                oninput="updateDisplay(retirement_output, this.value)">
+                        </div>    
+                        <div class="col-2">
+                            100%
+                        </div>                
+                    </div>
                 </div>
             </div>
         </div>

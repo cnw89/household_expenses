@@ -1,4 +1,3 @@
-import math
 from openpyxl import load_workbook
 from pathlib import Path
 import copy
@@ -10,6 +9,8 @@ filename = THIS_FOLDER / "expense_presets.xlsx"
 
 optkeys = ['name', 'equivalized_spend', 'description']
 catkeys = ['name', 'id', 'description']
+
+retirement_values = [75, 70, 65, 60, 60]
 
 def generate_mainoptions(ws):
 
@@ -109,7 +110,10 @@ def prep_expenses_for_serving(mainoption, n_adults, n_children):
 
         breakdown_data_list.append(cat_data)
 
-    return breakdown_data_list, savings_data, pension_data
+    retirement_data = {}
+    retirement_data['value'] = retirement_values[int(mainoption)]
+
+    return breakdown_data_list, savings_data, pension_data, retirement_data
 
 def prep_expenses_for_recording(form, n_adults, n_children):
     total_equivalized_spend=0
@@ -125,6 +129,9 @@ def prep_expenses_for_recording(form, n_adults, n_children):
 
         total_equivalized_spend +=  breakdown[cat]               
     
+    #retirement quantity is % before savings, pension and lifetime contributions
+    retirement_equivalized_spend = int(form["Retirement"]) * total_equivalized_spend/100
+
     #saving pc is a pc of income not expense
     savings_pc = int(form['Savings'])
     breakdown['Savings'] = total_equivalized_spend * (savings_pc/(100-savings_pc))
@@ -148,7 +155,9 @@ def prep_expenses_for_recording(form, n_adults, n_children):
     childcare_years = float(form['childcare_years'])
     lifetime_breakdown['Childcare'] = childcare
     lifetime_breakdown['Childcare_years'] = childcare_years
-    breakdown['Childcare'] = equivalize(childcare * childcare_years * AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)
+    breakdown['Childcare'] = equivalize(childcare * childcare_years * 
+                                        AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS, 
+                                        n_adults, n_children)
     total_equivalized_spend += breakdown['Childcare']
 
-    return total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc
+    return total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc, retirement_equivalized_spend
