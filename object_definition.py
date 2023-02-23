@@ -10,7 +10,7 @@ filename = THIS_FOLDER / "expense_presets.xlsx"
 optkeys = ['name', 'equivalized_spend', 'description']
 catkeys = ['name', 'id', 'description']
 
-retirement_values = [75, 70, 65, 60, 60]
+retirement_values = [100, 90, 80, 70, 60]
 
 def generate_mainoptions(ws):
 

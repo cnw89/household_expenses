@@ -72,7 +72,7 @@ series: [
     {
     name: 'Fraction of enough',
     type: 'bar',
-    data: f3_vars.pc_enough_by_decile,
+    data: f3_vars.pc_enough_by_decile_nonretired,
     label: f3_labelSetting,
     markLine: {
         symbol: 'none',

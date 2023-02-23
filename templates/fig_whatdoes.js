@@ -1,5 +1,5 @@
 const f2_vars = {{ d_howmuch | safe }};
-const d = {{ d_common | safe }};
+const d = {{ d_common | tojson }};
 
 var f2_chart = echarts.init(document.getElementById('f2_chart')); 
 window.addEventListener('resize', function() {

@@ -77,6 +77,7 @@ def display_results(uid):
                                                                            json.loads(rec.breakdown),
                                                                            json.loads(rec.lifetime_breakdown),
                                                                            rec.pension_pc,
+                                                                           rec.retirement_equivalized_spend,
                                                                            n_adults,
                                                                            n_children)
         

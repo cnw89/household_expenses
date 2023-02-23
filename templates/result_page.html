@@ -4,8 +4,12 @@
 {% endblock %}
 {% block description %}
 <p>Complete!</p>
-<p id="smallScreenAlert"></p>
-
+<div id="smallScreenAlert"></div>
+{% if d_common.warn_user %}
+<div class='alert alert-warning' role='alert'>
+    {{ d_common.warn_text }}
+</div>
+{% endif %}
 <script>
     var width = window.innerWidth;
     if (width < 576){
@@ -128,9 +132,24 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <div class="p-3 border bg-light">
     <h3>Who has enough?</h3><p></p>
     <p>
-        For your 'enough', approximately <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough) }}</strong> of UK non-retired residents have enough
-        disposable household income, leaving 
-        <strong>{{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough) }}</strong> of non-retired residents that do not.
+        For your 'enough', <strong>
+        {% if d_whohas.pc_individuals_without_enough_all is lt(0.05) %}
+        more than 95%
+        {% elif d_whohas.pc_individuals_without_enough_all is gt(0.95) %}
+        less than 5%
+        {% else %}
+        approximately {{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough_all) }}
+        {% endif %}
+        </strong> of UK citizens have enough
+        disposable household income, leaving <strong>
+        {% if d_whohas.pc_individuals_without_enough_all is lt(0.05) %}
+        less than 5%
+        {% elif d_whohas.pc_individuals_without_enough_all is gt(0.95) %}
+        more than 95%
+        {% else %}
+        {{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough_all) }}
+        {% endif %} 
+        </strong> of citizens that do not.
         By disposable household income, we mean income after tax is deducted, including income from benefits and investments as well as waged work.
         {% call query('Data source') %}
         The following sections are based on Office of National Statistics data, publicly available 
@@ -143,10 +162,10 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         Those with the bottom 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[0]) }}</strong> enough, while those
         with the top 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[-1]) }}</strong> enough.
         {% call query('Income deciles') %}
-        The 10 bars in the figure represent equivalized disposable income deciles of non-retired UK residents.
-        Disposable income is the income after tax and includes income from non-salary sources e.g. returns from investments.
+        The 10 bars in the figure represent equivalized disposable income deciles of non-retired UK citizens.
+        Disposable income is the income after tax and includes income from non-salary sources e.g. benefits and returns from investments.
         Households' total income is equivalized to a standard household size of two adults and no children.
-        Individual non-retired UK residents are then ordered according to their household's equivalized disposable income.
+        Individual non-retired UK citizens are then ordered according to their household's equivalized disposable income.
         {% endcall %}
 
     </p>
