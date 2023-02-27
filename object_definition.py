@@ -130,7 +130,8 @@ def prep_expenses_for_recording(form, n_adults, n_children):
         total_equivalized_spend +=  breakdown[cat]               
     
     #retirement quantity is % before savings, pension and lifetime contributions
-    retirement_equivalized_spend = int(form["Retirement"]) * total_equivalized_spend/100
+    retirement_pc = int(form["Retirement"])
+    retirement_equivalized_spend = retirement_pc * total_equivalized_spend/100
 
     #saving pc is a pc of income not expense
     savings_pc = int(form['Savings'])
@@ -160,4 +161,4 @@ def prep_expenses_for_recording(form, n_adults, n_children):
                                         n_adults, n_children)
     total_equivalized_spend += breakdown['Childcare']
 
-    return total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc, retirement_equivalized_spend
+    return total_equivalized_spend, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, retirement_equivalized_spend

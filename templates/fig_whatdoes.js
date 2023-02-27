@@ -172,7 +172,7 @@ function make_hours_option(){
 
 const wageHoursSwitchLabelValues = ["Fixed wage", "Fixed hours"];
 const nWorkersLabelValues = ["One earner per household", "Two earners per household, earning equally"];
-const hoursOrWageRangeLabelValues = ["Wage: £", "Hours: "];
+const hoursOrWageRangeLabelValues = ["Wage fixed at: £", "Hours fixed at: "];
 
 function update_hoursOrWageRangeLabel(){
     let range = document.getElementById("hoursOrWageRange");

@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 from scipy.interpolate import interp1d
 import check_inputs_safe
+import copy 
 
 from pathlib import Path
 THIS_FOLDER = Path(__file__).parent.resolve()
@@ -31,7 +32,10 @@ CHILD = 0.3
 
 UK_GDHI = 1438237*1e6
 UK_ANNUAL_GROWTH = 0.015
-UK_LOWEST_DECILE_GROWTH_SHARE = 0.75
+UK_EMPLOYED = 32813000
+AVERAGE_WAGE_BOOST_FACTOR = 1.5
+SOCIAL_HOUSING_PER_MONTH = 94.31 * 52/12#https://www.gov.uk/government/news/social-housing-sector-stock-and-rents-statistics-for-202122-show-small-net-increase-in-social-homes#:~:text=The%20average%20increase%20in%20general,different%20regions%20of%20the%20country.
+TRANSPORT_CAP_PER_MONTH = 50 * 2 #for two people
 
 #checked January 2023
 INCOME_TAX_THRESHOLDS = [150000, 50270, 12570] #annual salary thresholds
@@ -55,23 +59,25 @@ AVERAGE_CHILDREN_PER_HOUSE = 0.8
 NON_RETIRED_HOUSEHOLD_YEARS = 40
 SAVE_FOR_FIRST_HOUSE_YEARS = 7
 
-def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults, n_children):
+def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, HEDI_retired, n_adults, n_children):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
     """
     
-    HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults, n_children, warn_user, warn_text = \
+    HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, HEDI_retired, n_adults, n_children, warn_user, warn_text = \
     check_inputs_safe.run(HEDI, 
                             breakdown, 
                             lifetime_breakdown, 
+                            savings_pc,
                             pension_pc, 
                             HEDI_retired, 
                             n_adults, 
                             n_children,
                             d_r,
                             d_nr)
-    pc_ind = d_nr['f_HEDI_to_pcInd'](HEDI).item()
-    pc_ind_ret = d_r['f_HEDI_to_pcInd'](HEDI_retired).item()
+    
+    pc_ind = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI)
+    pc_ind_ret = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired)
     
     #vars directly injected into html with Jinja
 
@@ -101,12 +107,16 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults,
     d_common.n_adults = n_adults
     d_common.n_children = n_children
     d_common.base = dequivalize(HEDI, n_adults, n_children)
-    d_common.with_tax1 = calc_pre_tax_income_pre_pension((d_common.base + COUNCIL_TAX), pension_pc)
-    d_common.with_tax2 = calc_pre_tax_income_pre_pension((d_common.base + COUNCIL_TAX)/2, pension_pc)
+    d_common.with_tax1 = calc_pre_tax_income_pre_pension(d_common.base, pension_pc)
+    d_common.with_tax2 = calc_pre_tax_income_pre_pension(d_common.base/2, pension_pc)
     d_common.hours_1 = d_common.with_tax1/(MIN_WAGE * 52)
     d_common.hours_2 = d_common.with_tax2/(MIN_WAGE * 52)    
     d_common.wage_1 = d_common.with_tax1/(DEFAULT_HOURS_PER_WEEK * 52)
     d_common.wage_2 = d_common.with_tax2/(DEFAULT_HOURS_PER_WEEK * 52)
+
+    d_common.base_retired = dequivalize(HEDI_retired, n_adults, 0)
+    #cap state pension at the amount required
+    d_common.state_pension = n_adults * STATE_PENSION_PER_WEEK*52
 
     #other variables organised by infographic
     #1 how much is enough
@@ -151,6 +161,19 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults,
         + d_r['f_pcInd_to_deficit_below'](pc_ind_ret).item()
     d_dowe.deficit_without_enough_ratio = d_dowe.deficit_without_enough/UK_GDHI
 
+    #average amount of earnings per employed person
+    d_dowe.UK_employed = UK_EMPLOYED
+    d_dowe.enough_for_everyone_per_employed = d_dowe.enough_for_everyone/UK_EMPLOYED
+    #now find combo of wage and hours
+    hours_to_try = np.arange(37.5, 5, -2.5)
+    for hours in hours_to_try:
+        earnings_with_min_wage = hours * 52 * MIN_WAGE * AVERAGE_WAGE_BOOST_FACTOR
+        if earnings_with_min_wage < d_dowe.enough_for_everyone_per_employed:
+            break
+    wage = d_dowe.enough_for_everyone_per_employed / (hours * 52)
+    d_dowe.example_hours = hours
+    d_dowe.example_wage = wage
+
     #4 will growth
     d_willgrowth = types.SimpleNamespace() 
     d_willgrowth.years = [1977, 2021]
@@ -160,14 +183,15 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults,
     d_willgrowth.bottom_growth_to_enough = 100 * (1/d_whohas.pc_enough_by_decile[0] - 1)
     d_willgrowth.bottom_years_to_enough = years_of_growth(d_willgrowth.bottom_growth_to_enough/100, d_willgrowth.growth_bottom/100)
 
+    #FLATTENING INCOME
     #find fraction of wealth over a multiple of enough, which is 
     tax_thresh_ratio = min(3, np.floor(2*d_whohas.pc_enough_by_decile[-1])/2) # to the nearest 0.5
-    if tax_thresh_ratio > 1:
+    if tax_thresh_ratio >= 1:
         pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
         excess_over_tax_thresh = d_nr['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
         while (excess_over_tax_thresh < d_dowe.deficit_without_enough) and (tax_thresh_ratio > 1):
-            tax_thresh_ratio -= 1
+            tax_thresh_ratio -= 0.5
             pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
             excess_over_tax_thresh = d_nr['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
@@ -175,7 +199,7 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults,
             tax_rate = d_dowe.deficit_without_enough/excess_over_tax_thresh
             d_willgrowth.tax_rate = 100 * tax_rate
             d_willgrowth.tax_thresh_ratio = tax_thresh_ratio
-            d_willgrowth.tax_found = True
+            d_willgrowth.tax_found = True            
 
             d_willgrowth.taxed = []
             d_willgrowth.credited = []
@@ -196,6 +220,43 @@ def run(HEDI, breakdown, lifetime_breakdown, pension_pc, HEDI_retired, n_adults,
     else:
         d_willgrowth.tax_found = False
 
+    #COST OF LIVING SAVINGS
+    d_willgrowth.cost_caps_per_month = {}
+    d_willgrowth.savings_per_year = {}
+    d_willgrowth.savings_per_year_retired = {}
+
+    #housing
+    d_willgrowth.cost_caps_per_month['housing'] = SOCIAL_HOUSING_PER_MONTH
+    breakdown_copy = copy.deepcopy(breakdown)
+    breakdown_copy['Housing'] = d_willgrowth.cost_caps_per_month['housing']
+    new_cost, new_cost_retired = update_total_equivalized_spend(breakdown_copy, savings_pc, pension_pc, retirement_pc)
+    d_willgrowth.savings_per_year['housing'] = max(0, (HEDI - new_cost))
+    d_willgrowth.savings_per_year_retired['housing'] = max(0, (HEDI_retired - new_cost_retired))
+
+    #transport
+    d_willgrowth.cost_caps_per_month['transport'] = TRANSPORT_CAP_PER_MONTH
+    breakdown_copy = copy.deepcopy(breakdown)
+    breakdown_copy['Transport'] = d_willgrowth.cost_caps_per_month['transport']
+    new_cost, new_cost_retired = update_total_equivalized_spend(breakdown_copy, savings_pc, pension_pc, retirement_pc)
+    d_willgrowth.savings_per_year['transport'] = max(0, (HEDI - new_cost))
+    d_willgrowth.savings_per_year_retired['transport'] = max(0, (HEDI_retired - new_cost_retired))
+
+    #combined
+    d_willgrowth.total_savings = 0
+    for sav in d_willgrowth.savings_per_year.values():
+        d_willgrowth.total_savings += sav
+
+    d_willgrowth.total_savings_retired = 0    
+    for sav in d_willgrowth.savings_per_year_retired.values():
+        d_willgrowth.total_savings_retired += sav
+
+    pc_ind2 = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI - d_willgrowth.total_savings)
+    pc_ind_ret2 = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired - d_willgrowth.total_savings_retired)
+    
+    d_willgrowth.pc_individuals_without_enough_all_with_savings = (100 * pc_ind2 * d_nr['tot_individuals']
+                                                  + 100 * pc_ind_ret2 * d_r['tot_individuals']) \
+                                                  / (d_nr['tot_individuals'] + d_r['tot_individuals'])
+    
     return d_common.__dict__, d_howmuch.__dict__, d_whohas.__dict__, d_dowe.__dict__, d_willgrowth.__dict__
 
 def years_of_growth(total, annual_rate):
@@ -250,3 +311,31 @@ def calc_pre_tax_income_pre_pension(disposable_income, pension_pc):
     pre_tax = pension + calc_pre_tax_income(disposable_income - pension + COUNCIL_TAX).item()    
 
     return pre_tax
+
+def update_total_equivalized_spend(breakdown, savings_pc, pension_pc, retirement_pc):
+
+    total_equivalized_spend=0
+    
+    for cat in breakdown:
+        if (cat == 'Savings'):
+            continue
+        elif (cat == 'Pension'):
+            continue
+
+        total_equivalized_spend +=  breakdown[cat]               
+    
+    #retirement quantity is % before savings, pension and lifetime contributions
+    retirement_equivalized_spend = retirement_pc * total_equivalized_spend/100
+
+    #saving pc is a pc of income not expense
+    breakdown['Savings'] = total_equivalized_spend * (savings_pc/(100-savings_pc))
+    total_equivalized_spend += breakdown['Savings']
+
+    #pension pc is a pc of income not expense, including savings
+    breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
+    total_equivalized_spend += breakdown['Pension']
+
+    total_equivalized_spend += breakdown['House_deposit']
+    total_equivalized_spend += breakdown['Childcare']
+
+    return total_equivalized_spend, retirement_equivalized_spend

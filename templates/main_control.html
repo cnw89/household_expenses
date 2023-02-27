@@ -24,7 +24,7 @@ Select one of our budget 'presets' based on our own estimates for what could be 
             Bare Essentials
         </div>
         <div class="col-8">            
-            <input type="range" name="mainoption" class="form-range" id="range1" max="4" value="3" oninput="updateDisplay(this.value)">
+            <input type="range" name="mainoption" class="form-range" id="range1" max="4" value="0" oninput="updateDisplay(this.value)">
         </div>
         <div class="col-sm-2">
             <p class="float-end">Higher Comfort</p>
@@ -44,7 +44,7 @@ Select one of our budget 'presets' based on our own estimates for what could be 
     <div class="row"><div class="col" id="optionDescription" style="height:200px;"></div></div>    
 </div>
 <p></p>
-    <script>updateDisplay("3")</script>
+    <script>updateDisplay("0")</script>
 {% endblock %}
 {% block prevlink %}{{ url_for('user_info') }}{% endblock %}
 {% block progress %}50{% endblock %}

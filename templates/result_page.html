@@ -57,7 +57,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 
 {% block body %}
 <div class="p-3 border bg-light">
-    <h3>How much is enough?</h3><p></p>
+    <h3>1. How much is enough?</h3><p></p>
 
     <p>
         For your household you have said 'enough' is {{ printout('base', '£', '/year') }}.  
@@ -89,7 +89,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h3>What does it take to earn enough?</h3><p></p>
+    <h3>2. What does it take to earn enough?</h3><p></p>
 
     <p>
         For your household, for a single earner to earn enough on the UK National Living Wage  
@@ -142,7 +142,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h3>Who has enough?</h3><p></p>
+    <h3>3. Who has enough?</h3><p></p>
     <p>
         For your 'enough', <strong>
         {% if d_whohas.pc_individuals_without_enough_all is lt(5) %}
@@ -171,8 +171,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     </p>
     {{ add_chart('f3a_chart', '200') }}
     <p>
-        Those with the bottom 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[0]) }}</strong> enough, while those
-        with the top 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[-1]) }}</strong> enough.
+        Those with the bottom 10% of household income have on average <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[0]) }}</strong> enough, while those
+        with the top 10% of household income have on average <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[-1]) }}</strong> enough.
         {% call query('Income deciles') %}
         The 10 bars in the figure represent equivalized disposable income deciles of non-retired UK citizens.
         Disposable income is the income after tax and includes income from non-salary sources e.g. benefits and returns from investments.
@@ -185,17 +185,36 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h3>Do we have enough for everyone?</h3><p></p>
+    <h3>4. Do we have enough for everyone?</h3><p></p>
     <p>
         Total UK household disposable income is <strong>{{ "{:.2f}x".format(1/d_dowe.enough_for_everyone_ratio) }}</strong> of enough for everyone.
         The shortfall between enough and current earnings for those that don't have enough is approximately 
-        <strong>{{ "{:.2f}x".format(d_dowe.deficit_without_enough_ratio) }}</strong> of total UK household disposable income.
+        <strong>{{ "{:.2f}x".format(d_dowe.deficit_without_enough_ratio) }}</strong> of total UK household disposable income. 
+        Enough for everyone could be earnt by all UK employed people ({{ "{:.2f}".format(d_dowe.UK_employed/1000000) }} million people)
+        working <strong>{{ "{:.1f}".format(d_dowe.example_hours) }} hours/week</strong> earning on average 
+        <strong>{{ "£{:.2f}".format(d_dowe.example_wage) }}/hour</strong>.
     </p>
     {{ add_chart('f4_chart', '300') }}
 </div>
 <p></p>
 <div class="p-3 border bg-light">
-    <h3>Is growing the whole economy a good way to give everyone enough?</h3><p></p>
+    <h3>5. How do we best make sure everyone has enough?</h3>    
+    <p>
+        Broadly speaking, there are three approaches:
+        <ol>
+            <li>
+                Grow the whole economy, boosting incomes
+            </li>
+            <li>
+                Flatten income inequality
+            </li>
+            <li>
+                Reduce the cost of living
+            </li>
+        </ol>
+        While in reality a combination of the above may be preferred, we consider if you were to pursue <em>exclusively</em> one of these approaches.
+    </p>
+    <h4>1. Grow the whole economy</h4>
     <p>
         Between 1977 and 2021 the growth of the whole UK economy has been equivalent to annual growth of <strong>{{ d_willgrowth.growth_UK }}%</strong>, but 
         growth of the bottom 10%'s incomes has been closer to <strong>{{ d_willgrowth.growth_bottom }}%</strong> while those in the top 10% of incomes has been 
@@ -233,13 +252,55 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     </div>
     <p></p>
     {{ add_chart('f5_chart', '400') }}
-    {% if d_willgrowth.tax_found %}
+    
+    <h4>2. Flatten Income Inequality</h4>
     <p>
-        Meanwhile, the shortfall of those without enough is equal to <strong>{{ "{:.0f}%".format(d_willgrowth.tax_rate) }}</strong> of all disposable income above 
-        <strong>{{ "{:d}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough.
+        There are many approaches to flattening income inequality, for example raising the minimum wage, replacing non-progressive taxes
+        (like National Insurance and VAT) with progressive ones (like Income Tax), and capping earnings of companies' highest-paid employees
+        at a multiple of their lowest-paid employees. 
+        {% if d_willgrowth.tax_found %}
+        To get a sense of the degree of 'flattening' needed, we note that the shortfall of
+         those without enough is equal to <strong>{{ "{:.0f}%".format(d_willgrowth.tax_rate) }}</strong> of all disposable income above 
+        <strong>{{ "{:.1f}x".format(d_willgrowth.tax_thresh_ratio) }}</strong> of enough, considering only non-retired citizens.
     </p>
     {{ add_chart('f6_chart', '400') }}
+        {% else %}
+        For your 'enough', the national disposable income is not enough and so flattening income inequality is insufficient to provide everyone
+        with enough.        
+    </p>
     {% endif %}
+    
+    <h4>3. Reduce the cost of living</h4>
+    <p>
+        The following measures may reduce the cost of 'enough' as you've defined it:
+        <ol>
+            <li>
+                <strong>Expansion of housing provided at cost.</strong> 
+                Capping housing expenses at the average for social housing of £{{ "{:.0f}".format(d_willgrowth.cost_caps_per_month['housing']) }}/month
+                {% call query('Average cost of social housing') %}
+                See the reference
+                <a href='https://www.gov.uk/government/news/social-housing-sector-stock-and-rents-statistics-for-202122-show-small-net-increase-in-social-homes#:~:text=The%20average%20increase%20in%20general,different%20regions%20of%20the%20country.' target='_blank' rel='external'>here</a>.
+                {% endcall %}
+                for a household of two adults would save £{{ "{:.0f}".format(d_willgrowth.savings_per_year['housing']) }}/year for your 'enough'
+            </li>
+            <li>
+                <strong>Mass public transport participation and investment.</strong>
+                Capping transport expenses at £{{ "{:.0f}".format(d_willgrowth.cost_caps_per_month['transport']) }}/month for a household of two adults,
+                similar to the cost of the national public transport pass for short-distance travel introduced in Germany
+                {% call query('German public transport pass') %}
+                See the reference 
+                <a href='https://www.politico.eu/article/german-government-approves-nationwide-49-euro-public-transport-ticket/' target='_blank' rel='external'>here</a>.
+                {% endcall %}
+                would save
+                 £{{ "{:.0f}".format(d_willgrowth.savings_per_year['transport']) }}/year for your 'enough'
+            </li>
+        </ol>        
+    </p>
+    <p>
+        In total these measures would reduce the cost of living by £{{ "{:.0f}".format(d_willgrowth.total_savings) }}/year, resulting in the percentage of people with enough
+        increasing from <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough_all) }}</strong> to 
+        <strong>{{ '{:.0f}%'.format(100 -  d_willgrowth.pc_individuals_without_enough_all_with_savings) }}</strong>.
+    </p>
 </div>
 <p></p>
 {% macro nextstep(button_text, href=false, modal=false, onclick=false) %}
@@ -260,7 +321,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 {% endmacro %}
 
 <div class="p-3 border bg-light">
-    <h3>And finally...</h3><p></p>
+    <h3>6. And finally...</h3><p></p>
     <p>
         If you thought this was interesting you might like to take to do one of the following:
     </p>

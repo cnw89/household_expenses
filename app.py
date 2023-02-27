@@ -49,7 +49,9 @@ class Record(db.Model):
     total_equivalized_spend = db.Column(db.Integer())
     breakdown = db.Column(db.String(4096))
     lifetime_breakdown = db.Column(db.String(4096))
+    savings_pc = db.Column(db.Integer())
     pension_pc = db.Column(db.Integer())
+    retirement_pc = db.Column(db.Integer())
     retirement_equivalized_spend = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
@@ -76,7 +78,9 @@ def display_results(uid):
         d_common, d_howmuch, d_whohas, d_dowe, d_willgrowth = analysis.run(rec.total_equivalized_spend,
                                                                            json.loads(rec.breakdown),
                                                                            json.loads(rec.lifetime_breakdown),
+                                                                           rec.savings_pc,
                                                                            rec.pension_pc,
+                                                                           rec.retirement_pc,
                                                                            rec.retirement_equivalized_spend,
                                                                            n_adults,
                                                                            n_children)
@@ -114,7 +118,7 @@ def custom_control():
                 mainoption=mainoption)
 
     
-    total_equivalized_spend, breakdown, lifetime_breakdown, pension_pc, retirement_equivalized_spend = prep_expenses_for_recording(request.form, 
+    total_equivalized_spend, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, retirement_equivalized_spend = prep_expenses_for_recording(request.form, 
                                                                                                      n_adults,
                                                                                                      n_children)
     
@@ -125,7 +129,9 @@ def custom_control():
                     total_equivalized_spend=total_equivalized_spend, 
                     breakdown=json.dumps(breakdown),
                     lifetime_breakdown=json.dumps(lifetime_breakdown),
+                    savings_pc=savings_pc, 
                     pension_pc=pension_pc, 
+                    retirement_pc=retirement_pc,
                     retirement_equivalized_spend=retirement_equivalized_spend,
                     n_adults=n_adults, 
                     n_children=n_children)

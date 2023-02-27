@@ -93,16 +93,17 @@ series: [
         ]
       },
     stack: 'y',
-    z: 1        
+    z: 2        
     },
     {
     name: 'Excess',
     type: 'bar',
     data: f6_vars.taxed,
     color: 'red',    
-    markLine: {
+    markLine: {        
         symbol: 'none',
         label: {
+          {% if d_willgrowth.tax_thresh_ratio is eq(1) %}show: false, {% endif %}
             formatter: 'Excessive',
             position: 'start',
             fontSize: 16
