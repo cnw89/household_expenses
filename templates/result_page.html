@@ -32,6 +32,10 @@
     prior to equivalization.
     {% endcall %}
 </p>
+<p>
+    Upon retirement, with the values you have provided, we estimate that enough is {{ printout('first_adult_retired', '£', '')}} for the first adult, 
+    and {{ printout('second_adult', '£', '')}} for subsequent adults in the household, per month.
+</p>
 {% endblock %}
 
 {%- macro printout(varname, prestr='', poststr='') -%}
@@ -76,6 +80,12 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         Those with children in pre-school childcare would require an additional 
         <strong>{{ "£{:,.0f}".format(d_howmuch.while_preschool_childcare) }}</strong> per child, per year for a household of your size. 
     </p>
+    <p>
+        For the adults in your household, you've said 'enough' is {{ printout('base_retired', '£', '/year')}} upon retirement.
+        Up to {{ printout('state_pension', '£', '/year') }} can be covered by the state pension (assuming all adults are eligible
+        for the full state pension, which currently stands at <strong>{{ '£{:,.0f}/week'.format(d_common['state_pension_per_week']) }}</strong> per person).
+    </p>
+    {{ add_chart('f1b_chart', '140') }}
 </div>
 <p></p>
 <div class="p-3 border bg-light">
@@ -97,12 +107,14 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <div class="p-3 border bg-white">
         <div class="row justify-content-between gy-2">
             <div class="col-6">
+                Fixed wage or hours:
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
                     <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
                 </div>
             </div>
             <div class="col-6">
+                Number of earners in the household:
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
                     <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One earner per household</label>
@@ -133,18 +145,18 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <h3>Who has enough?</h3><p></p>
     <p>
         For your 'enough', <strong>
-        {% if d_whohas.pc_individuals_without_enough_all is lt(0.05) %}
+        {% if d_whohas.pc_individuals_without_enough_all is lt(5) %}
         more than 95%
-        {% elif d_whohas.pc_individuals_without_enough_all is gt(0.95) %}
+        {% elif d_whohas.pc_individuals_without_enough_all is gt(95) %}
         less than 5%
         {% else %}
         approximately {{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough_all) }}
         {% endif %}
         </strong> of UK citizens have enough
         disposable household income, leaving <strong>
-        {% if d_whohas.pc_individuals_without_enough_all is lt(0.05) %}
+        {% if d_whohas.pc_individuals_without_enough_all is lt(5) %}
         less than 5%
-        {% elif d_whohas.pc_individuals_without_enough_all is gt(0.95) %}
+        {% elif d_whohas.pc_individuals_without_enough_all is gt(95) %}
         more than 95%
         {% else %}
         {{ '{:.0f}%'.format(d_whohas.pc_individuals_without_enough_all) }}
@@ -157,7 +169,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         target='_blank' rel='external'>here</a>.
         {% endcall %}
     </p>
-    {{ add_chart('f3a_chart', '150') }}
+    {{ add_chart('f3a_chart', '200') }}
     <p>
         Those with the bottom 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[0]) }}</strong> enough, while those
         with the top 10% of household income have on avarage <strong>{{ "{:.2f}x".format(d_whohas.pc_enough_by_decile[-1]) }}</strong> enough.
@@ -176,7 +188,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <h3>Do we have enough for everyone?</h3><p></p>
     <p>
         Total UK household disposable income is <strong>{{ "{:.2f}x".format(1/d_dowe.enough_for_everyone_ratio) }}</strong> of enough for everyone.
-        The deficit between enough and current earnings for those that don't have enough is approximately 
+        The shortfall between enough and current earnings for those that don't have enough is approximately 
         <strong>{{ "{:.2f}x".format(d_dowe.deficit_without_enough_ratio) }}</strong> of total UK household disposable income.
     </p>
     {{ add_chart('f4_chart', '300') }}
@@ -275,6 +287,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 </div>
 <script type="text/javascript">
     {% include 'fig_howmuch.js' %} 
+    {% include 'fig_howmuchretired.js' %} 
     {% include 'fig_whatdoes.js' %}
     {% include 'fig_whohassimple.js' %}
     {% include 'fig_whohas.js' %}

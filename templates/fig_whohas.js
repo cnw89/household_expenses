@@ -54,7 +54,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'Non-retired UK residents by disposable income decile',
+    name: 'Non-retired UK citizens by disposable income decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,
@@ -72,7 +72,7 @@ series: [
     {
     name: 'Fraction of enough',
     type: 'bar',
-    data: f3_vars.pc_enough_by_decile_nonretired,
+    data: f3_vars.pc_enough_by_decile,
     label: f3_labelSetting,
     markLine: {
         symbol: 'none',

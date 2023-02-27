@@ -1,28 +1,28 @@
-const f1_vars = {{ d_howmuch | safe }}
+//const f1_vars = {{ d_howmuch | safe }}
 
 // Initialize the echarts instance based on the prepared dom
-var f1_chart = echarts.init(document.getElementById('f1_chart'));  
+var f1b_chart = echarts.init(document.getElementById('f1b_chart'));  
 window.addEventListener('resize', function() {
-    f1_chart.resize();
+    f1b_chart.resize();
   });
 
-const f1_pathSymbols = {
-    gbp_black : 'image://{{ url_for('static', filename='img/gbp1.svg') }}',
-    gbp_blue : 'image://{{ url_for('static', filename='img/gbp2.svg') }}'
-}
+// const f1_pathSymbols = {
+//     gbp_black : 'image://{{ url_for('static', filename='img/gbp1.svg') }}',
+//     gbp_blue : 'image://{{ url_for('static', filename='img/gbp2.svg') }}'
+// }
 
-const f1_labelSetting = {
-    show: true,
-    position: 'right',
-    offset: [5, 0],
-    fontSize: 16,
-    formatter: function (params) {
-      return '£' + Math.ceil(params.value).toLocaleString() ;
-    },
-  };
+// const f1_labelSetting = {
+//     show: true,
+//     position: 'right',
+//     offset: [5, 0],
+//     fontSize: 16,
+//     formatter: function (params) {
+//       return '£' + Math.ceil(params.value).toLocaleString() ;
+//     },
+//   };
 
 // Specify the configuration items and data for the chart
-var f1_option = {
+var f1b_option = {
 // title: {
 //     text: 'How much is enough',
 //     textAlign: 'center',
@@ -44,7 +44,7 @@ tooltip: {
 },
 color: ['#0066CC', '#000000'],
 legend: {
-    data: ['Required Income', 'Including Expected Tax'],
+    data: ['Covered by State Pension', 'Including Private Pension'],
     //top: 50,
     textStyle: {
       fontSize: 16
@@ -58,7 +58,7 @@ xAxis: {
     max: f1_vars.with_tax1.slice(-1)
 },
 yAxis: {
-    data: ['1 adult', '1 adult and\n 1 child', '2 adults', '2 adults and\n 1 child', '2 adults and\n 2 children', '2 adults and\n 3 children'],
+    data: ['1 adult\n(retired)', '2 adults\n(retired)'],
     inverse: true,
     axisLine: { show: false },
     axisTick: { show: false },
@@ -72,24 +72,24 @@ yAxis: {
 },
 series: [
     {
-    name: 'Required Income',
+    name: 'Covered by State Pension',
     type: 'pictorialBar',
     symbolRepeat: true,
     symbolClip: true,
     symbolSize: ['40%', '60%'],
     symbol: f1_pathSymbols.gbp_blue,
-    data: f1_vars.base,
+    data: f1_vars.state_pension,
     stack: 'y',
     z: 2        
     },
     {
-    name: 'Including Expected Tax',
+    name: 'Including Private Pension',
     type: 'pictorialBar',
     symbolRepeat: true,
     symbolClip: true,
     symbolSize: ['40%', '60%'],
     symbol: f1_pathSymbols.gbp_black,
-    data: f1_vars.with_tax1,
+    data: f1_vars.base_retired,
     stack: 'y',
     label: f1_labelSetting,
     z: 1
@@ -98,4 +98,4 @@ series: [
 };
 
 // Display the chart using the configuration items and data just specified.
-f1_chart.setOption(f1_option);
+f1b_chart.setOption(f1b_option);

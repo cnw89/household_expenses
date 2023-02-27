@@ -11,25 +11,9 @@ const f3a_pathSymbols = {
     person_green : 'image://{{ url_for('static', filename='img/person-green.svg') }}'
 };
 
-
-const format_subtext = () =>{
-  let subtext_str = parseInt(100 - f3_vars.pc_individuals_without_enough) + "% of non-retired UK residents have more than enough,\n" 
-  + parseInt(f3_vars.pc_individuals_without_enough) + "% of non-retired UK residents do not have enough";
-  return subtext_str
-};
-
 var f3a_option = {
-// title: {
-//     text: format_subtext(),
-//     textAlign: 'center',
-//     left: '50%'
-//     // subtext: format_subtext(),
-//     // subtextStyle: {
-//     //   fontSize: 16
-//     //}
-// },
 legend: {
-    data: ['UK non-retired residents without enough', 'UK non-retired residents with enough'],
+    data: ['UK citizens without enough', 'UK citizens with enough'],
     //top: 50,
     textStyle: {
       fontSize: 16
@@ -37,9 +21,9 @@ legend: {
     selectedMode: false
 },
 grid: {
-    top: 0,//"50%",
+    top: 50,//"50%",
     //height: 200,
-    left: 0,
+    left: 150,
     right: 0,
     bottom: 0
 },
@@ -51,31 +35,53 @@ xAxis: {
     axisLine: { show: false }
 },
 yAxis: {
-    data: [1],
+    data: ["All citizens", "Non-retired", "Retired"],
+    inverse: true,
     splitLine: { show: false },
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: {show: false },
-    
+    axisLabel: {
+        margin: 30,
+        fontSize: 16,
+        overflow: 'break',
+        align: 'right'
+    }    
 },
 series: [
     {
-    name: 'UK non-retired residents without enough',
+    name: 'UK citizens without enough',
     type: 'pictorialBar',
     symbolRepeat: true,
     symbolClip: true,
-    symbolSize: ['15%', '35%'],
+    symbolSize: ['20%', '54%'],
+    label: {
+        show: true,
+        formatter: function (params) {
+          return params.value.toFixed(0) + ' %';
+        },
+        position: 'top',
+        distance: 0,
+        align: 'left',
+        offset: [0, 10],        
+        color: 'red',
+        fontSize: 14
+      },
     symbol: f3a_pathSymbols.person_red,
-    data: [f3_vars.pc_individuals_without_enough],    
+    data: [f3_vars.pc_individuals_without_enough_all, f3_vars.pc_individuals_without_enough_nonretired, f3_vars.pc_individuals_without_enough_retired],    
+    barCategoryGap: "0%",
     z: 2     
     },
     {
-    name: 'UK non-retired residents with enough',
+    name: 'UK citizens with enough',
     type: 'pictorialBar',
+    itemStyle: {
+        opacity: 0.5
+    },
     symbolRepeat: 'fixed',
-    symbolSize: ['15%', '35%'],
+    symbolSize: ['20%', '54%'],
     symbol: f3a_pathSymbols.person_green,
-    data: [100],    
+    data: [100, 100, 100],    
+    barCategoryGap: "20%",
     z: 1  
     }
 ]
