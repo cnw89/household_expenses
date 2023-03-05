@@ -73,7 +73,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'Non-retired UK residents by disposable income decile',
+    name: 'Non-retired UK citizens by disposable income decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,

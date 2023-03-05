@@ -116,6 +116,14 @@ def prep_expenses_for_serving(mainoption, n_adults, n_children):
     return breakdown_data_list, savings_data, pension_data, retirement_data
 
 def prep_expenses_for_recording(form, n_adults, n_children):
+
+    if form['displayFrequency'] == 'yearly':
+        freq_factor = 1
+    elif form['displayFrequency'] == 'weekly':
+        freq_factor = 52
+    else: 
+        freq_factor = 12
+    
     total_equivalized_spend=0
     breakdown = {}
     for cat in catlist:
@@ -125,7 +133,7 @@ def prep_expenses_for_recording(form, n_adults, n_children):
             continue
 
         #now switch to annual:
-        breakdown[cat] = 12 * equivalize(int(form[cat]), n_adults, n_children)        
+        breakdown[cat] = freq_factor * equivalize(int(form[cat]), n_adults, n_children)        
 
         total_equivalized_spend +=  breakdown[cat]               
     

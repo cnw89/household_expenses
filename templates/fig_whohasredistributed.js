@@ -21,7 +21,7 @@ const f6_labelSetting = {
 // Specify the configuration items and data for the chart
 var f6_option = {
 // title: {
-//     text: 'What fraction of enough do UK residents have?',
+//     text: 'What fraction of enough do UK citizens have?',
 //     textAlign: 'center',
 //     left: '50%'
 // },
@@ -54,7 +54,7 @@ xAxis: {
         interval: 0,
         width: 55
     },
-    name: 'Non-retired UK residents by disposable income decile',
+    name: 'Non-retired UK citizens by disposable income decile',
     nameLocation: 'center',
     nameTextStyle: {
       fontSize: 16,
