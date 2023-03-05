@@ -34,7 +34,7 @@
 </p>
 <p>
     Upon retirement, with the values you have provided, we estimate that enough is {{ printout('first_adult_retired', '£', '')}} for the first adult, 
-    and {{ printout('second_adult', '£', '')}} for subsequent adults in the household, per month.
+    and {{ printout('second_adult_retired', '£', '')}} for subsequent adults in the household, per month.
 </p>
 {% endblock %}
 
@@ -83,7 +83,7 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <p>
         For the adults in your household, you've said 'enough' is {{ printout('base_retired', '£', '/year')}} upon retirement.
         Up to {{ printout('state_pension', '£', '/year') }} can be covered by the state pension (assuming all adults are eligible
-        for the full state pension, which currently stands at <strong>{{ '£{:,.0f}/week'.format(d_common['state_pension_per_week']) }}</strong> per person).
+        for the full state pension, which currently stands at <strong>{{ '£{:,.2f}/week'.format(d_common['state_pension_per_week']) }}</strong> per person).
     </p>
     {{ add_chart('f1b_chart', '140') }}
 </div>
@@ -276,30 +276,30 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         <ol>
             <li>
                 <strong>Expansion of housing provided at cost.</strong> 
-                Capping housing expenses at the average for social housing of £{{ "{:.0f}".format(d_willgrowth.cost_caps_per_month['housing']) }}/month
+                Capping housing expenses at the average for social housing of £{{ "{:,.0f}".format(d_willgrowth.cost_caps_per_month['housing']) }}/month
                 {% call query('Average cost of social housing') %}
                 See the reference
                 <a href='https://www.gov.uk/government/news/social-housing-sector-stock-and-rents-statistics-for-202122-show-small-net-increase-in-social-homes#:~:text=The%20average%20increase%20in%20general,different%20regions%20of%20the%20country.' target='_blank' rel='external'>here</a>.
                 {% endcall %}
-                for a household of two adults would save £{{ "{:.0f}".format(d_willgrowth.savings_per_year['housing']) }}/year for your 'enough'
+                for a household of two adults would save £{{ "{:,.0f}".format(d_willgrowth.savings_per_year['housing']) }}/year for your 'enough'
             </li>
             <li>
                 <strong>Mass public transport participation and investment.</strong>
-                Capping transport expenses at £{{ "{:.0f}".format(d_willgrowth.cost_caps_per_month['transport']) }}/month for a household of two adults,
+                Capping transport expenses at £{{ "{:,.0f}".format(d_willgrowth.cost_caps_per_month['transport']) }}/month for a household of two adults,
                 similar to the cost of the national public transport pass for short-distance travel introduced in Germany
                 {% call query('German public transport pass') %}
                 See the reference 
                 <a href='https://www.politico.eu/article/german-government-approves-nationwide-49-euro-public-transport-ticket/' target='_blank' rel='external'>here</a>.
                 {% endcall %}
                 would save
-                 £{{ "{:.0f}".format(d_willgrowth.savings_per_year['transport']) }}/year for your 'enough'
+                 £{{ "{:,.0f}".format(d_willgrowth.savings_per_year['transport']) }}/year for your 'enough'
             </li>
         </ol>        
     </p>
     <p>
-        In total these measures would reduce the cost of living by £{{ "{:.0f}".format(d_willgrowth.total_savings) }}/year, resulting in the percentage of people with enough
-        increasing from <strong>{{ '{:.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough_all) }}</strong> to 
-        <strong>{{ '{:.0f}%'.format(100 -  d_willgrowth.pc_individuals_without_enough_all_with_savings) }}</strong>.
+        In total these measures would reduce the cost of living by £{{ "{:,.0f}".format(d_willgrowth.total_savings) }}/year, resulting in the percentage of people with enough
+        increasing from <strong>{{ '{:,.0f}%'.format(100 -  d_whohas.pc_individuals_without_enough_all) }}</strong> to 
+        <strong>{{ '{:,.0f}%'.format(100 -  d_willgrowth.pc_individuals_without_enough_all_with_savings) }}</strong>.
     </p>
 </div>
 <p></p>

@@ -165,21 +165,29 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
         <p></p>
         <div class="p-3 border bg-white">
             Show regular expenses as:   
-            <div class="form-check form-check-inline float-end">
-                <input class="form-check-input" type="radio" name="displayFrequency" id="yearlyRadio" value="yearly" onchange="updateDisplayFrequency(this.value)">
-                <label class="form-check-label" for="yearlyRadio">Yearly</label>
-            </div>
-            <div class="form-check form-check-inline float-end">
-                <input class="form-check-input" type="radio" name="displayFrequency" id="monthlyRadio" value="monthly" onchange="updateDisplayFrequency(this.value)" checked>
-                <label class="form-check-label" for="monthlyRadio">Monthly</label>
-            </div>
-            <div class="form-check form-check-inline float-end">
-                <input class="form-check-input" type="radio" name="displayFrequency" id="weeklyRadio" value="weekly" onchange="updateDisplayFrequency(this.value)">
-                <label class="form-check-label" for="weeklyRadio">Weekly</label>
+            <div class="row justify-content-end">
+                <div class="col-4 col-sm-2">
+                    <div class="form-check form-check-inline float-end">
+                        <input class="form-check-input" type="radio" name="displayFrequency" id="yearlyRadio" value="yearly" onchange="updateDisplayFrequency(this.value)">
+                        <label class="form-check-label" for="yearlyRadio">Yearly</label>
+                    </div>
+                </div>
+                <div class="col-4 col-sm-2">
+                    <div class="form-check form-check-inline float-end">
+                        <input class="form-check-input" type="radio" name="displayFrequency" id="monthlyRadio" value="monthly" onchange="updateDisplayFrequency(this.value)" checked>
+                        <label class="form-check-label" for="monthlyRadio">Monthly</label>
+                    </div>
+                </div>
+                <div class="col-4 col-sm-2">
+                    <div class="form-check form-check-inline float-end">
+                        <input class="form-check-input" type="radio" name="displayFrequency" id="weeklyRadio" value="weekly" onchange="updateDisplayFrequency(this.value)">
+                        <label class="form-check-label" for="weeklyRadio">Weekly</label>
+                    </div>
+                </div>
             </div>
         </div>
         <p></p>
-        <div class="row row-cols-1 row-cols-lg-2 g-2">
+        <div class="row row-cols-1 row-cols-md-2 g-2"> <!---->
         {% for cat in breakdown %}        
             <div class="col">
                 <div class="p-3 border bg-white">
@@ -189,7 +197,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             {{ cat.description }}
                         </div>
                         <div class="col-4 text-end">
-                            £<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/<span id="{{ cat.id + '_freq' }}">{{ cat.freq }}</span>
+                            <strong>£<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/<span id="{{ cat.id + '_freq' }}">{{ cat.freq }}</span></strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -206,7 +214,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                         <div class="col-3 col-sm-2">
                             £<span id="{{ cat.id + '_max' }}">{{ cat.max }}</span>
                         </div>                
-                    </div>
+                    </div> 
                 </div>
             </div>                          
         {% endfor %}
@@ -218,7 +226,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             {{ savings.description }}
                         </div>
                         <div class="col-4 col-sm-3 text-end">
-                            <span id="{{ savings.id + '_output' }}">{{ savings.value }}</span>%
+                            <strong><span id="{{ savings.id + '_output' }}">{{ savings.value }}</span>%</strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -246,14 +254,14 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             {{ pension.description }}
                         </div>
                         <div class="col-4 col-sm-3 text-end">
-                            <span id="{{ pension.id + '_output' }}">{{ pension.value }}</span>%
+                            <strong><span id="{{ pension.id + '_output' }}">{{ pension.value }}</span>%</strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-3 col-sm-2 text-end">
                             0%
                         </div>   
-                        <div class="col-6 col-sm-6">
+                        <div class="col-6 col-sm-8">
                             <input type="range" name="{{ pension.name }}" class="form-range"                         
                                 id="{{ pension.id + '_input'}}" max="{{ pension.max }}" step="{{ pension.step }}"
                                 value="{{ pension.value }}"
@@ -288,20 +296,20 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             Deposit for buying a first house   
                         </div>
                         <div class="col-4 col-sm-3">
-                            <p class="float-end">£<span id="house_output">20,000</span></p>
+                        <strong><p class="float-end">£<span id="house_output">20,000</span></p></strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
-                        <div class="col-2 text-end">
+                        <div class="col-3 col-md-2 text-end">
                             £0
                         </div>
-                        <div class="col-8">
+                        <div class="col-6 col-md-8">
                             <input type="range" name="house" class="form-range"                         
                                 id="house_input" max="50000" step="1000"
                                 value="20000"
                                 oninput="updateDisplay(house_output, this.value)">
                         </div>    
-                        <div class="col-2">
+                        <div class="col-3 col-md-2">
                             £50,000
                         </div>                
                     </div>
@@ -317,37 +325,37 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             Calculated for each child - input even if your household does not have children.
                         </div>
                         <div class="col-4 col-sm-3">
-                            <p class="float-end">£<span id="childcare_output">600</span>/month<br>
-                            for <span id="childcare_years_output">2</span> years</p>                         
+                        <strong><p class="float-end">£<span id="childcare_output">600</span>/month<br>
+                            for <span id="childcare_years_output">2</span> years</p>  </strong>                       
                         </div>
                     </div>
                     <label for="childcare_input" class="form-label">Monthly Payment:</label>
                     <div class="row justify-content-center">
-                        <div class="col-2 text-end">
+                        <div class="col-3 col-md-2 text-end">
                             £0/month
                         </div>
-                        <div class="col-8">                        
+                        <div class="col-6 col-md-8">                        
                             <input type="range" name="childcare" class="form-range"                         
                                 id="childcare_input" max="1200" step="50"
                                 value="600"
                                 oninput="updateDisplay(childcare_output, this.value)">
                         </div>    
-                        <div class="col-2">
+                        <div class="col-3 col-md-2">
                             £1,200/month
                         </div>                
                     </div>
                     <label for="childcare_years_input" class="form-label">Number of years of payments:</label>
                     <div class="row justify-content-center">
-                        <div class="col-2 text-end">
+                        <div class="col-3 col-md-2 text-end">
                             0 years
                         </div>
-                        <div class="col-8">                        
+                        <div class="col-6 col-md-8">                        
                             <input type="range" name="childcare_years" class="form-range"                         
                                 id="childcare_years_input" max="4" step="0.5"
                                 value="2"
                                 oninput="updateDisplay(childcare_years_output, this.value)">
                         </div>    
-                        <div class="col-2">
+                        <div class="col-3 col-md-2">
                             4 years
                         </div>                
                     </div>                
@@ -373,21 +381,21 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                             that is enough for retirement.
                         </div>
                         <div class="col-4 col-sm-3">
-                            <p class="float-end"><span id="retirement_output">{{ retirement.value }}</span>%</p>
+                        <strong><p class="float-end"><span id="retirement_output">{{ retirement.value }}</span>%</p></strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
-                        <div class="col-2 text-end">
-                            0
+                        <div class="col-3 col-md-2 text-end">
+                            50%
                         </div>
-                        <div class="col-8">
+                        <div class="col-6 col-md-8">
                             <input type="range" name="Retirement" class="form-range"                         
-                                id="retirement_input" max="100" step="1"
+                                id="retirement_input" min="50" max="150" step="1"
                                 value="{{ retirement.value }}"
                                 oninput="updateDisplay(retirement_output, this.value)">
                         </div>    
-                        <div class="col-2">
-                            100%
+                        <div class="col-3 col-md-2">
+                            150%
                         </div>                
                     </div>
                 </div>

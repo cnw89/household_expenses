@@ -64,20 +64,11 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
     """
     
-    HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, HEDI_retired, n_adults, n_children, warn_user, warn_text = \
+    pc_ind, pc_ind_ret, HEDI, HEDI_retired, warn_user, warn_text = \
     check_inputs_safe.run(HEDI, 
-                            breakdown, 
-                            lifetime_breakdown, 
-                            savings_pc,
-                            pension_pc, 
                             HEDI_retired, 
-                            n_adults, 
-                            n_children,
                             d_r,
                             d_nr)
-    
-    pc_ind = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI)
-    pc_ind_ret = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired)
     
     #vars directly injected into html with Jinja
 
@@ -250,8 +241,8 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     for sav in d_willgrowth.savings_per_year_retired.values():
         d_willgrowth.total_savings_retired += sav
 
-    pc_ind2 = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI - d_willgrowth.total_savings)
-    pc_ind_ret2 = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired - d_willgrowth.total_savings_retired)
+    pc_ind2, _ = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI - d_willgrowth.total_savings)
+    pc_ind_ret2, _ = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired - d_willgrowth.total_savings_retired)
     
     d_willgrowth.pc_individuals_without_enough_all_with_savings = (100 * pc_ind2 * d_nr['tot_individuals']
                                                   + 100 * pc_ind_ret2 * d_r['tot_individuals']) \

@@ -195,10 +195,10 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
         
         if (do_update_range){
             range.setAttribute("min", "10.0");
-            range.setAttribute("max", "80.0");
+            range.setAttribute("max", "45.0");
             range.setAttribute("value", d.default_hours_per_week.toString());
             document.getElementById("hoursOrWageRangeMinLabel").innerHTML = "10/week"
-            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = "80/week"
+            document.getElementById("hoursOrWageRangeMaxLabel").innerHTML = "45/week"
             range.value = d.default_hours_per_week.toString();
         }        
 

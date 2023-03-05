@@ -10,7 +10,7 @@ Select one of our budget 'presets' based on our own estimates for what could be 
         const updateDisplay = (newVal) => {
             document.getElementById("optionTitle").innerHTML=displayOptions[newVal].name;
             document.getElementById("optionDescription").innerHTML=displayOptions[newVal].description;
-            document.getElementById("optionValue").innerHTML="£" + displayOptions[newVal].value + "/month";
+            document.getElementById("optionValue").innerHTML="£" + displayOptions[newVal].value.toLocaleString() + "/month";
         };        
 
     </script>
