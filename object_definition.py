@@ -110,10 +110,11 @@ def prep_expenses_for_serving(mainoption, n_adults, n_children):
 
         breakdown_data_list.append(cat_data)
 
-    retirement_data = {}
-    retirement_data['value'] = retirement_values[int(mainoption)]
+    return breakdown_data_list, savings_data, pension_data
 
-    return breakdown_data_list, savings_data, pension_data, retirement_data
+
+    # retirement_data = {}
+    # retirement_data['value'] = retirement_values[int(mainoption)]
 
 def prep_expenses_for_recording(form, n_adults, n_children):
 
@@ -136,10 +137,6 @@ def prep_expenses_for_recording(form, n_adults, n_children):
         breakdown[cat] = freq_factor * equivalize(int(form[cat]), n_adults, n_children)        
 
         total_equivalized_spend +=  breakdown[cat]               
-    
-    #retirement quantity is % before savings, pension and lifetime contributions
-    retirement_pc = int(form["Retirement"])
-    retirement_equivalized_spend = retirement_pc * total_equivalized_spend/100
 
     #saving pc is a pc of income not expense
     savings_pc = int(form['Savings'])
@@ -151,22 +148,24 @@ def prep_expenses_for_recording(form, n_adults, n_children):
     breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
     total_equivalized_spend += breakdown['Pension']
 
+    return total_equivalized_spend, breakdown, savings_pc, pension_pc
+
+def prep_lifetime_for_recording(form, breakdown, n_adults, n_children):
+
     lifetime_breakdown = {} #for storing non-averaged lifetime payments
 
     #averaged house downpayment
     house = int(form['house'])
     lifetime_breakdown['House_deposit'] = house
     breakdown['House_deposit'] = equivalize(house/NON_RETIRED_HOUSEHOLD_YEARS, n_adults, n_children)  
-    total_equivalized_spend += breakdown['House_deposit']
 
     #Averaged Pre-school childcare fees 
-    childcare = int(form['childcare']) * 12 
+    childcare = int(form['childcare']) * 12 #months
     childcare_years = float(form['childcare_years'])
     lifetime_breakdown['Childcare'] = childcare
     lifetime_breakdown['Childcare_years'] = childcare_years
     breakdown['Childcare'] = equivalize(childcare * childcare_years * 
                                         AVERAGE_CHILDREN_PER_HOUSE/NON_RETIRED_HOUSEHOLD_YEARS, 
                                         n_adults, n_children)
-    total_equivalized_spend += breakdown['Childcare']
-
-    return total_equivalized_spend, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, retirement_equivalized_spend
+    
+    return lifetime_breakdown, breakdown

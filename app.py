@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import datetime
-from object_definition import options, prep_expenses_for_serving, prep_expenses_for_recording
+from object_definition import options, prep_expenses_for_serving, prep_expenses_for_recording, prep_lifetime_for_recording
 from helper_funcs import dict_hash
 import analysis
 from analysis import dequivalize
@@ -52,7 +52,6 @@ class Record(db.Model):
     savings_pc = db.Column(db.Integer())
     pension_pc = db.Column(db.Integer())
     retirement_pc = db.Column(db.Integer())
-    retirement_equivalized_spend = db.Column(db.Integer())
     n_adults = db.Column(db.Integer())
     n_children = db.Column(db.Integer())
  
@@ -81,7 +80,6 @@ def display_results(uid):
                                                                            rec.savings_pc,
                                                                            rec.pension_pc,
                                                                            rec.retirement_pc,
-                                                                           rec.retirement_equivalized_spend,
                                                                            n_adults,
                                                                            n_children)
         
@@ -93,35 +91,80 @@ def display_results(uid):
                             d_dowe=d_dowe, 
                             d_willgrowth=d_willgrowth)
 
+@app.route("/page5/<uid>", methods=["GET", "POST"])
+def retirement_control(uid):
+
+    if request.method == "GET":
+        
+        retirement_data = {}
+        retirement_data['value'] = 100
+
+        return render_template("retirement_control.html", retirement=retirement_data, uid=uid)
+
+    records=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
+    rec = records[0]
+    
+    rec.retirement_pc = int(request.form['Retirement'])
+    db.session.commit()
+
+    return redirect(url_for('display_results', uid=uid))
+
+@app.route("/page4/<uid>", methods=["GET", "POST"])
+def lifetime_control(uid):
+
+    if request.method == "GET":
+        
+        return render_template("lifetime_control.html", uid=uid)
+
+    records=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
+    rec = records[0]
+    #rec = db.one_or_404(db.select(Record).filter_by(uid=uid))
+    print(rec)
+    lifetime_breakdown, breakdown = prep_lifetime_for_recording(request.form, 
+                                                                json.loads(rec.breakdown),
+                                                                rec.n_adults,
+                                                                rec.n_children)
+
+    rec.breakdown = json.dumps(breakdown)
+    rec.lifetime_breakdown = json.dumps(lifetime_breakdown)
+    db.session.commit()
+
+    return redirect(url_for('retirement_control', uid=uid))
+
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
 
     n_adults_s = request.args.get('nadult', default='1')
     n_children_s = request.args.get('nchild', default='0')
     mainoption = request.args.get('mainoption', default='0')
+    uid = request.args.get('uid', default='0') #only provided if going back from next page
 
     n_adults = int(n_adults_s)
     n_children = int(n_children_s)
-
     
     if request.method == "GET":
         
-        breakdown_data_list, savings_data, pension_data, retirement_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
+        #if uid != 0:
+        breakdown_data_list, savings_data, pension_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
+        #else prep data from db
 
         return render_template("custom_control.html", 
                 breakdown=breakdown_data_list, 
                 savings=savings_data, 
                 pension=pension_data,
-                retirement=retirement_data,
                 n_adults=n_adults_s, 
                 n_children=n_children_s, 
                 mainoption=mainoption)
 
     
-    total_equivalized_spend, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, retirement_equivalized_spend = prep_expenses_for_recording(request.form, 
+    total_equivalized_spend, breakdown, savings_pc, pension_pc = prep_expenses_for_recording(request.form, 
                                                                                                      n_adults,
                                                                                                      n_children)
     
+    #make up some dummy values for things we haven't set yet
+    lifetime_breakdown = {}
+    retirement_pc = -1
+
     uid = dict_hash(breakdown)
     now = datetime.datetime.now()
     record = Record(date=now, 
@@ -132,14 +175,13 @@ def custom_control():
                     savings_pc=savings_pc, 
                     pension_pc=pension_pc, 
                     retirement_pc=retirement_pc,
-                    retirement_equivalized_spend=retirement_equivalized_spend,
                     n_adults=n_adults, 
                     n_children=n_children)
 
     db.session.add(record)
     db.session.commit()
 
-    return redirect(url_for('display_results', uid=uid))
+    return redirect(url_for('lifetime_control', uid=uid))
 
 @app.route("/page2", methods=["GET", "POST"])
 def main_control():

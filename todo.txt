@@ -1,62 +1,12 @@
-## For all pages
-- back/next button placement
-- Header
-    - How much is enough banner
-    - About/Info menu
-- Footer
-    - Copyright
-
-## custom
-- total displayed at the top
-
-## results
-- just % households, not % people
-- correct number of sig figs
-- Household numbers rethink
-- Take out in-browser household composition editing
-- Proper tax calculation
-- Graphics
-- Lock-in/vote
-- Why not excess GDHI not simply 100 - enough?
-
-# Basic format
-0. Intro text
-1. Enter some info (your household composition, your area of uk)
-2. Main slider
-3. Customization by category
-4. See results
-a. X% of households have enough
-b Top 10%/1% have m * enough 
-c. Enough for everyone is X% of GDP
->> Share
->> Lock-in - see other votes
-5. Vote cast, see what other people have said is enough
-
-# Tables
-## Columns
-- Hash of all entered values
-- allowances per adult/child by category
-- total allowance per adult/child
-- n_votes
-
-# Infographics
-## How much is enough
-- horizontal pictorial bar
-- Y: family composition
-- X: enough + tax(2 earning) + tax(1 earning)
-
-## What does it take to get enough?
-- horizontal pictorial bar
-- Y: family composition
-- X: hours/wage (toggle?)
-- toggle 1/2 earners?
-- slide hours/week or wage?
-
-##Who has enough?
-- coloured people scale
-- vertical bar chart for x% of enough from bottom 10% to 90%
-
-##Do we have enough for everyone?
-- 2 pies: deficit, GDHI (and excess subset)
-- Timeline of growth (historic + projection) - toggle growth?
-    - 'events' where milestone % of people having enough is achieved
+- more clear that not just about putting one's own expenses in 
+- each section of customization optional
+- early sections without averaged lifetime expenses
+- images for +house saving and +childcare
+- childcare update with new gov
+- check any tax updates
+- move explanations of averaging lifetime expenses to later sections where used
+- fix minimum max household expense across all household sizes
+- Tax paid on private pension
+- check values same between main and customization page
+- 1 page each for regular, lifetime and retirement
+- option to exclude housing from retirement?

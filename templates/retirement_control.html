@@ -1,0 +1,53 @@
+{% extends "form.html" %}
+{% block description %}
+Now adjust the budget as you like, either by adjusting the total, or by changing the allowance per category of expense.
+{% endblock %}
+{% block funcdef %}
+    <script>
+
+        const updateDisplay = (outid, newVal) => {
+            outid.innerHTML=parseFloat(newVal).toLocaleString();
+        };             
+
+    </script>
+{% endblock %}
+{% block formaction %}action="{{ url_for('retirement_control', uid=uid) }}"  method="POST"{% endblock %}
+
+{% block formbody %}
+    
+    <div class="p-3 border bg-light">        
+        <div class="row row-cols-1 g-2">
+            <div class="col">
+                <div class="p-3 border bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col-8 col-sm-9" style="min-height:140px;">
+                            <b><label for="retirement_input" class="form-label">Enough for Retirement</label></b><br>
+                            Percentage of regular expenses for all adults in the household, excluding savings and pension contributions,
+                            that is enough for retirement.
+                        </div>
+                        <div class="col-4 col-sm-3">
+                        <strong><p class="float-end"><span id="retirement_output">{{ retirement.value }}</span>%</p></strong>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-3 col-md-2 text-end">
+                            50%
+                        </div>
+                        <div class="col-6 col-md-8">
+                            <input type="range" name="Retirement" class="form-range"                         
+                                id="retirement_input" min="50" max="150" step="1"
+                                value="{{ retirement.value }}"
+                                oninput="updateDisplay(retirement_output, this.value)">
+                        </div>    
+                        <div class="col-3 col-md-2">
+                            150%
+                        </div>                
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+               
+{% endblock %}
+{% block prevlink %} {{ url_for('lifetime_control', uid=uid) }} {% endblock %}
+{% block progress %}83{% endblock %}

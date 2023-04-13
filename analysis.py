@@ -59,14 +59,20 @@ AVERAGE_CHILDREN_PER_HOUSE = 0.8
 NON_RETIRED_HOUSEHOLD_YEARS = 40
 SAVE_FOR_FIRST_HOUSE_YEARS = 7
 
-def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, HEDI_retired, n_adults, n_children):
+def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_pc, n_adults, n_children):
     """
     HEDI - household equivalized disposable income - equivalized to 2 adults, 0 children.
+        - NOT including averaged lifetime expenses
     """
-    
-    pc_ind, pc_ind_ret, HEDI, HEDI_retired, warn_user, warn_text = \
-    check_inputs_safe.run(HEDI, 
-                            HEDI_retired, 
+
+    HEDI_retired = (retirement_pc/100) * (HEDI - breakdown['Pension'] - breakdown['Savings'])
+    # values including averaged lifetime values
+    HEDI_inc_life = HEDI + breakdown['House_deposit'] + breakdown['Childcare']
+    HEDI_retired_inc_life = (retirement_pc/100) * (HEDI_inc_life - breakdown['Pension'] - breakdown['Savings'])
+
+    pc_ind, pc_ind_ret, HEDI_inc_life, HEDI_retired_inc_life, warn_user, warn_text = \
+    check_inputs_safe.run(HEDI_inc_life, 
+                            HEDI_retired_inc_life, 
                             d_r,
                             d_nr)
     
@@ -119,8 +125,8 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     d_howmuch.with_tax2 = [calc_pre_tax_income_pre_pension(sal/min(2, na), pension_pc) for sal, na in zip(d_howmuch.base, adults)]
 
     d_howmuch.save_for_first_house_years = SAVE_FOR_FIRST_HOUSE_YEARS
-    d_howmuch.while_saving_for_first_house = (lifetime_breakdown['House_deposit']/SAVE_FOR_FIRST_HOUSE_YEARS) - dequivalize(breakdown['House_deposit'], n_adults, n_children)
-    d_howmuch.while_preschool_childcare = lifetime_breakdown['Childcare'] - dequivalize(breakdown['Childcare'], n_adults, n_children)
+    d_howmuch.while_saving_for_first_house = (lifetime_breakdown['House_deposit']/SAVE_FOR_FIRST_HOUSE_YEARS) 
+    d_howmuch.while_preschool_childcare = lifetime_breakdown['Childcare'] 
 
     adults = [1, 2]
     children = [0, 0]
@@ -129,6 +135,7 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     d_howmuch.state_pension = [min(na * STATE_PENSION_PER_WEEK*52, limit) for (na, limit) in zip(adults, d_howmuch.base_retired)]
     #excess to state pension:
     d_howmuch.private_pension = [base - state for (base, state) in zip(d_howmuch.base_retired, d_howmuch.state_pension)]
+    #TODO: add private pension tax
     #what does it take to earn enough calculated in browser from how much is enough...
 
     #2 who has enough
@@ -140,7 +147,7 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
                                                   / (d_nr['tot_individuals'] + d_r['tot_individuals'])
 
     #just for nonretired
-    d_whohas.pc_enough_by_decile = [dec/HEDI for dec in d_nr['l_deciles_av'] ]
+    d_whohas.pc_enough_by_decile = [dec/HEDI_inc_life for dec in d_nr['l_deciles_av'] ]
 
     #3 do we have enough
     d_dowe = types.SimpleNamespace()
@@ -178,12 +185,12 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     #find fraction of wealth over a multiple of enough, which is 
     tax_thresh_ratio = min(3, np.floor(2*d_whohas.pc_enough_by_decile[-1])/2) # to the nearest 0.5
     if tax_thresh_ratio >= 1:
-        pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
+        pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI_inc_life * tax_thresh_ratio)
         excess_over_tax_thresh = d_nr['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
         while (excess_over_tax_thresh < d_dowe.deficit_without_enough) and (tax_thresh_ratio > 1):
             tax_thresh_ratio -= 0.5
-            pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI * tax_thresh_ratio)
+            pc_ind_tax_thresh = d_nr['f_HEDI_to_pcInd'](HEDI_inc_life * tax_thresh_ratio)
             excess_over_tax_thresh = d_nr['f_pcInd_to_excess_above'](pc_ind_tax_thresh)
 
         if (excess_over_tax_thresh >= d_dowe.deficit_without_enough) and (tax_thresh_ratio >= 1):
@@ -241,8 +248,8 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
     for sav in d_willgrowth.savings_per_year_retired.values():
         d_willgrowth.total_savings_retired += sav
 
-    pc_ind2, _ = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI - d_willgrowth.total_savings)
-    pc_ind_ret2, _ = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired - d_willgrowth.total_savings_retired)
+    pc_ind2, _ = check_inputs_safe.safe_interp(d_nr['f_HEDI_to_pcInd'], HEDI_inc_life - d_willgrowth.total_savings)
+    pc_ind_ret2, _ = check_inputs_safe.safe_interp(d_r['f_HEDI_to_pcInd'], HEDI_retired_inc_life - d_willgrowth.total_savings_retired)
     
     d_willgrowth.pc_individuals_without_enough_all_with_savings = (100 * pc_ind2 * d_nr['tot_individuals']
                                                   + 100 * pc_ind_ret2 * d_r['tot_individuals']) \
@@ -312,6 +319,10 @@ def update_total_equivalized_spend(breakdown, savings_pc, pension_pc, retirement
             continue
         elif (cat == 'Pension'):
             continue
+        elif (cat == 'Housing_deposit'):
+            continue
+        elif (cat == 'Childcare'):
+            continue
 
         total_equivalized_spend +=  breakdown[cat]               
     
@@ -325,8 +336,5 @@ def update_total_equivalized_spend(breakdown, savings_pc, pension_pc, retirement
     #pension pc is a pc of income not expense, including savings
     breakdown['Pension'] = total_equivalized_spend * (pension_pc/(100-pension_pc))
     total_equivalized_spend += breakdown['Pension']
-
-    total_equivalized_spend += breakdown['House_deposit']
-    total_equivalized_spend += breakdown['Childcare']
 
     return total_equivalized_spend, retirement_equivalized_spend
