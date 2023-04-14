@@ -2,7 +2,8 @@ from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import json
 import datetime
-from object_definition import options, prep_expenses_for_serving, prep_expenses_for_recording, prep_lifetime_for_recording
+from object_definition import options, prep_expenses_for_serving, \
+      prep_expenses_for_recording, prep_lifetime_for_recording, reprep_breakdown
 from helper_funcs import dict_hash
 import analysis
 from analysis import dequivalize
@@ -118,8 +119,7 @@ def lifetime_control(uid):
 
     records=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
     rec = records[0]
-    #rec = db.one_or_404(db.select(Record).filter_by(uid=uid))
-    print(rec)
+    
     lifetime_breakdown, breakdown = prep_lifetime_for_recording(request.form, 
                                                                 json.loads(rec.breakdown),
                                                                 rec.n_adults,
@@ -134,20 +134,31 @@ def lifetime_control(uid):
 @app.route("/page3", methods=["GET", "POST"])
 def custom_control():
 
-    n_adults_s = request.args.get('nadult', default='1')
-    n_children_s = request.args.get('nchild', default='0')
-    mainoption = request.args.get('mainoption', default='0')
     uid = request.args.get('uid', default='0') #only provided if going back from next page
 
-    n_adults = int(n_adults_s)
-    n_children = int(n_children_s)
-    
-    if request.method == "GET":
-        
-        #if uid != 0:
-        breakdown_data_list, savings_data, pension_data = prep_expenses_for_serving(mainoption, n_adults, n_children)
-        #else prep data from db
+    if uid != '0':            
+        records=db.session.execute(db.select(Record).filter_by(uid=uid)).first()
+        rec = records[0]
+        breakdown = json.loads(rec.breakdown)
+        breakdown = reprep_breakdown(breakdown, rec.savings_pc, rec.pension_pc)
+        mainoption = '0' #unused but required
+        n_adults = rec.n_adults
+        n_children = rec.n_children
+        n_adults_s = str(n_adults)
+        n_children_s = str(n_children)
 
+    else:
+        n_adults_s = request.args.get('nadult', default='1')
+        n_children_s = request.args.get('nchild', default='0')
+        mainoption = request.args.get('mainoption', default='0')
+        breakdown = mainoption
+        n_adults = int(n_adults_s)
+        n_children = int(n_children_s)
+        
+    if request.method == "GET":        
+        
+        breakdown_data_list, savings_data, pension_data = prep_expenses_for_serving(breakdown, n_adults, n_children)
+        
         return render_template("custom_control.html", 
                 breakdown=breakdown_data_list, 
                 savings=savings_data, 
@@ -165,7 +176,7 @@ def custom_control():
     lifetime_breakdown = {}
     retirement_pc = -1
 
-    uid = dict_hash(breakdown)
+    uid = dict_hash(breakdown) #even if we were passed a uid we need to create a new one as the inputs have changed
     now = datetime.datetime.now()
     record = Record(date=now, 
                     uid=uid, 

@@ -76,9 +76,14 @@ lifetime_breakdowns, lifetime_catlist = generate_lifetimes(wb, optlist)
 
 def prep_expenses_for_serving(mainoption, n_adults, n_children):
     
+    #TODO: overide max value for housing to be independent of equivalization
 
-    breakdown = copy.deepcopy(breakdowns[optlist[int(mainoption)]])
-    maxop = breakdowns['max']
+    if type(mainoption) is dict: #passed a breakdown instead of a mainoption value
+        breakdown = mainoption
+    else:
+        breakdown = copy.deepcopy(breakdowns[optlist[int(mainoption)]])
+    
+    maxop = breakdowns['max']    
     breakdown_data_list = []
 
     for cat in cats:
@@ -112,9 +117,23 @@ def prep_expenses_for_serving(mainoption, n_adults, n_children):
 
     return breakdown_data_list, savings_data, pension_data
 
+def reprep_breakdown(breakdown, savings_pc, pension_pc):
 
-    # retirement_data = {}
-    # retirement_data['value'] = retirement_values[int(mainoption)]
+    breakdown_out = {}
+    for cat in catlist:
+        if (cat == 'Savings'):
+            continue
+        elif (cat == 'Pension'):
+            continue
+
+        #now switch to annual:
+        breakdown_out[cat] = breakdown[cat]/12        
+
+    breakdown_out['Savings'] = savings_pc
+
+    breakdown_out['Pension'] = pension_pc
+
+    return breakdown_out
 
 def prep_expenses_for_recording(form, n_adults, n_children):
 
