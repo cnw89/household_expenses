@@ -141,7 +141,6 @@ def custom_control():
         rec = records[0]
         breakdown = json.loads(rec.breakdown)
         breakdown = reprep_breakdown(breakdown, rec.savings_pc, rec.pension_pc)
-        mainoption = '0' #unused but required
         n_adults = rec.n_adults
         n_children = rec.n_children
         n_adults_s = str(n_adults)
@@ -150,8 +149,7 @@ def custom_control():
     else:
         n_adults_s = request.args.get('nadult', default='1')
         n_children_s = request.args.get('nchild', default='0')
-        mainoption = request.args.get('mainoption', default='0')
-        breakdown = mainoption
+        breakdown = request.args.get('mainoption', default='0')
         n_adults = int(n_adults_s)
         n_children = int(n_children_s)
         
@@ -164,8 +162,7 @@ def custom_control():
                 savings=savings_data, 
                 pension=pension_data,
                 n_adults=n_adults_s, 
-                n_children=n_children_s, 
-                mainoption=mainoption)
+                n_children=n_children_s)
 
     
     total_equivalized_spend, breakdown, savings_pc, pension_pc = prep_expenses_for_recording(request.form, 

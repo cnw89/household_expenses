@@ -107,22 +107,40 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <div class="p-3 border bg-white">
         <div class="row justify-content-between gy-2">
             <div class="col-6">
-                Fixed wage or hours:
+                What you set:<br>
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="radiowageorhours" id="btnhours" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnhours">Wage</label>
+
+                    <input type="radio" class="btn-check" name="radiowageorhours" id="btnwage" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnwage">Hours</label>
+                                    
+                </div>
+                <!--
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="wageHoursSwitch">
                     <label class="form-check-label" for="wageHoursSwitch" id="wageHoursSwitchLabel">Fixed wage</label>
-                </div>
+                </div>-->
             </div>
             <div class="col-6">
-                Number of earners in the household:
+                Number of earners in the household:<br>
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="radioearner" id="btnearner1" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnearner1">One</label>
+                  
+                    <input type="radio" class="btn-check" name="radioearner" id="btnearner2" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnearner2">Two*</label>                  
+                </div>
+                <!--
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="nWorkersSwitch">
                     <label class="form-check-label" for="nWorkersSwitch" id="nWorkersSwitchLabel">One earner per household</label>
-                </div>                
+                </div>               -->
+                
             </div>
-            
-            <div class="col-12 col-sm-6">
-                <div class="row">
+            <p></p>
+            <div class="col-12">
+                <div class="row justify-content-center">
                     <label for="hoursOrWageRange" class="form-label" id="hoursOrWageRangeLabel">Hours worked per week</label>
                     <div class="col-3">
                         <p class="float-end"><span id="hoursOrWageRangeMinLabel">10</span></p>
@@ -133,8 +151,9 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
                     <div class="col-3">
                         <span id="hoursOrWageRangeMaxLabel">80</span>
                     </div>
-                </div>                      
+                </div>                                  
             </div>
+            * Two earners, earning equally, where present in the household.    
         </div>
     </div>
     <p></p>

@@ -114,7 +114,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
 
     </script>
 {% endblock %}
-{% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"  method="POST"{% endblock %}
+{% block formaction %}action="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children }}"  method="POST"{% endblock %}
 
 {% block formbody %}
     <div class="p-3 border bg-light">        
@@ -142,7 +142,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                 </div> 
                 <div class="col-3 col-sm-2">
                     <a class="btn btn-primary float-end" 
-                    href="{{ url_for('custom_control') + '?nadult=' + n_adults + '&nchild='+ n_children + '&mainoption=' + mainoption }}"
+                    href=""
                     role="button">Reset</a>
                 </div>            
             </div>  

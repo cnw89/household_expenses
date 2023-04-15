@@ -172,13 +172,13 @@ function make_hours_option(){
 
 const wageHoursSwitchLabelValues = ["Fixed wage", "Fixed hours"];
 const nWorkersLabelValues = ["One earner per household", "Two earners per household, earning equally"];
-const hoursOrWageRangeLabelValues = ["Wage fixed at: £", "Hours fixed at: "];
+const hoursOrWageRangeLabelValues = ["Wage set at: £", "Hours set at: "];
 
 function update_hoursOrWageRangeLabel(){
     let range = document.getElementById("hoursOrWageRange");
     let range_label = document.getElementById("hoursOrWageRangeLabel");
 
-    if (document.getElementById("wageHoursSwitch").checked) {        
+    if (document.getElementById("btnwage").checked) {        
         
         range_label.innerHTML = hoursOrWageRangeLabelValues[1] + range.value + "/week";
     } else {
@@ -220,37 +220,40 @@ function switch_hoursOrWageRange(iswage, do_update_range) {
 
 function update_f2(do_update_range) {
     
-    switch_hoursOrWageRange(document.getElementById("wageHoursSwitch").checked, do_update_range);
+    switch_hoursOrWageRange(document.getElementById("btnwage").checked, do_update_range);
 
-    if (document.getElementById("nWorkersSwitch").checked){
+    if (document.getElementById("btnearner2").checked){
         nWorkers = 2;
-        document.getElementById("nWorkersSwitchLabel").innerHTML = nWorkersLabelValues[1];
+       // document.getElementById("nWorkersSwitchLabel").innerHTML = nWorkersLabelValues[1];
     } else {
         nWorkers = 1;
-        document.getElementById("nWorkersSwitchLabel").innerHTML = nWorkersLabelValues[0];
+       // document.getElementById("nWorkersSwitchLabel").innerHTML = nWorkersLabelValues[0];
     }
 
-    if (document.getElementById("wageHoursSwitch").checked){
+    if (document.getElementById("btnwage").checked){
         
         hours = parseFloat(document.getElementById("hoursOrWageRange").value);
         wage = d.MIN_WAGE;
 
         f2_chart.setOption(make_wage_option());
-        document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[1];
+        //document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[1];
     }else {
         
         wage = parseFloat(document.getElementById("hoursOrWageRange").value);
         hours = d.DEFAULT_HOURS_PER_WEEK;
 
         f2_chart.setOption(make_hours_option());
-        document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[0];        
+        //document.getElementById("wageHoursSwitchLabel").innerHTML = wageHoursSwitchLabelValues[0];        
     }
 
 
 }
-
-document.getElementById("wageHoursSwitch").setAttribute("onchange", "update_f2(true)");
-document.getElementById("nWorkersSwitch").setAttribute("onchange", "update_f2(false)");
+document.getElementById("btnhours").setAttribute("onchange", "update_f2(true)");
+document.getElementById("btnwage").setAttribute("onchange", "update_f2(true)");
+document.getElementById("btnearner1").setAttribute("onchange", "update_f2(true)");
+document.getElementById("btnearner2").setAttribute("onchange", "update_f2(true)");
+//document.getElementById("wageHoursSwitch").setAttribute("onchange", "update_f2(true)");
+//document.getElementById("nWorkersSwitch").setAttribute("onchange", "update_f2(false)");
 document.getElementById("hoursOrWageRange").setAttribute("onchange", "update_f2(false)");
 document.getElementById("hoursOrWageRange").setAttribute("oninput", "update_hoursOrWageRangeLabel()");
 
