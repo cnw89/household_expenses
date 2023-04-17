@@ -1,6 +1,8 @@
 {% extends "form.html" %}
 {% block description %}
-Now adjust the budget as you like, either by adjusting the total, or by changing the allowance per category of expense.
+Now adjust the budget as you like, either by adjusting the total, or by customizing by category of expense. Here we are concerned only with 
+regular expenses throughout the life of the household. Saving for a deposit on a first house, and pre-school childcare expenses are counted as a 
+'lifetime' expenses and dealt with on the next page.
 {% endblock %}
 {% block funcdef %}
     <script>
@@ -50,6 +52,11 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                 document.getElementById("{{ cat.id + '_freq' }}").innerHTML = freq;
                 
             {% endfor %}
+
+            document.getElementById("total_freq").innerHTML = freq;
+            updateTotal();
+            
+
         };
 
         const updateTotal = (catId="none") => {
@@ -92,7 +99,7 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
             total = total / ( 1 - parseInt(document.getElementById("{{ savings.id + '_input' }}").value)/100);
             total = total / ( 1 - parseInt(document.getElementById("{{ pension.id + '_input' }}").value)/100);
             
-            total = Math.round(total);
+            total = Math.round(total * multiplier);
             document.getElementById('total').innerHTML = total.toLocaleString();
         };
 
@@ -119,7 +126,13 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
 {% block formbody %}
     <div class="p-3 border bg-light">        
         <div class="p-3 border bg-white">
-            <div class="row align-items-center g-2">   
+            <div class="row align-items-center g-4">   
+                <div class="col-7">
+                    <h3>Regular Expenses</h3>
+                </div>
+                <div class="col-5">
+                    <h3 class="float-end">Total: £<span id="total"></span>/<span id="total_freq">month</span></h3>
+                </div>
                 <div class="col-9 col-sm-10">
                     <div class="row justify-content-center">
                         <b><label for="adjustEverythingRange" class="form-label">Adjust Total: </label>
@@ -144,11 +157,9 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                     <a class="btn btn-primary float-end" 
                     href=""
                     role="button">Reset</a>
-                </div>            
+                </div> 
             </div>  
-        </div>
-        <p></p>
-        <div class="p-3 border bg-white">
+            <p></p>
             Show regular expenses as:   
             <div class="row justify-content-end">
                 <div class="col-4 col-sm-2">
@@ -170,7 +181,13 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                     </div>
                 </div>
             </div>
+            <p></p>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="categorySwitch" data-bs-toggle="collapse" data-bs-target="#collapseExample">
+                <label class="form-check-label" for="categorySwitch" id="categorySwitchLabel">Customize budget by category</label>
+            </div>  
         </div>
+        <div class="collapse" id="collapseExample">
         <p></p>
         <div class="row row-cols-1 row-cols-md-2 g-2"> <!---->
         {% for cat in breakdown %}        
@@ -258,10 +275,12 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                         </div>                      
                     </div>
                 </div>
-            </div>         
+            </div>     
+            <script> updateTotal(); </script>     
+        </div> <!-- collapse-->
         </div>        
     </div>    
-    <script> updateTotal(); </script>           
+              
 {% endblock %}
 {% block prevlink %} {{ url_for('main_control') + '?nadult=' + n_adults + '&nchild='+ n_children }} {% endblock %}
 {% block progress %}50{% endblock %}

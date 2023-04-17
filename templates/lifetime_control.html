@@ -1,6 +1,8 @@
 {% extends "form.html" %}
 {% block description %}
-Now adjust the budget as you like, either by adjusting the total, or by changing the allowance per category of expense.
+As well as regular expenses for the household, there are also some large expenses that are only present for a brief period 
+in the lifetime of the household. They may not be relevant to your household, but are important when considering all UK 
+households. If you're not sure how much to set these at, leave them at the default values. 
 {% endblock %}
 {% block funcdef %}
     <script>
@@ -49,8 +51,9 @@ Now adjust the budget as you like, either by adjusting the total, or by changing
                         <div class="col-8 col-sm-9" style="min-height:140px;">
                             <b>Pre-school Childcare</b><br>
                             Monthly payments for pre-school childcare, over and above government-provided childcare
-                            hours of 15-30 hours/week during term times for ages 3 and over. 
-                            Calculated for each child - input even if your household does not have children.
+                            hours of 15-30 hours/week during term times for ages 3 and over, 
+                            with staggered changes until September 2025 when all children ages 9 months and over
+                            will be entitled to 30 hours. Calculated for each child.
                         </div>
                         <div class="col-4 col-sm-3">
                         <strong><p class="float-end">£<span id="childcare_output">600</span>/month<br>
