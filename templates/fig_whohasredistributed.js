@@ -104,7 +104,7 @@ series: [
         symbol: 'none',
         label: {
           {% if d_willgrowth.tax_thresh_ratio is eq(1) %}show: false, {% endif %}
-            formatter: 'Excessive',
+            formatter: 'Excess',
             position: 'start',
             fontSize: 16
         },

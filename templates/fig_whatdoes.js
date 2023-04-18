@@ -79,9 +79,9 @@ const f2wage_labelSetting = {
 
   const f2hours_title = () => {
     if (nWorkers==1){
-        return 'Required hours for ' + nWorkers.toString() + ' earner in the household,\nwith a fixed wage of £' + wage.toString() + '0 per hour'
+        return 'Required hours per week for ' + nWorkers.toString() + ' earner in the household,\nwith a fixed wage of £' + wage.toString() + '0 per hour'
     }else{
-        return 'Required hours for ' + nWorkers.toString() + ' earners (where present) in the\nhousehold, with a fixed wage of £' + wage.toString() + '0 per hour'
+        return 'Required hours per week for ' + nWorkers.toString() + ' earners (where present) in the\nhousehold, with a fixed wage of £' + wage.toString() + '0 per hour'
     }    
   };
 // Specify the configuration items and data for the chart

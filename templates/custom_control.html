@@ -28,16 +28,19 @@ regular expenses throughout the life of the household. Saving for a deposit on a
             if (newFreq == "weekly"){
                 multiplier = 12/52;
                 freq = "week";
+                step = 1;
             }
             else if (newFreq == "yearly"){
                 multiplier = 12;
                 freq = "year";
+                step = 100;
             }
             else {
                 multiplier = 1;
                 freq = "month";
+                step = 10;
             }
-
+            //TODO: update step size by display frequency!!!
             {% for cat in breakdown %}
                 max = monthly_maxes["{{ cat.id }}"];
                 newmax = Math.round(max * multiplier);
@@ -50,6 +53,7 @@ regular expenses throughout the life of the household. Saving for a deposit on a
                 document.getElementById("{{ cat.id + '_output' }}").innerHTML = newval.toLocaleString();
 
                 document.getElementById("{{ cat.id + '_freq' }}").innerHTML = freq;
+                document.getElementById("{{ cat.id + '_input' }}").step = step;
                 
             {% endfor %}
 
@@ -214,7 +218,7 @@ regular expenses throughout the life of the household. Saving for a deposit on a
                                 onchange="updateTotal('{{ cat.id }}')">
                         </div>    
                         <div class="col-3 col-sm-2">
-                            £<span id="{{ cat.id + '_max' }}">{{ cat.max }}</span>
+                            £<span id="{{ cat.id + '_max' }}">{{ "{:,}".format(cat.max) }}</span>
                         </div>                
                     </div> 
                 </div>

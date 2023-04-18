@@ -5,11 +5,6 @@
 {% block description %}
 <p>Complete!</p>
 <div id="smallScreenAlert"></div>
-{% if d_common.warn_user %}
-<div class='alert alert-warning' role='alert'>
-    {{ d_common.warn_text }}
-</div>
-{% endif %}
 <script>
     var width = window.innerWidth;
     if (width < 576){
@@ -72,16 +67,17 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         {% endcall %}
     </p>    
     {{ add_chart('f1_chart', '300') }}
+    <h5>Household 'lifetime' costs</h5>
     <p> 
-        To calculate these values we averaged the cost of big 'lifetime' expenses - the deposit on your first house, and the pre-school childcare - over a 
-        lifetime of a non-retired household.
+        The values above don't include the cost of big 'lifetime' expenses - the deposit on your first house, and the pre-school childcare.
         Those that are saving for a deposit on their first house over {{ d_howmuch.save_for_first_house_years }} years, would require an additional 
-        <strong>{{ "£{:,.0f}".format(d_howmuch.while_saving_for_first_house) }}</strong> per year plus tax for a household of your size. 
+        <strong>{{ "£{:,.0f}".format(d_howmuch.while_saving_for_first_house) }}</strong> per year plus tax. 
         Those with children in pre-school childcare would require an additional 
-        <strong>{{ "£{:,.0f}".format(d_howmuch.while_preschool_childcare) }}</strong> per child, per year for a household of your size. 
+        <strong>{{ "£{:,.0f}".format(d_howmuch.while_preschool_childcare) }}</strong> per child, per year. 
     </p>
+    <h5>Retirement</h5>
     <p>
-        For the adults in your household, you've said 'enough' is {{ printout('base_retired', '£', '/year')}} upon retirement.
+        For the adults in your household, you've said 'enough' is {{ printout('base_retired', '£', '/year')}} upon retirement, including council and income taxes.
         Up to {{ printout('state_pension', '£', '/year') }} can be covered by the state pension (assuming all adults are eligible
         for the full state pension, which currently stands at <strong>{{ '£{:,.2f}/week'.format(d_common['state_pension_per_week']) }}</strong> per person).
     </p>
@@ -151,6 +147,11 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 <p></p>
 <div class="p-3 border bg-light">
     <h3>3. Who has enough?</h3><p></p>
+    {% if d_common.warn_user %}
+    <div class='alert alert-warning' role='alert'>
+        {{ d_common.warn_text }}
+    </div>
+    {% endif %}
     <p>
         For your 'enough', <strong>
         {% if d_whohas.pc_individuals_without_enough_all is lt(5) %}
@@ -174,7 +175,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         {% call query('Data source') %}
         The following sections are based on Office of National Statistics data, publicly available 
         <a href='https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/householddisposableincomeandinequality'
-        target='_blank' rel='external'>here</a>.
+        target='_blank' rel='external'>here</a>.<br>
+        'Lifetime expenses' have been averaged across all households for the calculations of who has enough.
         {% endcall %}
     </p>
     {{ add_chart('f3a_chart', '200') }}

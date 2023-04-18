@@ -22,7 +22,7 @@ with open(filename, 'rb') as fID:
 # 'f_pcInd_to_pcHouse_byComp', 'd_household_comps_to_index', 'f_pcInd_to_required_incomesum',
 # 'f_pcInd_to_deficit_below', 'f_pcInd_to_excess_above'])
 
-MIN_WAGE = 10.42
+MIN_WAGE = 10.42 #checked April 2023
 DEFAULT_HOURS_PER_WEEK = 37.5
 
 #equivalization factors from OECD-modified standard:
@@ -37,20 +37,20 @@ AVERAGE_WAGE_BOOST_FACTOR = 1.5
 SOCIAL_HOUSING_PER_MONTH = 94.31 * 52/12#https://www.gov.uk/government/news/social-housing-sector-stock-and-rents-statistics-for-202122-show-small-net-increase-in-social-homes#:~:text=The%20average%20increase%20in%20general,different%20regions%20of%20the%20country.
 TRANSPORT_CAP_PER_MONTH = 50 * 2 #for two people
 
-#checked January 2023
-INCOME_TAX_THRESHOLDS = [150000, 50270, 12570] #annual salary thresholds
+#checked April 2023
+INCOME_TAX_THRESHOLDS = [125140, 50270, 12570] #annual salary thresholds
 INCOME_TAX_RATES = [0.45, 0.4, 0.2]
 
 thresh1 = (INCOME_TAX_THRESHOLDS[1] - INCOME_TAX_THRESHOLDS[2])*(1 - INCOME_TAX_RATES[2]) + INCOME_TAX_THRESHOLDS[2]
 thresh2 = (INCOME_TAX_THRESHOLDS[0] - INCOME_TAX_THRESHOLDS[1])*(1 - INCOME_TAX_RATES[1]) + thresh1
 INCOME_TAX_THRESHOLDS_INV = [thresh2, thresh1, INCOME_TAX_THRESHOLDS[2]]
 
-#Class 1A national insurance, employee contributions, valid to April 2023
+#Class 1A national insurance, employee contributions, checked April 2023
 NI_THRESHOLDS = [52*967, 52*242.01] #weekly earnings thresholds
 NI_RATES = [0.02, 0.12]
 
 COUNCIL_TAX = 1600
-STATE_PENSION_PER_WEEK = 185.15
+STATE_PENSION_PER_WEEK = 203.85 #checked April 2023
 
 thresh1 = (NI_THRESHOLDS[0] - NI_THRESHOLDS[1])*(1 - NI_RATES[1]) + NI_THRESHOLDS[1]
 NI_THRESHOLDS_INV = [thresh1, NI_THRESHOLDS[1]]
@@ -130,12 +130,13 @@ def run(HEDI, breakdown, lifetime_breakdown, savings_pc, pension_pc, retirement_
 
     adults = [1, 2]
     children = [0, 0]
-    d_howmuch.base_retired = [dequivalize(HEDI_retired, na, nc) for (na, nc) in zip(adults, children)]
+    d_howmuch.base_retired = [calc_pre_tax_income_retired(dequivalize(HEDI_retired, na, nc)).item() \
+                               for (na, nc) in zip(adults, children)]
     #cap state pension at the amount required
     d_howmuch.state_pension = [min(na * STATE_PENSION_PER_WEEK*52, limit) for (na, limit) in zip(adults, d_howmuch.base_retired)]
     #excess to state pension:
     d_howmuch.private_pension = [base - state for (base, state) in zip(d_howmuch.base_retired, d_howmuch.state_pension)]
-    #TODO: add private pension tax
+    
     #what does it take to earn enough calculated in browser from how much is enough...
 
     #2 who has enough
@@ -270,7 +271,7 @@ def equivalize(val, na, nc):
 def dequivalize(val, na, nc):
     return int(val * (composition_to_equiv_factor(na, nc)/composition_to_equiv_factor(2, 0)))
 
-def calc_disposable_income(income):
+def calc_disposable_income(income, retired=False):
     """
     subtract income tax and Class 1A employee contribution from income
     """
@@ -285,15 +286,16 @@ def calc_disposable_income(income):
             disposable_income -= val_above * INCOME_TAX_RATES[b]
             income_remainder -= val_above
 
-    #now class 1A national insurance, employee contributions
-    ni_remainder = income
+    if not retired:
+        #now class 1A national insurance, employee contributions
+        ni_remainder = income
 
-    for b, thresh in enumerate(NI_THRESHOLDS):
+        for b, thresh in enumerate(NI_THRESHOLDS):
 
-        if ni_remainder >= thresh:
-            val_above = ni_remainder - thresh
-            disposable_income -= val_above * NI_RATES[b]
-            ni_remainder -= val_above
+            if ni_remainder >= thresh:
+                val_above = ni_remainder - thresh
+                disposable_income -= val_above * NI_RATES[b]
+                ni_remainder -= val_above
 
     return disposable_income
 
@@ -301,6 +303,8 @@ incomes = [inc for inc in range(int(INCOME_TAX_THRESHOLDS_INV[2]), int(INCOME_TA
 incomes.insert(0, 0)
 incomes.append(1000000)
 calc_pre_tax_income = interp1d([calc_disposable_income(inc) for inc in incomes], incomes)
+calc_pre_tax_income_retired = interp1d([calc_disposable_income(inc, True) for inc in incomes], 
+                                       [inc + COUNCIL_TAX for inc in incomes])
 
 def calc_pre_tax_income_pre_pension(disposable_income, pension_pc):
     

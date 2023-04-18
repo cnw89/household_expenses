@@ -110,8 +110,11 @@ def prep_expenses_for_serving(mainoption, n_adults, n_children):
         cat_data['description'] = cat['description']
         cat_data['value'] = dequivalize(breakdown[catname], n_adults, n_children)
         cat_data['freq'] = 'month'
-        cat_data['max'] = max(dequivalize(maxop[catname], n_adults+2, n_children), 2 * cat_data['value'])
-        cat_data['step'] = 1#stepfun(cat_data['max'])
+        if (cat['name'] == 'Housing'):
+            cat_data['max'] = max(dequivalize(maxop[catname], max(n_adults+1, 4), n_children), 2 * cat_data['value'])
+        else:
+            cat_data['max'] = max(dequivalize(maxop[catname], n_adults+1, n_children), 2 * cat_data['value'])
+        cat_data['step'] = 10#stepfun(cat_data['max'])
 
         breakdown_data_list.append(cat_data)
 
