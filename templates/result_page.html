@@ -21,10 +21,7 @@
     {% call query('Equivalization of Expenses') %} We use the OECD-modified
     equivalization factors of 1 for the first adult, 0.5 for subsequent adults and 0.3 for children to equivalize the regular expenses. 
     You can read about equivalization using this method
-    <a href='https://en.wikipedia.org/wiki/Equivalisation' target='_blank' rel='external'>here</a>.
-    The large 'lifetime' expenses are averaged over a non-retired household lifetime of {{ d_common.non_retired_household_years }} years,
-    and (for the pre-school childcare expenses) an average number of children per household of {{ d_common.average_children_per_house }} children 
-    prior to equivalization.
+    <a href='https://en.wikipedia.org/wiki/Equivalisation' target='_blank' rel='external'>here</a>.    
     {% endcall %}
 </p>
 <p>
@@ -116,10 +113,10 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
             <div class="col-6">
                 Number of earners in the household:<br>
                 <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="radioearner" id="btnearner1" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="radioearner" id="btnearner1" autocomplete="off">
                     <label class="btn btn-outline-primary" for="btnearner1">One</label>
                   
-                    <input type="radio" class="btn-check" name="radioearner" id="btnearner2" autocomplete="off">
+                    <input type="radio" class="btn-check" name="radioearner" id="btnearner2" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="btnearner2">Two*</label>                  
                 </div>
             </div>
@@ -176,7 +173,9 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
         The following sections are based on Office of National Statistics data, publicly available 
         <a href='https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/householddisposableincomeandinequality'
         target='_blank' rel='external'>here</a>.<br>
-        'Lifetime expenses' have been averaged across all households for the calculations of who has enough.
+        For this part of the analysis, the large 'lifetime' expenses are averaged over a non-retired household lifetime of {{ d_common.non_retired_household_years }} years,
+        and (for the pre-school childcare expenses) an average number of children per household of {{ d_common.average_children_per_house }} children 
+        prior to equivalization.
         {% endcall %}
     </p>
     {{ add_chart('f3a_chart', '200') }}

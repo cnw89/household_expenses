@@ -40,7 +40,7 @@ regular expenses throughout the life of the household. Saving for a deposit on a
                 freq = "month";
                 step = 10;
             }
-            //TODO: update step size by display frequency!!!
+            
             {% for cat in breakdown %}
                 max = monthly_maxes["{{ cat.id }}"];
                 newmax = Math.round(max * multiplier);
@@ -203,7 +203,7 @@ regular expenses throughout the life of the household. Saving for a deposit on a
                             {{ cat.description }}
                         </div>
                         <div class="col-4 text-end">
-                            <strong>£<span id="{{ cat.id + '_output' }}">{{ cat.value }}</span>/<span id="{{ cat.id + '_freq' }}">{{ cat.freq }}</span></strong>
+                            <strong>£<span id="{{ cat.id + '_output' }}">{{ "{:,}".format(cat.value) }}</span>/<span id="{{ cat.id + '_freq' }}">{{ cat.freq }}</span></strong>
                         </div>
                     </div>
                     <div class="row justify-content-center">
