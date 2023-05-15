@@ -53,8 +53,8 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
 
     <p>
         For your household you have said 'enough' is {{ printout('base', '£', '/year') }}.  
-        Including tax this would require a single earner with an annual salary of {{ printout('with_tax1', '£') }}, 
-        or two earners each with a salary of {{ printout('with_tax2', '£') }}.
+        Including tax this would require a single earner with an annual salary of {{ printout('with_tax1', '£') }}
+        {%- if d_common['n_adults'] is gt(1) %}, or two earners each with a salary of {{ printout('with_tax2', '£') }}{%- endif %}.
         See the graphic below for other household sizes. Expected tax is calculated with a single earner; if more than one earner is present in the household, 
         total tax will usually be less.
         {% call query('Tax Calculation') %}
@@ -87,7 +87,9 @@ data-bs-original-title="{{ title }}" data-bs-content="{{ caller() | safe }}">
     <p>
         For your household, for a single earner to earn enough on the UK National Living Wage  
         (the legal minimum wage for those age 23, currently {{ "£{:.2f}/hour".format(d_common['min_wage']) }}), would take {{ printout('hours_1', '', ' hours/week')}} of work.
+        {% if d_common['n_adults'] is gt(1) %}
         For two earners earning equally it would take {{ printout('hours_2', '', ' hours/week')}}.
+        {% endif %}
     </p><p>
         {% if d_common.hours_1 is gt(d_common.default_hours_per_week) %}
         For a single earner to earn this in {{ d_common.default_hours_per_week }} hours/week, they would need a wage of <strong>{{ "£{:.2f}/hour".format(d_common.wage_1) }}</strong>.
